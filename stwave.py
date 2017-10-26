@@ -35,12 +35,9 @@ three operations
 #        #self.IDD.bathy = None
 
 class Model:
-    def __init__(self, bathy, idx = None):
-        self.bathy = bathy
-        if idx == None:
-            self.idx = 0
-        else:
-            self.idx = idx
+    def __init__(self):
+        self.bathy = None
+        self.idx = 0
         self.homedir = os.path.abspath('./')
         self.inputdir = os.path.join(self.homedir,"./input_files")
         self.deletedir = True
@@ -48,6 +45,10 @@ class Model:
     def create_dir(self):
         
         mydirbase = "./simul/simul"
+        #print(self.idx)
+        #import time
+        #time.sleep(300)
+
         mydir = mydirbase + "{0:04d}".format(self.idx)
         mydir = os.path.join(self.homedir, mydir)
         if not os.path.exists(mydir):
@@ -87,58 +88,74 @@ class Model:
     def read_output(self):
         # read outputs 
         # read significant wave height, mean period, mean direction from "stwave_out.wave.out" 
-        f = open(os.path.join(self.homedir,'./stwave_out.wave.out'),'r') # wave height, mean wave period, mean wave direction
-        
+        f = open(os.path.join(self.mydir,'./stwave_out.wave.out'),'r') # wave height, mean wave period, mean wave direction
         # DataDims
         for line in f:
-            if line == "/":
+            if line.rstrip() == "/":
                 break
 
         # DataSets
         for line in f:
-            if line == "/":
+            if line.rstrip() == "/":
                 break
+
+        # read IDD
+        f.next()
+        
         #IDD
-        waveinfo = [[float(x) for x in line.strip().split(' ')] for line in f]
+        waveinfo = [[float(x) for x in line.split()] for line in f]
         #Hm0, T, alpha
         #%% read peak wave period
         #% read peak wave period from "stwave_out.TP.out" 
         f.close()
 
-        f = open(os.path.join(self.homedir,'./stwave_out.Tp.out'),'r') # wave
+        f = open(os.path.join(self.mydir,'./stwave_out.Tp.out'),'r') # wave
         # DataDims
         for line in f:
-            if line == "/":
+            if line.rstrip() == "/":
                 break
 
         # DataSets
         for line in f:
-            if line == "/":
+            if line.rstrip() == "/":
                 break
+
+        # read IDD
+        f.next()
+        
         # peak wave preiod
-        Tp = [[float(x) for x in line.strip().split(' ')] for line in f]
+        Tp = [[float(x) for x in line.split()] for line in f]
         
         f.close()
 
         # Read wave number from c2shore.out
-        f = open(os.path.join(self.homedir,'./c2shore.out'),'r') # wave
+        f = open(os.path.join(self.mydir,'./c2shore.out'),'r') # wave
         # DataDims
         for line in f:
-            if line == "/":
+            if line.rstrip() == "/":
                 break
 
         # DataSets
         for line in f:
-            if line == "/":
+            if line.rstrip() == "/":
                 break
+        
+        # read IDD
+        f.next()
+        
         # peak wave preiod
-        k = [[float(x) for x in line.strip().split(' ')] for line in f]
+        k = [[float(x) for x in line.split()] for line in f]
         
         f.close()
-
+        waveinfo = np.array(waveinfo,'d')
+        k = np.array(k,'d')
+        Tp = np.array(Tp,'d')
+        
         # wave speed
         w = 2.*np.pi/Tp
-        wlen = np.divide(1.,k)
+        with np.errstate(divide='ignore'):
+            wlen = np.divide(1.,k)
+        
         wlen[k == 0.] = 0.
         c = wlen*w # wave speed = freq* length
 
@@ -149,28 +166,41 @@ class Model:
         #end
         return c
 
-    def run(self):
-        self.write_input()
+    def run(self,bathy,idx=None,params=None):
+        self.bathy = bathy
         
+        if idx is None:
+            self.idx = 0
+        else:
+            self.idx = idx
+        
+        self.write_input()
+        if params is not None and 'deletedir' in params:
+            self.deletedir = params['deletedir']
+
         import shutil
         for filename in os.listdir(self.inputdir):
             shutil.copy2(os.path.join(self.inputdir,filename),self.mydir)
-        
         import subprocess
         subprocess.call(["./stwave","stwave_out.sim"])
-        simul_obs = self.read_input()
+        simul_obs = self.read_output()
         # move to the current directory and remove the files 
         os.chdir(self.homedir)
-        #if self.deletedir == True:
-        #    shutil.rmtree(self.mydir)
+        if self.deletedir == True:
+            shutil.rmtree(self.mydir)
         return simul_obs
+
 #if __name__ == '__main__':
     #Testing 
     #params = Parameters()
     #params.bathy = np.zeros((10,10),dtype='d')
     #Model(params)
+
 #import stwave as st
 #import numpy as np
-#bathy = np.array([3.,2.,1.])
-#a = st.Model(bathy)
-#a.run()
+#from scipy.io import savemat, loadmat
+#bathyfile = loadmat('true_depth.mat')
+#bathy = bathyfile['true']
+#a = st.Model()
+#simul_obs = a.run(bathy)
+#savemat('simul.mat',{'simul_obs':simul_obs})

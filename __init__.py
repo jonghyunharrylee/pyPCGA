@@ -1,6 +1,4 @@
-from eigen import *
-from covariance import *
-from pde import *
-
-__all__ = filter(lambda s:not s.startswith('_'),dir())
+#from . import covariance
+#from . import stwave
+#__all__ = filter(lambda s:not s.startswith('_'),dir())
 
