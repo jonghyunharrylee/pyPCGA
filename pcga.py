@@ -505,7 +505,7 @@ class PCGA:
             obj = -1.
             
             if self.params['obj']:
-                obj = self.ObjectiveFunction(s_cur, betac)
+                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur)
 
             obs_diff = np.linalg.norm(simul_obs_cur-simul_obs_init)
 
