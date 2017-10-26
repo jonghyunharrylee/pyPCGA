@@ -626,7 +626,7 @@ if __name__ == '__main__':
         return model.run(s,dir)
 
     def kernel(r): return np.exp(-r)
-    params = {'R':1.e-4, 'n_pc':2, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':False, 'num_cores':36, 'obj':True}
+    params = {'R':1.e-4, 'n_pc':50, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':False, 'num_cores':36, 'obj':True}
     
     s_init = np.mean(bathy)*np.ones((m,1))
 
@@ -655,7 +655,7 @@ if __name__ == '__main__':
     plt.close(fig)
     
     fig = plt.figure()
-    plt.plot(np.arange(1,params['n_pc']+1,1),prob.priord)
+    plt.plot(prob.priord,'o')
     fig.savefig('eig.png', dpi=fig.dpi)
     #plt.show()
     plt.close(fig)
