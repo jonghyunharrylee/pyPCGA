@@ -509,11 +509,11 @@ class PCGA:
 
             obs_diff = np.linalg.norm(simul_obs_cur-simul_obs_init)
 
-            if s_true is not None:            
+            if self.s_true is not None:            
                 err = np.linalg.norm(s_cur-self.s_true)/np.linalg.norm(self.s_true)
-                print("At iteration %g, relative residual is %g, objective function is %g, error is %g and norm(obs_diff) is %g" %(i+1, res, obj, err, obs_diff))
+                print("At iteration %g, relative residual is %g, objective function is %g, error is %g, and norm(obs_diff) is %g" %(i+1, res, obj, err, obs_diff))
             else:
-                print("At iteration %g, relative residual is %g, objective function is %g, norm(obs_diff) is %g" %(i+1, res, obj, obs_diff))
+                print("At iteration %g, relative residual is %g, objective function is %g, and norm(obs_diff) is %g" %(i+1, res, obj, obs_diff))
 
             if res < restol:
                 iter_cur = i + 1
