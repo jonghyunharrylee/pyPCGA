@@ -1,5 +1,5 @@
 from time import time
-from math import isnan
+from math import isnan, sqrt
 from psutil import cpu_count # physcial cpu counts       
 
 import numpy as np
@@ -9,13 +9,14 @@ from covariance.mat import *
 from scipy.sparse.linalg import gmres, minres # IterativeSolve
 from scipy.sparse.linalg import LinearOperator # Matrix-free IterativeSolve
 
-# from IPython.core.debugger import Tracer; debug_here = Tracer()
+from IPython.core.debugger import Tracer; debug_here = Tracer()
 
 __all__ = ['PCGA']
 
 class PCGA:
     """
     Solve inverse problem with PCGA (approx to quasi-linear method)
+    tried to keep every array in 2D columns
     """
 
     def __init__(self, forward_model, forward_model_parallel, s_init, pts, params, s_true = None, obs = None, obs_true = None, X = None):
@@ -39,6 +40,13 @@ class PCGA:
         self.s_true = s_true
         if s_true is not None:
             assert(self.m == np.size(s_true,0))
+        
+        # keep track of some values (best, init)
+        self.s_best = None
+        self.simul_obs_best = None
+        self.iter_best = 0
+        self.obj_best = 1.e+20
+        self.simul_obs_init = None
 
         #Observations
         self.obs = obs 
@@ -55,27 +63,34 @@ class PCGA:
         #Covariance matrix
         self.Q = None
         self.covariance_matvec = self.params['covariance_matvec']
-        self.xmin = self.params['xmin']
-        self.xmax = self.params['xmax']
-        self.N = self.params['N']
-        self.theta = self.params['theta']
-        self.kernel = self.params['kernel']
+        self.xmin = params['xmin']
+        self.xmax = params['xmax']
+        self.N = params['N']
+        self.theta = params['theta']
+        self.kernel = params['kernel']
         
         if 'n_pc' in params:
-            self.n_pc = self.params['n_pc']
+            self.n_pc = params['n_pc']
         else:
             return ValueError('provide n_pc')
+
 
         assert(np.size(self.xmin,0) == np.size(self.xmax,0))
         assert(np.size(self.xmin,0) == np.size(self.N,0))
         assert(np.size(self.xmin,0) == np.size(self.theta,0))
         
+        if 'objeval' in params:
+            self.objeval = params['objeval']
+        else:
+            self.params['objeval'] = False
+            self.objeval = False
+
         #Noise covariance
         if 'R' in params:
-            self.R = self.params['R']
+            self.R = params['R']
         else:
-            self.R = 0.
-        
+            return ValueError('provide R')
+
         #CrossCovariance computed by Jacobian-free low-rank FD approximation if you want to save..
         self.Psi = None # HQH + R
         self.HQ = None 
@@ -111,9 +126,9 @@ class PCGA:
 
         # Parallel support (only for single machine, will add mpi later)
         if 'parallel' in params:
-            self.parallel = self.params['parallel']
+            self.parallel = params['parallel']
             if 'ncores' in params:
-                self.ncores = self.params['ncores']
+                self.ncores = params['ncores']
             else:
                 # get number of physcial cores
                 import psutil
@@ -166,7 +181,9 @@ class PCGA:
 
     def ConstructCovariance(self, method, kernel, **kwargs):
         print('##### 2. Construct Prior Covariance Matrix')
+        start = time()
         self.Q = CovarianceMatrix(method, self.pts, kernel, **kwargs)
+        print('- time for covariance matrix construction is %g sec' % round(time()-start))
         return
     
     def ComputePriorEig(self, n_pc=None):
@@ -190,10 +207,12 @@ class PCGA:
         method = 'arpack' if 'precondeigen' not in self.params else self.params['precondeigen']
         
         #twopass = False if not 'twopass' in self.params else self.params['twopass']
+        start = time()
         if method == 'arpack':
             from scipy.sparse.linalg import eigsh
             self.priord, self.priorU = eigsh(self.Q, k = n_pc)
             self.priord = self.priord[::-1]
+            self.priord = self.priord.reshape(self.priord.shape[0],-1) # make a column vector
             self.priorU = self.priorU[:,::-1]
 
         #elif method == 'randomized':
@@ -202,6 +221,9 @@ class PCGA:
         #    self.priorU, self.priorD = RandomizedEIG(self.Q, k =k, twopass = twopass)
         else:
             raise NotImplementedError
+
+        print('- time for eigendecomposition is %g sec' % round(time()-start))
+
         return
     
     def ForwardSolve(self,s,dir=None):
@@ -271,7 +293,7 @@ class PCGA:
                 else:
                     signmag = -1.
 
-                deltas[i] = signmag*np.sqrt(precision)*(max(abs(mag),absmag))/((np.linalg.norm(x[:,i:i+1]))**2)
+                deltas[i] = signmag*sqrt(precision)*(max(abs(mag),absmag))/((np.linalg.norm(x[:,i:i+1]))**2)
                 if deltas[i] == 0:
                     print('%d-th delta: signmag %g, precision %g, max abs %g, norm %g' % (i,signmag, precision,(max(abs(mag),absmag)), (np.linalg.norm(x)**2)))
                     raise ValueError('delta is zero?')
@@ -332,19 +354,22 @@ class PCGA:
 
         return obs, obs_true
 
-    def ObjectiveFunction(self, s_cur, beta_cur, simul_obs):
+    def ObjectiveFunction(self, s_cur, beta_cur, simul_obs, approx = True):
         """
-            0.5*(s-Xb)^TQ^{-1}(s-Xb) + 0.5(y-h(s))^TR^{-1}(y-h(s))
+            0.5(y-h(s))^TR^{-1}(y-h(s)) + 0.5*(s-Xb)^TQ^{-1}(s-Xb)
         """
         if simul_obs is None:
             simul_obs = self.ForwardSolve(s_cur)
 
         smxb = s_cur - np.dot(self.X,beta_cur)
-        Qinvs = self.Q.solve(smxb)
-        
         ymhs = self.obs - simul_obs
-        obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(smxb.T,Qinvs)
-
+        
+        if approx:
+            Zinvs = np.multiply(self.priord,np.dot(self.priorU.T,smxb))
+            obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(Zinvs.T,Zinvs)
+        else:
+            Qinvs = self.Q.solve(smxb)
+            obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(smxb.T,Qinvs)
         return obj
 
     def DirectSolve(self, s_cur, simul_obs = None, save = False):
@@ -359,11 +384,24 @@ class PCGA:
         
         Z = np.zeros((m,n_pc), dtype ='d')
         for i in range(n_pc):
-            Z[:,i:i+1] = np.dot(np.sqrt(self.priord[i]),self.priorU[:,i:i+1])
+            Z[:,i:i+1] = np.dot(sqrt(self.priord[i]),self.priorU[:,i:i+1])
 
         if simul_obs is None:
             simul_obs = self.ForwardSolve(s_cur)
+        
+        temp = np.zeros((m,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
+        Htemp = np.zeros((n,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
             
+        temp[:,0:p] = np.copy(self.X)
+        temp[:,p:p+n_pc] = np.copy(Z) 
+        temp[:,p+n_pc:p+n_pc+1] = np.copy(s_cur)
+
+        Htemp = self.JacVect(temp,s_cur,simul_obs,self.precision,self.parallel)
+            
+        HX = Htemp[:,0:p]
+        HZ = Htemp[:,p:p+n_pc]
+        Hs = Htemp[:,p+n_pc:p+n_pc+1]            
+
         # Construct HQ directly 
         HQ = np.dot(HZ,self.Z.T) 
         
@@ -411,7 +449,7 @@ class PCGA:
         # construct Z = sqrt(Q) up to n_pc        
         Z = np.zeros((m,n_pc), dtype ='d')
         for i in range(n_pc):
-            Z[:,i:i+1] = np.dot(np.sqrt(self.priord[i]),self.priorU[:,i:i+1])
+            Z[:,i:i+1] = np.dot(sqrt(self.priord[i]),self.priorU[:,i:i+1])
 
         temp = np.zeros((m,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
         Htemp = np.zeros((n,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
@@ -500,14 +538,17 @@ class PCGA:
         restol  = self.params['restol']
         iter_cur   = maxiter
 
-        obj = 0.0
+        obj = 1.0e+20
         
         #self.Q.BuildPreconditioner(k = 100)
         res = 1.
         
         print('##### 4. Start PCGA Inversion #####')
         print('-- evaluate initial solution')
+        
         simul_obs_init = self.ForwardSolve(s_init)
+        self.simul_obs_init = simul_obs_init
+        
         simul_obs = np.copy(simul_obs_init)
         s_cur = np.copy(s_init)
         s_past = np.copy(s_init)
@@ -517,14 +558,19 @@ class PCGA:
             print("***** Iteration %d ******" % (i+1))
             s_cur, beta_cur, simul_obs_cur = self.LinearIteration(s_past, simul_obs)
             
-            print("- time for iteration %d is %g" %((i+1), time()-start))
+            print("- time for iteration %d is %g sec" %((i+1), round(time()-start)))
             
             res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
                 
-            obj = -1.
+            if self.objeval:
+                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur,0) # accurate computation
+            else:
+                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur,1) # compute through PCGA approximation
             
-            if self.params['obj']:
-                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur)
+            if obj < self.obj_best:
+                self.obj_best = obj
+                self.s_best = s_cur
+                self.simul_obs_best = simul_obs_cur
 
             obs_diff = np.linalg.norm(simul_obs_cur-self.obs)
 
@@ -541,7 +587,8 @@ class PCGA:
             s_past = np.copy(s_cur)
             simul_obs = np.copy(simul_obs_cur)
 
-        return s_cur, beta_cur, simul_obs, iter_cur
+        #return s_cur, beta_cur, simul_obs, iter_cur
+        return self.s_best, self.simul_obs_best, self.iter_best, iter_cur
 
     def Run(self):
         if self.Q is None:
@@ -550,15 +597,13 @@ class PCGA:
         if self.priorU is None or self.priord is None:
             self.ComputePriorEig()
 
-        s_hat, beta, simul_obs, iter_final = self.GaussNewton()
+        s_hat, simul_obs, iter_best, iter_final = self.GaussNewton()
 
-        return s_hat, beta, simul_obs, iter_final
-
+        return s_hat, simul_obs, iter_best, iter_final
 
     """
-        functions below have not been yet implmented
+        functions below have not been implmented yet
     """
-
     def ComputePosteriorDiagonalEntriesDirect(self, recompute = True):
         """		
 		Works best for small measurements O(100)
