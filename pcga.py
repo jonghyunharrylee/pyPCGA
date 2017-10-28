@@ -512,12 +512,12 @@ class PCGA:
         s_cur = np.copy(s_init)
         s_past = np.copy(s_init)
 
-        for i in np.arange(maxiter):
+        for i in range(maxiter):
             start = time()
-            print("***** Iteration %g ******" % i+1)
+            print("***** Iteration %d ******" % (i+1))
             s_cur, beta_cur, simul_obs_cur = self.LinearIteration(s_past, simul_obs)
             
-            print("- time for iteration %g is %g" %(i+1, time()-start))
+            print("- time for iteration %d is %g" %((i+1), time()-start))
             
             res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
                 
@@ -530,9 +530,9 @@ class PCGA:
 
             if self.s_true is not None:            
                 err = np.linalg.norm(s_cur-self.s_true)/np.linalg.norm(self.s_true)
-                print("--- at iteration %g, relative residual is %g, objective function is %g, error is %g, and norm(obs_diff) is %g" %(i+1, res, obj, err, obs_diff))
+                print("--- at iteration %d, relative residual is %g, objective function is %e, error is %g, and norm(obs_diff) is %g" %((i+1), res, obj, err, obs_diff))
             else:
-                print("--- at iteration %g, relative residual is %g, objective function is %g, and norm(obs_diff) is %g" %(i+1, res, obj, obs_diff))
+                print("--- at iteration %d, relative residual is %g, objective function is %e, and norm(obs_diff) is %g" %((i+1), res, obj, obs_diff))
 
             if res < restol:
                 iter_cur = i + 1
