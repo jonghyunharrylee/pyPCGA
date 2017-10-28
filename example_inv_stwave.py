@@ -52,11 +52,11 @@ s_hat2d = s_hat.reshape(N[1],N[0])
 bathy2d = bathy.reshape(N[1],N[0])
 
 fig, axes = plt.subplots(1,2, sharey = True)
-im1 = axes[0,0].imshow(bathy2d, extent=[0, 110, 0, 83], vmin=-2, vmax=8)
-axes[0,0].set_title('(a) True', loc='left')
+im1 = axes[0].imshow(bathy2d, extent=[0, 110, 0, 83], vmin=-2, vmax=8)
+axes[0].set_title('(a) True', loc='left')
 
-axes[0,1].imshow(s_hat2d, extent=[0, 110, 0, 83], vmin=-2, vmax=8)
-axes[0,0].set_title('(b) Estimate', loc='left')
+axes[1].imshow(s_hat2d, extent=[0, 110, 0, 83], vmin=-2, vmax=8)
+axes[1].set_title('(b) Estimate', loc='left')
 
 fig.subplots_adjust(right=0.8)
 cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
