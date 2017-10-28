@@ -73,16 +73,32 @@ plt.close(fig)
 
 
 fig, axes = plt.subplots(1,2)
-im = axes[0].imshow(np.fliplr(-s_true2d), extent=[0, 110, 0, 83], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
+im = axes[0].imshow(np.flipud(np.fliplr(-s_true2d)), extent=[0, 110, 0, 83], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
 axes[0].set_title('(a) True', loc='left')
 axes[0].set_aspect('equal')
-axes[1].imshow(np.fliplr(-s_hat2d), extent=[0, 110, 0, 83], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
+axes[1].imshow(np.flipud(np.fliplr(-s_hat2d)), extent=[0, 110, 0, 83], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
 axes[1].set_title('(b) Estimate', loc='left')
 axes[1].set_aspect('equal')
 fig.subplots_adjust(right=0.8)
 cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
 fig.colorbar(im, cax=cbar_ax)
 fig.savefig('best.png')
+plt.close(fig)
+
+
+fig, axes = plt.subplots(1,2)
+line1_true = s_true2d[83-25+1,:]
+line1 = s_hat2d[83-25+1,:]
+line2_true = s_true2d[83-45+1,:]
+line2 = s_hat2d[83-45+1,:]
+linex = np.arange(1,111)
+axes[0].plot(linex, np.flipud(-line1_true),'r-')
+axes[0].plot(linex, np.flipud(-line1),'k-')
+axes[0].set_title('(a) 125 m', loc='left')
+axes[1].plot(linex, np.flipud(-line2_true),'r-')
+axes[1].plot(linex, np.flipud(-line2),'k-')
+axes[1].set_title('(b) 225 m', loc='left')
+fig.savefig('transect.png')
 plt.close(fig)
 
 
