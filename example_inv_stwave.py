@@ -38,8 +38,10 @@ def forward_model_parallel(s,ncores):
 
 def kernel(r): return ((0.1)**2)*np.exp(-r)
     
-params = {'R':1.e-2, 'n_pc':50, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':True, 'ncores':36, 'obj':True}
-    
+params = {'R':1.e-2, 'n_pc':50, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':True, 'obj':True}
+
+#params['ncores'] = 36, with parallell True, it will determine maximum physcial core unless specified
+
 s_init = np.mean(bathy)*np.ones((m,1))
     
 # initialize 
@@ -52,7 +54,7 @@ s_hat2d = s_hat.reshape(N[1],N[0])
 bathy2d = bathy.reshape(N[1],N[0])
 
 fig, axes = plt.subplots(1,2, sharey = True)
-im1 = axes[0].imshow(bathy2d, extent=[0, 110, 0, 83], vmin=-2, vmax=8)
+im = axes[0].imshow(bathy2d, extent=[0, 110, 0, 83], vmin=-2, vmax=8)
 axes[0].set_title('(a) True', loc='left')
 
 axes[1].imshow(s_hat2d, extent=[0, 110, 0, 83], vmin=-2, vmax=8)

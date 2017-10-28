@@ -461,7 +461,7 @@ class PCGA:
             self.HX = HX
             self.HZ = HZ
             self.Hs = Hs
-        print('-- evaluate new solution')
+        print('- evaluate new solution')
         simul_obs_new = self.ForwardSolve(s_hat)            
         return s_hat, beta, simul_obs_new
 
@@ -506,7 +506,7 @@ class PCGA:
         res = 1.
         
         print('##### 4. Start PCGA Inversion #####')
-        print('- evaluate initial guess')
+        print('-- evaluate initial solution')
         simul_obs_init = self.ForwardSolve(s_init)
         simul_obs = np.copy(simul_obs_init)
         s_cur = np.copy(s_init)
@@ -530,9 +530,9 @@ class PCGA:
 
             if self.s_true is not None:            
                 err = np.linalg.norm(s_cur-self.s_true)/np.linalg.norm(self.s_true)
-                print("--- at iteration %d, relative residual is %g, objective function is %e, error is %g, and norm(obs_diff) is %g" %((i+1), res, obj, err, obs_diff))
+                print("- iteration %d: relative residual is %g, objective function is %e, error is %g, and norm(obs mismatch) is %g" %((i+1), res, obj, err, obs_diff))
             else:
-                print("--- at iteration %d, relative residual is %g, objective function is %e, and norm(obs_diff) is %g" %((i+1), res, obj, obs_diff))
+                print("- iteration %d: relative residual is %g, objective function is %e, and norm(obs mismatch) is %g" %((i+1), res, obj, obs_diff))
 
             if res < restol:
                 iter_cur = i + 1
