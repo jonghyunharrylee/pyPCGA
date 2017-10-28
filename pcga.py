@@ -348,7 +348,7 @@ class PCGA:
             obs = obs_true + np.sqrt(self.R)*np.random.randn(self.n,1)
         else:
             obs = obs_true
-
+        
         self.obs = obs
         self.obs_true = obs_true
 
@@ -365,7 +365,7 @@ class PCGA:
         ymhs = self.obs - simul_obs
         
         if approx:
-            Zinvs = np.multiply(self.priord,np.dot(self.priorU.T,smxb))
+            Zinvs = np.multiply(1./np.sqrt(self.priord),np.dot(self.priorU.T,smxb))
             obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(Zinvs.T,Zinvs)
         else:
             Qinvs = self.Q.solve(smxb)
@@ -562,11 +562,11 @@ class PCGA:
             
             res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
                 
-            if self.objeval:
-                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur,0) # accurate computation
-            else:
-                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur,1) # compute through PCGA approximation
-            
+            if self.objeval: # If true, we do accurate computation
+                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur,0) 
+            else: # we compute through PCGA approximation
+                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur,1) 
+
             if obj < self.obj_best:
                 self.obj_best = obj
                 self.s_best = s_cur
