@@ -1,6 +1,6 @@
 from time import time
 from math import isnan, sqrt
-from psutil import cpu_count # physcial cpu counts       
+ 
 
 import numpy as np
 
@@ -19,14 +19,13 @@ class PCGA:
     tried to keep every array in 2D columns
     """
 
-    def __init__(self, forward_model, forward_model_parallel, s_init, pts, params, s_true = None, obs = None, obs_true = None, X = None):
+    def __init__(self, forward_model, s_init, pts, params, s_true = None, obs = None, obs_true = None, X = None):
         print('##### PCGA Inversion #####')
         print('##### 1. Initialize forward and inversion parameters')
 
         # forward solver setting should be done externally as a blackbox
         # currently I define model seperately, but might be able to  merge them into one function if needed
         self.forward_model = forward_model
-        self.forward_model_parallel = forward_model_parallel
         
         # Grid points (for Hmatrix and FMM)
         self.pts = pts
@@ -131,8 +130,8 @@ class PCGA:
                 self.ncores = params['ncores']
             else:
                 # get number of physcial cores
-                import psutil
-                self.ncores = psutil.cpu_count(logical=False)
+                from psutil import cpu_count # physcial cpu counts
+                self.ncores = cpu_count(logical=False)
         else:
             self.parallel = False
             self.ncores = 1
@@ -226,14 +225,12 @@ class PCGA:
 
         return
     
-    def ForwardSolve(self,s,dir=None):
+    def ForwardSolve(self,s):
         '''
         provide additional settings for your function forward_model 
         '''
-        if dir is None:
-            dir = 0
-        
-        simul_obs = self.forward_model(s,dir)
+        par = False
+        simul_obs = self.forward_model(s,par)
         
         return simul_obs
 
@@ -241,38 +238,11 @@ class PCGA:
         '''
         provide additional settings for your function forward_model running in parallel
         '''
-        simul_obs_parallel = self.forward_model_parallel(s,ncores = self.ncores)
+        par = True
+        simul_obs_parallel = self.forward_model(s,par,ncores = self.ncores)
         
         return simul_obs_parallel
 
-    #def JacVect(self, x, s, simul_obs, precision, delta = None, dir_id = None):
-    #    '''
-    #    Jacobian times Vector
-    #    perturbation interval delta determined following Brown and Saad [1990]
-    #    '''
-    #    if delta is None or math.isnan(delta):
-    #        mag = np.dot(s.T,x)
-    #        absmag = np.dot(abs(s.T),abs(x))
-    #        if mag >= 0:
-    #            signmag = 1.
-    #        else:
-    #            signmag = -1.
-
-    #        delta = signmag*np.sqrt(precision)*(max(abs(mag),absmag))/(np.linalg.norm(x)**2)
-
-        
-    #    if dir_id is None:
-    #        dir_id = 0
-        
-    #    if delta == 0:
-    #        print('signmag %g, precision %g, max abs %g, norm %g' % (signmag, precision,(max(abs(mag),absmag)), (np.linalg.norm(x)**2)))
-    #        raise ValueError('delta is zero?')
-        
-    #    #solve Hx HZ HQT
-    #    print('delta = %g' % delta)
-    #    Jx = (self.ForwardSolve(s+delta*x,dir_id) - simul_obs)/delta
-    #    return Jx
- 
     def JacVect(self, x, s, simul_obs, precision, parallelization = None, delta = None):
         '''
         Jacobian times Matrix (Vectors) in Parallel

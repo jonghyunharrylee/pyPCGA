@@ -29,17 +29,14 @@ obsfile = loadmat('obs.mat')
 obs = np.float64(obsfile['obs'])
 
 # prepare interface to run as a function
-def forward_model(s,dir=None):
+def forward_model(s,parallelization,ncores = None):
     model = st.Model()
-    if dir is None:
-        dir = 0
-    simul_obs = model.run(s,dir)
-    return simul_obs
     
-def forward_model_parallel(s,ncores):
-    model = st.Model()
-    simul_obs = model.parallel_run(s,ncores)
-    return simul_obs 
+    if parallelization:
+        simul_obs = model.run(s,parallelization,ncores)
+    else:
+        simul_obs = model.run(s,parallelization)
+    return simul_obs
 
 params = {'R':1.e-2, 'n_pc':50, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':True}
 
@@ -49,7 +46,7 @@ params = {'R':1.e-2, 'n_pc':50, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':
 s_init = np.mean(s_true)*np.ones((m,1))
     
 # initialize
-prob = PCGA(forward_model, forward_model_parallel, s_init, pts, params, s_true, obs)
+prob = PCGA(forward_model, s_init, pts, params, s_true, obs)
 # run inversion
 s_hat, simul_obs, iter_best, iter_final = prob.Run()
 

@@ -181,62 +181,56 @@ class Model:
         # or you can run in shell environment
         #call(["cd " + simul_dir + ";./stwave stwave_out.sim; cd " + self.homedir], shell=True)
         
-    def run(self,bathy,idx=None):
+    def run(self,bathy,parallelization,ncores=None):
         '''
             write inputs, run stwave, read outputs and remove directory if needed
         '''
-        if idx is None:
-            idx = self.idx
-        else:
-            idx = 0
-        
-        mydir = self.write_input(bathy,idx)
-        self.run_model(mydir)
+        nruns = np.size(bathy,1)
 
-        simul_obs = self.read_output(mydir)
+        if parallelization:
+            if ncores is None:
+                from psutil import cpu_count # physcial cpu counts
+                ncores = cpu_count(logical=False)
+
+            from joblib import Parallel, delayed  
+
+            # serial reading/writing (may need parallelize this part, but may be ok for now)
+            start = time()
+            myexcutables = []
+            mydirs = []
+            for idx in range(nruns):
+                mydir = self.write_input(bathy[:,idx:idx+1],idx)
+                mydirs.append(mydir)
+                myexcutables.append(os.path.join(mydir,"stwave"))
+        
+            print('-- time for writing stwave input files (sequential) is %g' % (time() - start))
+
+            start = time()
+        
+            # I don't think running in shell mode is recommended but it works for now.
+            Parallel(n_jobs = ncores)(delayed(call)(["cd " + mydirs[idx] + ";./stwave stwave_out.sim"],shell=True) for idx in range(nruns))
+        
+            print('-- time for running %d stwave simulations (parallel) on %d cores is %g' % (nruns, ncores,time() - start))
+        
+            start = time()
+        
+            for idx in range(nruns):
+                if idx == 0:
+                    simul_obs = self.read_output(mydirs[idx])
+                else:            
+                    simul_obs = np.concatenate((simul_obs, self.read_output(mydirs[idx])), axis=1)
+        
+            print('-- time for reading stwave output files (sequentially) is %g' % (time() - start))
+        
+            assert(np.size(simul_obs,1) == nruns) # should satisfy
+
+        else:
+            mydir = self.write_input(bathy,0)
+            self.run_model(mydir)
+            simul_obs = self.read_output(mydir)
+        
         return simul_obs
 
-    def parallel_run(self,bathy_all, ncores, nruns = None):
-        if nruns is None: 
-            nruns = np.size(bathy_all,1)
-        else:
-            assert(nruns <= np.size(bathy_all,1))
-
-        from joblib import Parallel, delayed  
-
-        # serial reading/writing (may need parallelize this part, but may be ok for now)
-        start = time()
-        myexcutables = []
-        mydirs = []
-        for idx in range(nruns):
-            mydir = self.write_input(bathy_all[:,idx:idx+1],idx)
-            mydirs.append(mydir)
-            myexcutables.append(os.path.join(mydir,"stwave"))
-        
-        print('-- time for writing stwave input files (sequential) is %g' % (time() - start))
-
-        start = time()
-        
-        # I don't think running in shell mode is recommended but it works for now.
-        Parallel(n_jobs = ncores)(delayed(call)(["cd " + mydirs[idx] + ";./stwave stwave_out.sim"],shell=True) for idx in range(nruns))
-        
-        #Parallel(n_jobs = ncores)(delayed(call)(["cd " + mydirs[idx] + ";./stwave stwave_out.sim; cd " + self.homedir],shell=True) for idx in range(nruns))
-        
-        print('-- time for running %d stwave simulations (parallel) on %d cores is %g' % (nruns, ncores,time() - start))
-        
-        start = time()
-        
-        for idx in range(nruns):
-            if idx == 0:
-                simul_obs_parallel = self.read_output(mydirs[idx])
-            else:            
-                simul_obs_parallel = np.concatenate((simul_obs_parallel, self.read_output(mydirs[idx])), axis=1)
-        
-        print('-- time for reading stwave output files (sequentially) is %g' % (time() - start))
-        
-        assert(np.size(simul_obs_parallel,1) == nruns) # should satisfy
-
-        return simul_obs_parallel
 
 if __name__ == '__main__':
     import stwave as st
@@ -245,16 +239,29 @@ if __name__ == '__main__':
     from scipy.io import savemat, loadmat
     bathyfile = loadmat('true_depth.mat')
     bathy = bathyfile['true']
+    par = False # parallelization false
 
     mymodel = st.Model()
-    simul_obs = mymodel.run(bathy)
+    print('1) single run')
+
+    simul_obs = mymodel.run(bathy,par)
     #savemat('simul.mat',{'simul_obs':simul_obs})    
     ncores = 12
-    nrelzs = 24
+    nrelzs = 36
     
+    print('2) parallel run with ncores = %d' % ncores)
+    par = True # parallelization false
     bathyrelz = np.zeros((np.size(bathy,0),nrelzs),'d')
     for i in range(nrelzs):
         bathyrelz[:,i:i+1] = bathy + 0.1*np.random.randn(np.size(bathy,0),1)
     
-    simul_obs_all = mymodel.parallel_run(bathyrelz,ncores = ncores)
+    simul_obs_all = mymodel.run(bathyrelz,par,ncores = ncores)
+
     print(simul_obs_all)
+
+    # use all the physcal cores if not specify ncores
+    print('3) parallel run with all the physical cores')
+    simul_obs_all = mymodel.run(bathyrelz,par)
+
+    print(simul_obs_all)
+
