@@ -78,24 +78,19 @@ class PCGA:
         assert(np.size(self.xmin,0) == np.size(self.N,0))
         assert(np.size(self.xmin,0) == np.size(self.theta,0))
         
+        # objetive function evaluation
         if 'objeval' in params:
             self.objeval = params['objeval']
         else:
             self.params['objeval'] = False
             self.objeval = False
 
+
         #Noise covariance
         if 'R' in params:
             self.R = params['R']
         else:
             return ValueError('provide R')
-
-        #CrossCovariance computed by Jacobian-free low-rank FD approximation if you want to save..
-        self.Psi = None # HQH + R
-        self.HQ = None 
-        self.HX  = None	
-        self.HZ = None
-        self.Hs = None
 
         #Eigenvalues and eigenvectors of the prior covariance matrix
         self.priorU = None
@@ -104,7 +99,29 @@ class PCGA:
         #Eigenvalues and eigenvectors of the posterir covariance matrix - will be implemented later
         #self.postU = None
         #self.postd = None
-       
+
+        # Parallel support (only for single machine, will add mpi later)
+        if 'parallel' in params:
+            self.parallel = params['parallel']
+            if 'ncores' in params:
+                self.ncores = params['ncores']
+            else:
+                # get number of physcial cores
+                from psutil import cpu_count # physcial cpu counts
+                self.ncores = cpu_count(logical=False)
+        else:
+            self.parallel = False
+            self.ncores = 1
+
+        #CrossCovariance computed by Jacobian-free low-rank FD approximation if you want to save..
+        if 'JacSave' in params:
+            self.JacSave =   params['JacSave']
+            self.HX  = None	
+            self.HZ = None
+            self.Hs = None
+        else:
+            self.JacSave = False
+        
         # Matrix solver - default : False (iterative)
         if 'direct' in params:
             self.direct = params['direct']
@@ -123,19 +140,20 @@ class PCGA:
         #Preconditioner
         self.P = None
 
-        # Parallel support (only for single machine, will add mpi later)
-        if 'parallel' in params:
-            self.parallel = params['parallel']
-            if 'ncores' in params:
-                self.ncores = params['ncores']
+        # 
+        self.linesearch = False # not now
+        if 'LM' in params:
+            self.LM = params['LM'] # Levenberg Marquart
+            if 'nopts_LM' in params:
+                self.nopts_LM = params['nopts_LM']
             else:
-                # get number of physcial cores
-                from psutil import cpu_count # physcial cpu counts
-                self.ncores = cpu_count(logical=False)
-        else:
-            self.parallel = False
-            self.ncores = 1
+                self.nopts_LM = self.ncores
 
+            if 'alphamax_LM' in params:
+                self.alphamax_LM = params['alphamax_LM']
+            else:
+                self.alphamax_LM = 10.**4. # does it sound ok?
+            
         # Define Drift (or Prior) functions 
         if X is not None:
             self.X = X
@@ -243,16 +261,13 @@ class PCGA:
         
         return simul_obs_parallel
 
-    def JacVect(self, x, s, simul_obs, precision, parallelization = None, delta = None):
+    def JacVect(self, x, s, simul_obs, precision, delta = None):
         '''
         Jacobian times Matrix (Vectors) in Parallel
         perturbation interval delta determined following Brown and Saad [1990]
         '''
         nruns = np.size(x,1)
         deltas = np.zeros((nruns,1),'d') 
-
-        if parallelization is None:
-            parallelization = False
 
         if delta is None or math.isnan(delta) or delta == 0:
             for i in range(nruns):
@@ -277,7 +292,7 @@ class PCGA:
                 # reuse storage x by updating x
                 x[:,i:i+1] = s + deltas[i]*x[:,i:i+1]
 
-        if parallelization:
+        if self.parallel:
             simul_obs_purturbation = self.ParallelForwardSolve(x)
         else:
             for i in range(nruns):
@@ -285,7 +300,9 @@ class PCGA:
                     simul_obs_purturbation = self.ForwardSolve(x)
                 else:
                     simul_obs_purturbation = np.concatenate((simul_obs_purturbation, self.ForwardSolve(x)), axis=1)
-
+        
+        assert(np.size(simul_obs_purturbation,1) == nruns) # should satisfy this
+        
         Jxs = np.zeros_like(simul_obs_purturbation)
         
         # solve Hx HZ HQT
@@ -342,23 +359,18 @@ class PCGA:
             obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(smxb.T,Qinvs)
         return obj
 
-    def DirectSolve(self, s_cur, simul_obs = None, save = False):
-        """
-        Solve the geostatistical system using a direct solver.
-        Not to be used unless the number of measurements are small O(100)
-        """
+    def JacMat(self, s_cur, simul_obs):
+        
+        m = self.m
         n = self.n
         p = self.p
         n_pc = self.n_pc
         precision = self.precision
-        
+
         Z = np.zeros((m,n_pc), dtype ='d')
         for i in range(n_pc):
             Z[:,i:i+1] = np.dot(sqrt(self.priord[i]),self.priorU[:,i:i+1])
 
-        if simul_obs is None:
-            simul_obs = self.ForwardSolve(s_cur)
-        
         temp = np.zeros((m,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
         Htemp = np.zeros((n,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
             
@@ -366,48 +378,123 @@ class PCGA:
         temp[:,p:p+n_pc] = np.copy(Z) 
         temp[:,p+n_pc:p+n_pc+1] = np.copy(s_cur)
 
-        Htemp = self.JacVect(temp,s_cur,simul_obs,self.precision,self.parallel)
+        Htemp = self.JacVect(temp,s_cur,simul_obs,precision)
             
         HX = Htemp[:,0:p]
         HZ = Htemp[:,p:p+n_pc]
-        Hs = Htemp[:,p+n_pc:p+n_pc+1]            
-
-        # Construct HQ directly 
-        HQ = np.dot(HZ,self.Z.T) 
+        Hs = Htemp[:,p+n_pc:p+n_pc+1]
         
-        # Construct Psi directly 
-        Psi = np.dot(HZ,HZ.T) + np.dot(self.R,np.eye(n,dtype='d'))
-
-        #Create matrix system and solve it
-        # cokriging matrix
-        A = np.zeros((n+p,n+p),dtype='d')
-        b = np.zeros((n+p,1),dtype='d')
-
-        A[0:n,0:n] = np.copy(Psi);   
-        A[0:n,n:n+p] = np.copy(HX);   
-        A[n:n+p,0:n] = np.copy(HX.T);
-        
-        # Ax = b, b = obs - h(s) + Hs 
-        b[:n] = self.obs[:] - simul_obs + Hs[:]
-
-        x = np.linalg.solve(A, b)
-
-        ##Extract components and return final solution
-        xi = x[0:n,np.newaxis]
-        beta = x[n:n+p,np.newaxis]
-        s_hat = np.dot(self.X,beta) + np.dot(HQ.T,xi)
-
-        if save: 
+        if self.JacSave: 
             self.HX = HX
             self.HZ = HZ
-            self.Psi = Psi
-            self.HQ = HQ
             self.Hs = Hs
+        # constructing and returning Z are redundant indeed..
+        return HX, HZ, Hs, Z
+
+    def DirectSolve(self, s_cur, simul_obs = None):
+        """
+        Solve the geostatistical system using a direct solver.
+        Not to be used unless the number of measurements are small O(100)
+        """
+        print("use direct solver for saddle-point (cokrigging) system")
+        m = self.m
+        n = self.n
+        p = self.p
+        n_pc = self.n_pc
         
-        simul_obs_new = self.ForwardSolve(s_hat)
+        if simul_obs is None:
+            simul_obs = self.ForwardSolve(s_cur)
+        
+        HX, HZ, Hs, Z = self.JacMat(s_cur, simul_obs)
+        
+        # Construct HQ directly 
+        HQ = np.dot(HZ,Z.T) 
+        
+        if self.LM:
+            print('Levenberg-Marquardt')
+            nopts = self.nopts_LM 
+            alpha = 10**(np.linspace(0.,np.log10(self.alphamax_LM),nopts))
+
+            beta_all = np.zeros((p,nopts),'d')
+            s_hat_all = np.zeros((m,nopts),'d')
+            # this is sequential for now
+            for i in range(nopts):
+                # Construct Psi directly 
+                Psi = np.dot(HZ,HZ.T) + np.dot(alpha(i)*self.R,np.eye(n,dtype='d'))
+
+                #Create matrix system and solve it
+                # cokriging matrix
+                A = np.zeros((n+p,n+p),dtype='d')
+                b = np.zeros((n+p,1),dtype='d')
+
+                A[0:n,0:n] = np.copy(Psi);   
+                A[0:n,n:n+p] = np.copy(HX);   
+                A[n:n+p,0:n] = np.copy(HX.T);
+        
+                # Ax = b, b = obs - h(s) + Hs 
+                b[:n] = self.obs[:] - simul_obs + Hs[:]
+
+                x = np.linalg.solve(A, b)
+
+                ##Extract components and return final solution
+                xi = x[0:n,np.newaxis]
+                beta_all[:,i:i+1] = x[n:n+p,np.newaxis]
+                s_hat_all[:,i:i+1] = np.dot(self.X,beta_all[:,i:i+1]) + np.dot(HQ.T,xi)
+            
+            # parallel
+            print('evaluate solutions')
+            if self.parallel:
+                simul_obs_all = self.ParallelForwardSolve(s_hat_all)
+            else:
+                for i in range(nopts):
+                    if i == 0:
+                        simul_obs_all = self.ForwardSolve(x)
+                    else:
+                        simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(x)), axis=1)
+
+            assert(np.size(simul_obs_all,1) == nopts)
+
+            obj_best = 1.e+20
+            print('%d objective value evaluations' % nopts)
+            for i in range(nopts):
+                if self.objeval: # If true, we do accurate computation
+                    obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],0) 
+                else: # we compute through PCGA approximation
+                    obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],1) 
+                
+                if obj < obj_best: 
+                    print('%d-th solution obj %e (alpha %f)' % (i,obj,alpha[i]))
+                    s_hat = s_hat_all[:,i:i+1]
+                    beta = beta_all[:,i:i+1]
+                    simul_obs_new = simul_obs_all[:,i:i+1]
+                    obj_best = obj
+        else:
+            # Construct Psi directly 
+            Psi = np.dot(HZ,HZ.T) + np.dot(self.R,np.eye(n,dtype='d'))
+
+            #Create matrix system and solve it
+            # cokriging matrix
+            A = np.zeros((n+p,n+p),dtype='d')
+            b = np.zeros((n+p,1),dtype='d')
+
+            A[0:n,0:n] = np.copy(Psi);   
+            A[0:n,n:n+p] = np.copy(HX);   
+            A[n:n+p,0:n] = np.copy(HX.T);
+        
+            # Ax = b, b = obs - h(s) + Hs 
+            b[:n] = self.obs[:] - simul_obs + Hs[:]
+
+            x = np.linalg.solve(A, b)
+
+            ##Extract components and return final solution
+            xi = x[0:n,np.newaxis]
+            beta = x[n:n+p,np.newaxis]
+            s_hat = np.dot(self.X,beta) + np.dot(HQ.T,xi)
+            simul_obs_new = self.ForwardSolve(s_hat)
+
         return s_hat, beta, simul_obs_new
 
-    def IterativeSolve(self, s_cur, simul_obs = None, precond = False, save = False):
+    def IterativeSolve(self, s_cur, simul_obs = None, precond = False):
         m = self.m
         n = self.n
         p = self.p
@@ -416,61 +503,117 @@ class PCGA:
         if simul_obs is None:
             simul_obs = self.ForwardSolve(s_cur)
 
-        # construct Z = sqrt(Q) up to n_pc        
-        Z = np.zeros((m,n_pc), dtype ='d')
-        for i in range(n_pc):
-            Z[:,i:i+1] = np.dot(sqrt(self.priord[i]),self.priorU[:,i:i+1])
+        HX, HZ, Hs, Z = self.JacMat(s_cur, simul_obs)
 
-        temp = np.zeros((m,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
-        Htemp = np.zeros((n,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
-            
-        temp[:,0:p] = np.copy(self.X)
-        temp[:,p:p+n_pc] = np.copy(Z) 
-        temp[:,p+n_pc:p+n_pc+1] = np.copy(s_cur)
+        if self.LM:
+            print('Levenberg-Marquardt')
+            nopts = self.nopts_LM 
 
-        Htemp = self.JacVect(temp,s_cur,simul_obs,self.precision,self.parallel)
-            
-        HX = Htemp[:,0:p]
-        HZ = Htemp[:,p:p+n_pc]
-        Hs = Htemp[:,p+n_pc:p+n_pc+1]
-        
-        #Create matrix context
-        def mv(v):
-            return np.concatenate((np.dot(HZ,np.dot(HZ.T,v[0:n])) + np.dot(self.R,v[0:n]) + np.dot(HX,v[n:n+p]), np.dot(HX.T,v[0:n])),axis = 0)
-        # Matrix handle
-        Afun = LinearOperator( (n+p,n+p), matvec=mv ,dtype = 'd')
+            alpha = 10**(np.linspace(0.,np.log10(self.alphamax_LM),nopts))
+            beta_all = np.zeros((p,nopts),'d')
+            s_hat_all = np.zeros((m,nopts),'d')
 
-        b = np.zeros((n+p,1), dtype = 'd')
-        b[:n] = self.obs[:] - simul_obs + Hs[:]
+            # this is sequential for now
+            for i in range(nopts):
+
+                #Create matrix context
+                def mv(v):
+                    return np.concatenate((np.dot(HZ,np.dot(HZ.T,v[0:n])) + np.dot(alpha[i]*self.R,v[0:n]) + np.dot(HX,v[n:n+p]), np.dot(HX.T,v[0:n])),axis = 0)
+                # Matrix handle
+                Afun = LinearOperator( (n+p,n+p), matvec=mv ,dtype = 'd')
+
+                b = np.zeros((n+p,1), dtype = 'd')
+                b[:n] = self.obs[:] - simul_obs + Hs[:]
         
-        callback = Residual()
+                callback = Residual()
         
-        #Residua and maximum iterations	
-        itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
-        maxiter = n if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
+                #Residua and maximum iterations	
+                itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
+                maxiter = n if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
         
-        if self.P is None:
-            x, info = minres(Afun, b, tol = itertol, maxiter = maxiter, callback = callback)
+                if self.P is None:
+                    x, info = minres(Afun, b, tol = itertol, maxiter = maxiter, callback = callback)
+                    if self.verbose: print("-- Number of iterations for minres %g" %(callback.itercount()))
+
+                else:
+                    restart = 50 if 'gmresrestart' not in self.params else self.params['gmresrestart']
+                    x, info = gmres(Afun, b, tol = itertol, restart = restart, maxiter = maxiter, callback = callback, M = self.P)
+                    if self.verbose: print("-- Number of iterations for gmres %g" %(callback.itercount()))
+
+                assert(info == 0)
+                #Extract components and postprocess
+                # x.shape = (n+p,), so need to increase the dimension (n+p,1)
+                xi = x[0:n,np.newaxis]
+                beta_all[:,i:i+1] = x[n:n+p,np.newaxis]
+                #from IPython.core.debugger import Tracer; debug_here = Tracer()
+                s_hat_all[:,i:i+1] = np.dot(self.X,beta_all[:,i:i+1]) + np.dot(Z,np.dot(HZ.T,xi))
+
+            # evaluate solutions from LM 
+            print('evaluate solutions')
+            if self.parallel:
+                simul_obs_all = self.ParallelForwardSolve(s_hat_all)
+            else:
+                for i in range(nopts):
+                    if i == 0:
+                        simul_obs_all = self.ForwardSolve(x)
+                    else:
+                        simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(x)), axis=1)
+
+            assert(np.size(simul_obs_all,1) == nopts)
+            # evaluate objective values and select best value
+            obj_best = 1.e+20
+            print('%d objective value evaluations' % nopts)
+                
+            for i in range(nopts):
+                if self.objeval: # If true, we do accurate computation
+                    obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],0) 
+                else: # we compute through PCGA approximation
+                    obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],1) 
+                
+                if obj < obj_best: 
+                    print('%d-th solution obj %e (alpha %f)' % (i,obj,alpha[i]))
+                    s_hat = s_hat_all[:,i:i+1]
+                    beta = beta_all[:,i:i+1]
+                    simul_obs_new = simul_obs_all[:,i:i+1]
+                    obj_best = obj
         else:
-            restart = 50 if 'gmresrestart' not in self.params else self.params['gmresrestart']
-            x, info = gmres(Afun, b, tol = itertol, restart = restart, maxiter = maxiter, callback = callback, M = self.P)
+            #Create matrix context
+            def mv(v):
+                return np.concatenate((np.dot(HZ,np.dot(HZ.T,v[0:n])) + np.dot(self.R,v[0:n]) + np.dot(HX,v[n:n+p]), np.dot(HX.T,v[0:n])),axis = 0)
+            # Matrix handle
+            Afun = LinearOperator( (n+p,n+p), matvec=mv ,dtype = 'd')
 
-        print("-- Number of iterations for iterative solver %g" %(callback.itercount()))
-        assert(info == 0)
+            b = np.zeros((n+p,1), dtype = 'd')
+            b[:n] = self.obs[:] - simul_obs + Hs[:]
+        
+            callback = Residual()
+        
+            #Residua and maximum iterations	
+            itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
+            maxiter = n if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
+        
+            if self.P is None:
+                x, info = minres(Afun, b, tol = itertol, maxiter = maxiter, callback = callback)
+                if self.verbose: print("-- Number of iterations for minres %g" %(callback.itercount()))
+            
+            else:
+                restart = 50 if 'gmresrestart' not in self.params else self.params['gmresrestart']
+                x, info = gmres(Afun, b, tol = itertol, restart = restart, maxiter = maxiter, callback = callback, M = self.P)
+                if self.verbose: print("-- Number of iterations for gmres %g" %(callback.itercount()))
+            
+            assert(info == 0)
 
-        #Extract components and postprocess
-        xi = x[0:n,np.newaxis]
-        beta = x[n:n+p,np.newaxis]
-        #from IPython.core.debugger import Tracer; debug_here = Tracer()
-        #debug_here()
-        s_hat = np.dot(self.X,beta) + np.dot(Z,np.dot(HZ.T,xi))
+            #Extract components and postprocess
+            # x.shape = (n+p,) so make it to (n+p,1)
+            xi = x[0:n,np.newaxis]
+            beta = x[n:n+p,np.newaxis]
+            #from IPython.core.debugger import Tracer; debug_here = Tracer()
+            #debug_here()
+            s_hat = np.dot(self.X,beta) + np.dot(Z,np.dot(HZ.T,xi))
 
-        if save: 
-            self.HX = HX
-            self.HZ = HZ
-            self.Hs = Hs
-        print('- evaluate new solution')
-        simul_obs_new = self.ForwardSolve(s_hat)            
+            print('- evaluate new solution')
+            simul_obs_new = self.ForwardSolve(s_hat)            
+
         return s_hat, beta, simul_obs_new
 
     def LinearInversionKnownMean(self, s_cur, beta = 0.):
@@ -490,8 +633,13 @@ class PCGA:
             if precond:	self.ConstructPreconditioner()
 
             s_hat, beta, simul_obs_new = self.IterativeSolve(s_cur, simul_obs, precond = precond)
-            
-        return s_hat, beta, simul_obs_new
+        
+        if self.objeval: # If true, we do accurate computation
+            obj = self.ObjectiveFunction(s_hat, beta, simul_obs_new,0) 
+        else: # we compute through PCGA approximation
+            obj = self.ObjectiveFunction(s_hat, beta, simul_obs_new,1) 
+
+        return s_hat, beta, simul_obs_new, obj
     
     def GaussNewton(self, savefilename = None):
         '''
@@ -519,6 +667,7 @@ class PCGA:
         simul_obs_init = self.ForwardSolve(s_init)
         self.simul_obs_init = simul_obs_init
         
+        print('norm(obsdiff): %g' % np.linalg.norm(simul_obs_init-self.obs))
         simul_obs = np.copy(simul_obs_init)
         s_cur = np.copy(s_init)
         s_past = np.copy(s_init)
@@ -526,16 +675,11 @@ class PCGA:
         for i in range(maxiter):
             start = time()
             print("***** Iteration %d ******" % (i+1))
-            s_cur, beta_cur, simul_obs_cur = self.LinearIteration(s_past, simul_obs)
+            s_cur, beta_cur, simul_obs_cur, obj = self.LinearIteration(s_past, simul_obs)
             
             print("- time for iteration %d is %g sec" %((i+1), round(time()-start)))
             
             res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
-                
-            if self.objeval: # If true, we do accurate computation
-                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur,0) 
-            else: # we compute through PCGA approximation
-                obj = self.ObjectiveFunction(s_cur, beta_cur, simul_obs_cur,1) 
 
             if obj < self.obj_best:
                 self.obj_best = obj

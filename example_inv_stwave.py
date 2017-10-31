@@ -16,7 +16,8 @@ xmax = np.array([110.*5. - dx[0]/2., 83.*5. - dx[1]/2.])
 # covairance kernel and scale parameters 
 # following Hojat's paper but introduces isotropy
 def kernel(r): return np.exp(-r**2)
-theta = np.array([9.*5., 18.*5.])
+#theta = np.array([9.*5., 18.*5.])
+theta = np.array([18.*5., 54.*5.])
 
 x = np.linspace(0. + dx[0]/2., 110*5 - dx[0]/2., N[0])
 y = np.linspace(0. + dx[1]/2., 83*5 - dx[0]/2., N[1])
@@ -38,13 +39,13 @@ def forward_model(s,parallelization,ncores = None):
         simul_obs = model.run(s,parallelization)
     return simul_obs
 
-params = {'R':1.e-2, 'n_pc':50, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':True}
+params = {'R':1.e-2, 'n_pc':100, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':True, 'LM': True}
 
 #params['objeval'] = False, if true, it will compute accurate objective function
 #params['ncores'] = 36, with parallell True, it will determine maximum physcial core unless specified
 
-s_init = np.mean(s_true)*np.ones((m,1))
-    
+#s_init = np.mean(s_true)*np.ones((m,1))
+s_init = np.copy(s_true)
 # initialize
 prob = PCGA(forward_model, s_init, pts, params, s_true, obs)
 # run inversion

@@ -203,14 +203,14 @@ class Model:
                 mydirs.append(mydir)
                 myexcutables.append(os.path.join(mydir,"stwave"))
         
-            print('-- time for writing stwave input files (sequential) is %g' % (time() - start))
+            print('-- time for writing stwave input files (sequential) is %g sec' % round(time() - start))
 
             start = time()
         
             # I don't think running in shell mode is recommended but it works for now.
             Parallel(n_jobs = ncores)(delayed(call)(["cd " + mydirs[idx] + ";./stwave stwave_out.sim"],shell=True) for idx in range(nruns))
         
-            print('-- time for running %d stwave simulations (parallel) on %d cores is %g' % (nruns, ncores,time() - start))
+            print('-- time for running %d stwave simulations (parallel) on %d cores is %g sec' % (nruns, ncores,round(time() - start)))
         
             start = time()
         
@@ -220,9 +220,9 @@ class Model:
                 else:            
                     simul_obs = np.concatenate((simul_obs, self.read_output(mydirs[idx])), axis=1)
         
-            print('-- time for reading stwave output files (sequentially) is %g' % (time() - start))
+            print('-- time for reading stwave output files (sequentially) is %g sec' % round(time() - start))
         
-            assert(np.size(simul_obs,1) == nruns) # should satisfy
+            assert(np.size(simul_obs,1) == nruns) # should satisfy this
 
         else:
             mydir = self.write_input(bathy,0)
