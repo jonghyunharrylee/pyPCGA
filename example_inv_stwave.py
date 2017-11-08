@@ -44,8 +44,8 @@ params = {'R':1.e-2, 'n_pc':100, 'maxiter':8, 'restol':1e-4, 'covariance_matvec'
 #params['objeval'] = False, if true, it will compute accurate objective function
 #params['ncores'] = 36, with parallell True, it will determine maximum physcial core unless specified
 
-#s_init = np.mean(s_true)*np.ones((m,1))
-s_init = np.copy(s_true)
+s_init = np.mean(s_true)*np.ones((m,1))
+#s_init = np.copy(s_true)
 # initialize
 prob = PCGA(forward_model, s_init, pts, params, s_true, obs)
 # run inversion
