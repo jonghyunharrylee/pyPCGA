@@ -39,7 +39,7 @@ def forward_model(s,parallelization,ncores = None):
         simul_obs = model.run(s,parallelization)
     return simul_obs
 
-params = {'R':1.e-2, 'n_pc':100, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':True, 'LM': True}
+params = {'R':1.e-2, 'n_pc':50, 'maxiter':8, 'restol':1e-4, 'covariance_matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N, 'theta':theta, 'kernel':kernel, 'parallel':True, 'LM': True}
 
 #params['objeval'] = False, if true, it will compute accurate objective function
 #params['ncores'] = 36, with parallell True, it will determine maximum physcial core unless specified
