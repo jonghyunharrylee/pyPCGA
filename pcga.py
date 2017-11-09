@@ -23,6 +23,7 @@ class PCGA:
         print('##### PCGA Inversion #####')
         print('##### 1. Initialize forward and inversion parameters')
 
+        ##### Forward Model
         # forward solver setting should be done externally as a blackbox
         # currently I define model seperately, but might be able to  merge them into one function if needed
         self.forward_model = forward_model
@@ -34,20 +35,14 @@ class PCGA:
         # Store parameters
         self.params = params		
         
+        ##### Inversion Setting
         # inversion setting
         self.s_init = s_init
         self.s_true = s_true
         if s_true is not None:
             assert(self.m == np.size(s_true,0))
         
-        # keep track of some values (best, init)
-        self.s_best = None
-        self.simul_obs_best = None
-        self.iter_best = 0
-        self.obj_best = 1.e+20
-        self.simul_obs_init = None
-
-        #Observations
+        # Observations
         self.obs = obs 
         if obs is None:
             self.n = 0
@@ -55,37 +50,45 @@ class PCGA:
             self.n = np.size(obs,0)
 
         self.obs_true = obs_true  # observation without noise for synthetic problems
+
+        # keep track of some values (best, init)
+        self.s_best = None
+        self.simul_obs_best = None
+        self.iter_best = 0
+        self.obj_best = 1.e+20
+        self.simul_obs_init = None
+
+        # Parallel support (only for single machine, will add mpi later)
+        if 'parallel' in params:
+            self.parallel = params['parallel']
+            if 'ncores' in params:
+                self.ncores = params['ncores']
+            else:
+                # get number of physcial cores
+                from psutil import cpu_count # physcial cpu counts
+                self.ncores = cpu_count(logical=False)
+        else:
+            self.parallel = False
+            self.ncores = 1
         
-        # drift parameter (determined )
-        self.p   = 0
-        
+        ##### Prior Information
+
         #Covariance matrix
         self.Q = None
-        self.covariance_matvec = self.params['covariance_matvec']
+        self.matvec = params['matvec']
         self.xmin = params['xmin']
         self.xmax = params['xmax']
         self.N = params['N']
-        self.theta = params['theta']
+        self.theta = params['theta2']
         self.kernel = params['kernel']
         
-        if 'n_pc' in params:
-            self.n_pc = params['n_pc']
-        else:
-            return ValueError('provide n_pc')
-
-
+        # number of principal components, default 5 times # of cores
+        self.n_pc = 5*self.ncores if 'n_pc' not in params else params['n_pc'] 
+        
         assert(np.size(self.xmin,0) == np.size(self.xmax,0))
         assert(np.size(self.xmin,0) == np.size(self.N,0))
         assert(np.size(self.xmin,0) == np.size(self.theta,0))
         
-        # objetive function evaluation
-        if 'objeval' in params:
-            self.objeval = params['objeval']
-        else:
-            self.params['objeval'] = False
-            self.objeval = False
-
-
         #Noise covariance
         if 'R' in params:
             self.R = params['R']
@@ -100,61 +103,25 @@ class PCGA:
         #self.postU = None
         #self.postd = None
 
-        # Parallel support (only for single machine, will add mpi later)
-        if 'parallel' in params:
-            self.parallel = params['parallel']
-            if 'ncores' in params:
-                self.ncores = params['ncores']
-            else:
-                # get number of physcial cores
-                from psutil import cpu_count # physcial cpu counts
-                self.ncores = cpu_count(logical=False)
-        else:
-            self.parallel = False
-            self.ncores = 1
-
+        # posterior cov computation
+        self.postcov = 'gep'
+        if 'postcov' in params:
+            if params['postcov'] == 'direct':
+                self.postcov = params['postcov']
+                params['JacSave'] = True
+                self.JacSave = True
         #CrossCovariance computed by Jacobian-free low-rank FD approximation if you want to save..
         if 'JacSave' in params:
             self.JacSave =   params['JacSave']
-            self.HX  = None	
-            self.HZ = None
-            self.Hs = None
+            if self.JacSave:
+                self.HX = None	
+                self.HZ = None
+                self.Hs = None
         else:
             self.JacSave = False
-        
-        # Matrix solver - default : False (iterative)
-        if 'direct' in params:
-            self.direct = params['direct']
-        else:
-            self.direct = False 
-
-        direct = self.direct
-
-        # No preconditioner for now
-        # default : False 
-        if 'precond' in params: 
-            self.precond = params['precond']
-        else:
-            self.precond = False 
-
-        #Preconditioner
-        self.P = None
-
-        # 
-        self.linesearch = False # not now
-        if 'LM' in params:
-            self.LM = params['LM'] # Levenberg Marquart
-            if 'nopts_LM' in params:
-                self.nopts_LM = params['nopts_LM']
-            else:
-                self.nopts_LM = self.ncores
-
-            if 'alphamax_LM' in params:
-                self.alphamax_LM = params['alphamax_LM']
-            else:
-                self.alphamax_LM = 10.**4. # does it sound ok?
-            
+ 
         # Define Drift (or Prior) functions 
+        self.p   = 0 # drift parameter (to be determined)
         if X is not None:
             self.X = X
             self.p = np.size(self.X,0)
@@ -166,19 +133,52 @@ class PCGA:
                 params['drift'] = 'constant'
                 self.DriftFunctions(params['drift'])
         
-        # PCGA parameters
-        if 'precision' in params:
-            self.precision = params['precision']
-        else:
-            self.precision = 1.e-8 # assume single precision
+        ##### Matrix Solver (Saddle Point/Cokkriging System)
+        # Matrix solver - default : False (iterative)
+        self.direct = False if 'direct' not in self.params else self.params['direct']
+        direct = self.direct
 
+        # default : False !No preconditioner for now
+        self.precond = False if 'precond' not in self.params else self.params['precond']
+
+        #Define Preconditioner
+        self.P = None
+
+        ##### Optimization
+        # objetive function evaluation, either exact or approximate
+        if 'objeval' in params:
+            self.objeval = params['objeval']
+        else:
+            self.params['objeval'] = False
+            self.objeval = False
+
+        if 'LM' in params:
+            self.LM = params['LM'] # Levenberg Marquart
+            if 'nopts_LM' in params:
+                self.nopts_LM = params['nopts_LM']
+            else:
+                self.nopts_LM = self.ncores
+
+            if 'alphamax_LM' in params:
+                self.alphamax_LM = params['alphamax_LM']
+            else:
+                self.alphamax_LM = 10.**4. # does it sound ok?
+        
+        self.linesearch = True if 'linesearch' not in self.params else self.params['linesearch']
+        
+        if self.linesearch:
+            self.nopts_LS = self.ncores if 'nopts_LS' not in self.params else self.params['nopts_LS']
+            
+        # PCGA parameters (purturbation size)
+        self.precision = 1.e-8 if 'precision' not in self.params else self.params['precision']
+
+		#Printing verbose
+        self.verbose = False if 'verbose' not in self.params else self.params['verbose']
+        
         #Generate measurements when obs is not provided AND s_true is given
         if s_true is not None and obs is None:
             self.CreateSyntheticData(s_true, noise = True)
         
-		#Printing verbose
-        self.verbose = False if 'verbose' not in self.params else self.params['verbose']
-
     def DriftFunctions(self, method):
         if method == 'constant':
             self.p = 1
@@ -200,7 +200,7 @@ class PCGA:
         print('##### 2. Construct Prior Covariance Matrix')
         start = time()
         self.Q = CovarianceMatrix(method, self.pts, kernel, **kwargs)
-        print('- time for covariance matrix construction is %g sec' % round(time()-start))
+        print('- time for covariance matrix construction (m = %d) is %g sec' % (self.m, round(time()-start)))
         return
     
     def ComputePriorEig(self, n_pc=None):
@@ -215,9 +215,6 @@ class PCGA:
         
         if n_pc is None:
             n_pc = self.n_pc
-        else:
-            # say 25?
-            n_pc = 25 
         
         assert(self.Q is not None) # have to assign Q through Covariance before
 
@@ -239,7 +236,7 @@ class PCGA:
         else:
             raise NotImplementedError
 
-        print('- time for eigendecomposition is %g sec' % round(time()-start))
+        print('- time for eigendecomposition with k = %d is %g sec' % (n_pc, round(time()-start)))
 
         return
     
@@ -352,11 +349,48 @@ class PCGA:
         ymhs = self.obs - simul_obs
         
         if approx:
-            Zinvs = np.multiply(1./np.sqrt(self.priord),np.dot(self.priorU.T,smxb))
-            obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(Zinvs.T,Zinvs)
+            invZs = np.multiply(1./np.sqrt(self.priord),np.dot(self.priorU.T,smxb))
+            obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(invZs.T,invZs)
         else:
-            Qinvs = self.Q.solve(smxb)
-            obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(smxb.T,Qinvs)
+            invQs = self.Q.solve(smxb)
+            obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*np.dot(smxb.T,invQs)
+        return obj
+
+    def ObjectiveFunctionNoBeta(self, s_cur, simul_obs, approx = True):
+        """
+            marginalized objective w.r.t. beta
+            0.5(y-h(s))^TR^{-1}(y-h(s)) + 0.5*(s-Xb)^TQ^{-1}(s-Xb)
+        """
+        if simul_obs is None:
+            simul_obs = self.ForwardSolve(s_cur)
+        
+        priord  = self.priord
+        priorU  = self.priorU
+        X = self.X
+        p = self.p
+
+        ymhs = self.obs - simul_obs
+        
+        if approx:
+            invZs = np.multiply(1./np.sqrt(priord),np.dot(priorU.T,s_cur))
+            invZX = np.multiply(1./np.sqrt(priord),np.dot(priorU.T,X))
+            XTinvQs = np.dot(invZX.T,invZs)
+            XTinvQX = np.dot(invZX.T,invZX)
+            tmp = np.linalg.solve(XTinvQX, XTinvQs) # inexpensive solve p by p where p <= 3, usually p = 1 (scalar devision)
+            obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*(np.dot(invZs.T,invZs) - np.dot(XTinvQs.T,tmp))
+        else:
+            invQs = self.Q.solve(s_cur) #size (m,)
+            invQX = self.Q.solve(X) # size (m,p)
+            
+            XTinvQs = np.dot(X.T,invQs) # size (p,)
+            XTinvQX = np.dot(X.T,invQX) # size (p,p)
+            
+            if p == 1:
+                tmp = XTinvQs/XTinvQX
+            else:
+                tmp = np.linalg.solve(XTinvQX, XTinvQs) # inexpensive solve p by p where p <= 3, usually p = 1 (scalar devision)
+            
+            obj = 0.5*np.dot(ymhs.T,ymhs)/self.R + 0.5*(np.dot(s_cur.T,invQs) - np.dot(XTinvQs.T,tmp))
         return obj
 
     def JacMat(self, s_cur, simul_obs):
@@ -641,16 +675,51 @@ class PCGA:
 
         return s_hat, beta, simul_obs_new, obj
     
-    def GaussNewton(self, savefilename = None):
+    def LineSearch(self,s_cur,s_past):
+        nopts = self.nopts_LS
+        m = self.m
+
+        s_hat_all = np.zeros((m,nopts),'d')
+        delta = np.linspace(-0.1,1.1,nopts) # need to remove delta = 0 and 1
+        
+        for i in range(nopts):
+            s_hat_all[:,i:i+1] = delta[i]*s_past + (1.-delta[i])*s_cur
+
+        # parallel
+        print('evaluate solutions')
+        if self.parallel:
+            simul_obs_all = self.ParallelForwardSolve(s_hat_all)
+        else:
+            for i in range(nopts):
+                if i == 0:
+                    simul_obs_all = self.ForwardSolve(x)
+                else:
+                    simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(x)), axis=1)
+
+        assert(np.size(simul_obs_all,1) == nopts)
+        obj_best = 1.e+20
+        
+        for i in range(nopts):
+            start0 = time()
+            if self.objeval: # If true, we do accurate computation
+                obj = self.ObjectiveFunctionNoBeta(s_hat_all[:,i:i+1], simul_obs_all[:,i:i+1],0) 
+            else: # we compute through PCGA approximation
+                obj = self.ObjectiveFunctionNoBeta(s_hat_all[:,i:i+1], simul_obs_all[:,i:i+1],1) 
+            
+            if obj < obj_best: 
+                print('%d-th solution obj %e (delta %f)' % (i,obj,delta[i]))
+                s_hat = s_hat_all[:,i:i+1]
+                simul_obs_new = simul_obs_all[:,i:i+1]
+                obj_best = obj
+    
+        return s_hat, simul_obs_new, obj_best
+
+    def GaussNewton(self):
         '''
         will save results if savefilename is provided
         '''
         m = self.m
         s_init = self.s_init
-        #s_past = np.zeros((m,1), dtype = 'd')
-        #s_cur = np.zeros((m,1), dtype = 'd')
-
-        #plotting = False if 'plotting' not in self.params else self.params['plotting']
         
         maxiter = self.params['maxiter']
         restol  = self.params['restol']
@@ -679,15 +748,33 @@ class PCGA:
             
             print("- time for iteration %d is %g sec" %((i+1), round(time()-start)))
             
-            res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
-
             if obj < self.obj_best:
                 self.obj_best = obj
                 self.s_best = s_cur
                 self.simul_obs_best = simul_obs_cur
+                self.iter_best = i+1
+            else: 
+                # allow first few iterations
+                if i > 2:
+                    if self.linesearch:
+                        print('perform simple linesearch due to no progress in obj values')
+                        s_cur, simul_obs_cur, obj = self.LineSearch(s_cur, s_past)
+                        if obj < self.obj_best:
+                            self.obj_best = obj
+                            self.s_best = s_cur
+                            self.simul_obs_best = simul_obs_cur
+                            self.iter_best = i+1
+                        else:
+                            print('no progress in obj values')
+                            iter_cur = i+1
+                            break
+                    else:
+                        print('no progress in obj values')
+                        iter_cur = i +1
+                        break
 
+            res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
             obs_diff = np.linalg.norm(simul_obs_cur-self.obs)
-
             if self.s_true is not None:            
                 err = np.linalg.norm(s_cur-self.s_true)/np.linalg.norm(self.s_true)
                 print("- iteration %d: relative residual is %g, objective function is %e, error is %g, and norm(obs mismatch) is %g" %((i+1), res, obj, err, obs_diff))
@@ -702,11 +789,12 @@ class PCGA:
             simul_obs = np.copy(simul_obs_cur)
 
         #return s_cur, beta_cur, simul_obs, iter_cur
+        print("* Found solution at iteration %d, objective function is %e, and norm(obs mismatch) is %g" %(self.iter_best, self.obj_best, np.linalg.norm(self.simul_obs_best-self.obs)))
         return self.s_best, self.simul_obs_best, self.iter_best, iter_cur
 
     def Run(self):
         if self.Q is None:
-            self.ConstructCovariance(method = self.covariance_matvec, kernel = self.kernel, xmin = self.xmin, xmax = self.xmax, N= self.N, theta = self.theta)
+            self.ConstructCovariance(method = self.matvec, kernel = self.kernel, xmin = self.xmin, xmax = self.xmax, N= self.N, theta = self.theta)
     
         if self.priorU is None or self.priord is None:
             self.ComputePriorEig()
@@ -718,12 +806,39 @@ class PCGA:
     """
         functions below have not been implmented yet
     """
-    def ComputePosteriorDiagonalEntriesDirect(self, recompute = True):
+    def ComputePosteriorDiagonalEntriesDirect(self):
         """		
 		Works best for small measurements O(100)
-		to be implemented
         """
-        return
+        Z = self.Z
+        HZ = self.HZ
+        HX = self.HX
+        m = self.m
+
+        v = np.zeros((m,1),dtype='d')
+
+        if direct:
+            # Construct Psi directly 
+            HQ = np.dot(HZ,HZ.T)
+            Psi = HQ + np.dot(self.R,np.eye(n,dtype='d'))
+
+            #Create matrix system and solve it
+            # cokriging matrix
+            A = np.zeros((n+p,n+p),dtype='d')
+            b = np.zeros((n+p,1),dtype='d')
+
+            A[0:n,0:n] = np.copy(Psi);   
+            A[0:n,n:n+p] = np.copy(HX);   
+            A[n:n+p,0:n] = np.copy(HX.T);
+            
+            for i in range(m):
+                b = np.zeros((n+p,1),dtype='d')
+                b[0:n] = HQ[:,i:i+1]
+                b[n:n+p] = X[i:i+1,:].T
+                v[i] = np.dot(b.T,np.linalg.solve(A, b)) 
+        else:                       
+            pass
+        return v
     
     def FssInvDiag(self, recompute = True):
         """		
@@ -762,6 +877,19 @@ class PCGA:
         return
 
     def Uncertainty(self, **kwargs):
+        m = self.m
+        diag = np.zeros((m,1),dtype = 'd')
+        start = time()
+
+        #if self.params['direct'] == True:
+        #    diag = self.ComputePosteriorDiagonalEntriesDirect()
+        #else:
+        #    F = FisherInverse(self)
+        #    prior, datalowrank, beta - F.diags()
+        #    print("Uncertainty in beta is %g" % (beta))
+        
+        print("Time for uncertainty computation is", time() - start)
+
         return
 
 #if __name__ == '__main__':
