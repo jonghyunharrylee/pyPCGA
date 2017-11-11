@@ -6,7 +6,7 @@ import numpy as np
 import stwave as st
 from pcga import PCGA
 import math
-#Testing Linear Inversion using interpolation
+
 N = np.array([110,83])
 m = np.prod(N) 
 dx = np.array([5.,5.])
@@ -79,7 +79,7 @@ minv = s_true.min()
 maxv = s_true.max()
 
 fig, axes = plt.subplots(1,2)
-fig.suptitle('theta1 : (%g)^2, n_pc : %d' % (theta1,params['n_pc']))
+fig.suptitle('prior var. : (%g)^2, n_pc : %d' % (theta1,params['n_pc']))
 im = axes[0].imshow(s_true2d, extent=[0, 110, 0, 83], vmin=math.floor(minv), vmax=math.ceil(maxv), cmap=plt.get_cmap('jet'))
 axes[0].set_title('(a) True', loc='left')
 axes[0].set_aspect('equal')
@@ -93,7 +93,7 @@ fig.savefig('best_.png')
 plt.close(fig)
 
 fig, axes = plt.subplots(1,2)
-plt.suptitle('theta1 : (%g)^2, n_pc : %d' % (theta1,params['n_pc']))
+plt.suptitle('prior var.: (%g)^2, n_pc : %d' % (theta1,params['n_pc']))
 im = axes[0].imshow(np.flipud(np.fliplr(-s_true2d)), extent=[0, 110, 0, 83], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
 axes[0].set_title('(a) True', loc='left')
 axes[0].set_aspect('equal')
@@ -111,7 +111,7 @@ Xbeta = np.dot(prob.X,prob.beta_best)
 Xbeta2d = Xbeta.reshape(N[1],N[0])
 
 fig, axes = plt.subplots(1,2)
-fig.suptitle('transect with theta1 : (%g)^2, n_pc : %d, lx = %f px, ly = %f px' % (theta1, params['n_pc'],theta2[0]/5., theta2[1]/5.))
+fig.suptitle('transect with prior var.: (%g)^2, n_pc : %d, lx = %f px, ly = %f px' % (theta1, params['n_pc'],theta2[0]/5., theta2[1]/5.))
 
 linex = np.arange(1,111)
 
@@ -143,8 +143,10 @@ plt.close(fig)
 
 nobs = prob.obs.shape[0]
 fig = plt.figure()
-plt.title('theta1 : (%g)^2, n_pc : %d, RMSE : %g' % (theta1, params['n_pc'],np.linalg.norm(prob.obs - simul_obs)/np.sqrt(nobs)))
+plt.title('obs. vs simul.')
 plt.plot(prob.obs,simul_obs,'.')
+plt.xlabel('observation')
+plt.ylabel('simulation')
 minobs = np.vstack((prob.obs,simul_obs)).min(0)
 maxobs = np.vstack((prob.obs,simul_obs)).max(0)
 plt.plot(np.linspace(minobs,maxobs,20),np.linspace(minobs,maxobs,20),'k-')
@@ -154,6 +156,13 @@ axes.set_xlim([math.floor(minobs),math.ceil(maxobs)])
 axes.set_ylim([math.floor(minobs),math.ceil(maxobs)])
 fig.savefig('obs.png', dpi=fig.dpi)
 #plt.show()
+plt.close(fig)
+
+fig = plt.figure()
+plt.plot(range(len(prob.objvals)),prob.objvals,'r-')
+plt.title('obj values over iterations')
+plt.axis('tight')
+fig.savefig('obj.png', dpi=fig.dpi)
 plt.close(fig)
 
 fig, axes = plt.subplots(4,4, sharex = True, sharey = True)

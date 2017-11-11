@@ -8,8 +8,8 @@ from covariance.mat import *
 
 from scipy.sparse.linalg import gmres, minres # IterativeSolve
 from scipy.sparse.linalg import LinearOperator # Matrix-free IterativeSolve
-
-from IPython.core.debugger import Tracer; debug_here = Tracer()
+#from IPython.core.debugger import Tracer; debug_here = Tracer()
+from pdb import set_trace
 
 __all__ = ['PCGA']
 
@@ -28,15 +28,15 @@ class PCGA:
         # currently I define model seperately, but might be able to  merge them into one function if needed
         self.forward_model = forward_model
         
-        # Grid points (for Hmatrix and FMM)
-        self.pts = pts
-        self.m   = np.size(pts,0) 
- 
+        # Grid points (for Dense, Hmatrix and FMM)
+        self.pts = pts # no need for FFT, but...
+        
         # Store parameters
         self.params = params		
         
         ##### Inversion Setting
         # inversion setting
+        self.m   = np.size(s_init,0) 
         self.s_init = s_init
         self.s_true = s_true
         if s_true is not None:
@@ -48,6 +48,10 @@ class PCGA:
             self.n = 0
         else:
             self.n = np.size(obs,0)
+            if obs.ndim != 2:
+               raise ValueError("obs should be n by 1 array")
+            if np.size(obs,1) != 1:
+               raise ValueError("obs should be n by 1 array")
 
         self.obs_true = obs_true  # observation without noise for synthetic problems
 
@@ -58,6 +62,7 @@ class PCGA:
         self.iter_best = 0
         self.obj_best = 1.e+20
         self.simul_obs_init = None
+        self.objvals = []
 
         # Parallel support (only for single machine, will add mpi later)
         if 'parallel' in params:
@@ -77,18 +82,30 @@ class PCGA:
         #Covariance matrix
         self.Q = None
         self.matvec = params['matvec']
-        self.xmin = params['xmin']
-        self.xmax = params['xmax']
-        self.N = params['N']
-        self.theta = params['theta2']
-        self.kernel = params['kernel']
-        
+        self.theta1 = params['theta1'] # prior std. more appropriate naming needed
+
+        #Eigenvalues and eigenvectors of the prior covariance matrix
+        self.priorU = None
+        self.priord = None
+
+        if self.matvec == 'FFT':
+            self.xmin = params['xmin']
+            self.xmax = params['xmax']
+            self.N = params['N']
+            self.theta = params['theta2']
+            self.kernel = params['kernel']
+            assert(np.size(self.xmin,0) == np.size(self.xmax,0))
+            assert(np.size(self.xmin,0) == np.size(self.N,0))
+            assert(np.size(self.xmin,0) == np.size(self.theta,0))
+        elif self.matvec == 'Dense':
+            self.kernel = params['kernel']
+        else: # currently not implemented.. 
+            self.priord = params['priord']
+            self.priorU = params['priorU']
+            self.Q = CovarianceMatrixbyUd(self.priord,self.priorU)
         # number of principal components, default 5 times # of cores
         self.n_pc = 5*self.ncores if 'n_pc' not in params else params['n_pc'] 
         
-        assert(np.size(self.xmin,0) == np.size(self.xmax,0))
-        assert(np.size(self.xmin,0) == np.size(self.N,0))
-        assert(np.size(self.xmin,0) == np.size(self.theta,0))
         
         #Noise covariance
         if 'R' in params:
@@ -96,10 +113,7 @@ class PCGA:
         else:
             return ValueError('provide R')
 
-        #Eigenvalues and eigenvectors of the prior covariance matrix
-        self.priorU = None
-        self.priord = None
-
+        
         #Eigenvalues and eigenvectors of the posterir covariance matrix - will be implemented later
         #self.postU = None
         #self.postd = None
@@ -187,6 +201,7 @@ class PCGA:
         print("   Number of unknowns                            : %d" % (self.m))
         print("   Number of observations                        : %d" % (self.n))
         print("   Number of principal components (n_pc)         : %d" % (self.n_pc))
+        print("   Prior variance                                : %e" % (self.theta1**2))
         print("   Number of CPU cores (n_core)                  : %d" % (self.ncores))
         print("   Maximum GN iterations                         : %d" % (self.maxiter))
         print("   Tol for iterations (norm(sol_diff)/norm(sol)) : %e" % (self.restol))
@@ -331,7 +346,7 @@ class PCGA:
         #Generate measurements
         if s is None:
             if s_true is None:
-                raise ValueError('plz specify bathymetry')
+                raise ValueError('plz specify true solution')
             else:
                 print('- generate noisy observations for this synthetic inversion problem')
                 obs_true = self.ForwardSolve(s_true)
@@ -579,7 +594,7 @@ class PCGA:
         
                 #Residua and maximum iterations	
                 itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
-                solver_maxiter = n if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
+                solver_maxiter = m if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
         
                 if self.P is None:
                     x, info = minres(Afun, b, tol = itertol, maxiter = solver_maxiter, callback = callback)
@@ -734,6 +749,7 @@ class PCGA:
         will save results if savefilename is provided
         '''
         m = self.m
+        n = self.n
         s_init = self.s_init
         maxiter = self.maxiter
         restol = self.restol
@@ -750,8 +766,8 @@ class PCGA:
         
         simul_obs_init = self.ForwardSolve(s_init)
         self.simul_obs_init = simul_obs_init
-        
-        print('norm(obsdiff): %g' % np.linalg.norm(simul_obs_init-self.obs))
+        RMSE_init = np.linalg.norm(simul_obs_init-self.obs)/np.sqrt(n)
+        print('RMSE (norm(obs. diff.)/sqrt(nobs)) : %g' % RMSE_init)
         simul_obs = np.copy(simul_obs_init)
         s_cur = np.copy(s_init)
         s_past = np.copy(s_init)
@@ -794,12 +810,12 @@ class PCGA:
                     pass # allow for 
 
             res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
-            obs_diff = np.linalg.norm(simul_obs_cur-self.obs)
+            RMSE_cur = np.linalg.norm(simul_obs_cur-self.obs)/np.sqrt(n)
             if self.s_true is not None:            
                 err = np.linalg.norm(s_cur-self.s_true)/np.linalg.norm(self.s_true)
-                print("- iteration %d: relative residual is %g, objective function is %e, error is %g, and norm(obs mismatch) is %g" %((i+1), res, obj, err, obs_diff))
+                print("- iteration %d: relative residual is %g, objective function is %e, error is %g, and RMSE is %g" %((i+1), res, obj, err, RMSE_cur))
             else:
-                print("- iteration %d: relative residual is %g, objective function is %e, and norm(obs mismatch) is %g" %((i+1), res, obj, obs_diff))
+                print("- iteration %d: relative residual is %g, objective function is %e, and RMSE is %g" %((i+1), res, obj, RMSE_cur))
 
             if res < restol:
                 iter_cur = i + 1
@@ -807,12 +823,17 @@ class PCGA:
 
             s_past = np.copy(s_cur)
             simul_obs = np.copy(simul_obs_cur)
+            self.objvals.append(float(obj))
 
         #return s_cur, beta_cur, simul_obs, iter_cur
-        print("* Found solution at iteration %d, objective function is %e, and norm(obs mismatch) is %g" %(self.iter_best, self.obj_best, np.linalg.norm(self.simul_obs_best-self.obs)))
+        print("------------ Inversion Summary ---------------------------")
+        print("** Found solution at iteration %d" %(self.iter_best))
+        print("** Solution RMSE %g , initial RMSE %g, where RMSE = (norm(obs. diff.)/sqrt(nobs))" %(np.linalg.norm(self.simul_obs_best-self.obs)/np.sqrt(self.n),RMSE_init))
+        print("** Final objective function value is %e" %(self.obj_best))
         return self.s_best, self.simul_obs_best, self.iter_best, iter_cur
 
     def Run(self):
+        start = time()
         if self.Q is None:
             self.ConstructCovariance(method = self.matvec, kernel = self.kernel, xmin = self.xmin, xmax = self.xmax, N= self.N, theta = self.theta)
     
@@ -820,7 +841,9 @@ class PCGA:
             self.ComputePriorEig()
 
         s_hat, simul_obs, iter_best, iter_final = self.GaussNewton()
-
+        #start = time()
+        print("** Total elapsed time is %f secs" % (time()-start))
+        print("----------------------------------------------------------")
         return s_hat, simul_obs, iter_best, iter_final
 
     """
@@ -912,4 +935,17 @@ class PCGA:
 
         return
 
+class CovarianceMatrixbyUd:
+    def __init__(self,priord,priorU):
+        self.dtype = 'd'
+        n = priord.shape[0]
+        self.shape = (n,n)
+
+    def matvec(self,x):
+        #y = np.zeros_like(x,dtype = 'd')
+        y = np.dot(priorU,np.multiply(priord,(np.dot(priorU.T,x))))
+        return y
+
+    def rmatvec(self,x):
+        return matvec(self,x)
 #if __name__ == '__main__':
