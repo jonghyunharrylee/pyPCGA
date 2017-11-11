@@ -53,6 +53,7 @@ class PCGA:
 
         # keep track of some values (best, init)
         self.s_best = None
+        self.beta_best = None
         self.simul_obs_best = None
         self.iter_best = 0
         self.obj_best = 1.e+20
@@ -124,7 +125,7 @@ class PCGA:
         self.p   = 0 # drift parameter (to be determined)
         if X is not None:
             self.X = X
-            self.p = np.size(self.X,0)
+            self.p = np.size(self.X,1)
         else:
             if 'drift' in params:
                 self.DriftFunctions(params['drift'])
@@ -168,7 +169,10 @@ class PCGA:
         
         if self.linesearch:
             self.nopts_LS = self.ncores if 'nopts_LS' not in self.params else self.params['nopts_LS']
-            
+
+        self.maxiter = 10 if 'maxiter' not in self.params else self.params['maxiter'] # maximum iteration
+        self.restol  = 1e-2 if 'restol'  not in self.params else self.params['restol'] # rel tol
+        
         # PCGA parameters (purturbation size)
         self.precision = 1.e-8 if 'precision' not in self.params else self.params['precision']
 
@@ -179,6 +183,17 @@ class PCGA:
         if s_true is not None and obs is None:
             self.CreateSyntheticData(s_true, noise = True)
         
+        print("------------ Inversion Parameters -------------------------")
+        print("   Number of unknowns                            : %d" % (self.m))
+        print("   Number of observations                        : %d" % (self.n))
+        print("   Number of principal components (n_pc)         : %d" % (self.n_pc))
+        print("   Number of CPU cores (n_core)                  : %d" % (self.ncores))
+        print("   Maximum GN iterations                         : %d" % (self.maxiter))
+        print("   Tol for iterations (norm(sol_diff)/norm(sol)) : %e" % (self.restol))
+        print("   Levenberg-Marquardt                           : %s" % (self.LM))
+        print("   Line search                                   : %s" % (self.linesearch))
+        print("-----------------------------------------------------------")
+
     def DriftFunctions(self, method):
         if method == 'constant':
             self.p = 1
@@ -228,7 +243,7 @@ class PCGA:
             self.priord = self.priord[::-1]
             self.priord = self.priord.reshape(self.priord.shape[0],-1) # make a column vector
             self.priorU = self.priorU[:,::-1]
-
+            
         #elif method == 'randomized':
         #    # randomized method to be implemented!
         #    from eigen import RandomizedEIG
@@ -398,6 +413,7 @@ class PCGA:
         m = self.m
         n = self.n
         p = self.p
+
         n_pc = self.n_pc
         precision = self.precision
 
@@ -407,7 +423,7 @@ class PCGA:
 
         temp = np.zeros((m,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
         Htemp = np.zeros((n,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
-            
+        
         temp[:,0:p] = np.copy(self.X)
         temp[:,p:p+n_pc] = np.copy(Z) 
         temp[:,p+n_pc:p+n_pc+1] = np.copy(s_cur)
@@ -563,15 +579,15 @@ class PCGA:
         
                 #Residua and maximum iterations	
                 itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
-                maxiter = n if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
+                solver_maxiter = n if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
         
                 if self.P is None:
-                    x, info = minres(Afun, b, tol = itertol, maxiter = maxiter, callback = callback)
+                    x, info = minres(Afun, b, tol = itertol, maxiter = solver_maxiter, callback = callback)
                     if self.verbose: print("-- Number of iterations for minres %g" %(callback.itercount()))
 
                 else:
                     restart = 50 if 'gmresrestart' not in self.params else self.params['gmresrestart']
-                    x, info = gmres(Afun, b, tol = itertol, restart = restart, maxiter = maxiter, callback = callback, M = self.P)
+                    x, info = gmres(Afun, b, tol = itertol, restart = restart, maxiter = solver_maxiter, callback = callback, M = self.P)
                     if self.verbose: print("-- Number of iterations for gmres %g" %(callback.itercount()))
 
                 assert(info == 0)
@@ -641,8 +657,7 @@ class PCGA:
             # x.shape = (n+p,) so make it to (n+p,1)
             xi = x[0:n,np.newaxis]
             beta = x[n:n+p,np.newaxis]
-            #from IPython.core.debugger import Tracer; debug_here = Tracer()
-            #debug_here()
+            
             s_hat = np.dot(self.X,beta) + np.dot(Z,np.dot(HZ.T,xi))
 
             print('- evaluate new solution')
@@ -720,9 +735,9 @@ class PCGA:
         '''
         m = self.m
         s_init = self.s_init
-        
-        maxiter = self.params['maxiter']
-        restol  = self.params['restol']
+        maxiter = self.maxiter
+        restol = self.restol
+
         iter_cur   = maxiter
 
         obj = 1.0e+20
@@ -751,11 +766,12 @@ class PCGA:
             if obj < self.obj_best:
                 self.obj_best = obj
                 self.s_best = s_cur
+                self.beta_best = beta_cur
                 self.simul_obs_best = simul_obs_cur
                 self.iter_best = i+1
             else: 
                 # allow first few iterations
-                if i > 2:
+                if i > 1:
                     if self.linesearch:
                         print('perform simple linesearch due to no progress in obj values')
                         s_cur, simul_obs_cur, obj = self.LineSearch(s_cur, s_past)
@@ -772,6 +788,10 @@ class PCGA:
                         print('no progress in obj values')
                         iter_cur = i +1
                         break
+                else:
+                    print('no progress in obj values but wait for one more iteration..')
+                    # allow first few iterations
+                    pass # allow for 
 
             res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
             obs_diff = np.linalg.norm(simul_obs_cur-self.obs)
