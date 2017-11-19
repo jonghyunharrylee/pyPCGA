@@ -51,7 +51,10 @@ obs = np.float64(obsfile['obs'])
 #
 # prepare interface to run as a function
 def forward_model(s,parallelization,ncores = None):
-    model = st.Model()
+    #specialize running of stwave if desired
+    #stwave_params={'stwave':'stwave'} 
+    stwave_params={} #
+    model = st.Model(params=stwave_params)
     
     if parallelization:
         simul_obs = model.run(s,parallelization,ncores)

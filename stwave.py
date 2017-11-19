@@ -14,8 +14,9 @@ three operations
 class Model:
     def __init__(self,params = None):
         self.idx = 0
-        self.homedir = os.path.abspath('./')
-        self.inputdir = os.path.abspath(os.path.join(self.homedir,"./input_files"))
+        self.homedir = os.path.abspath(os.getcwd())
+        self.inputdir = os.path.abspath(os.path.join(self.homedir,"input_files"))
+        self.stwave_exec= os.path.join(self.homedir,'stwave')
         self.deletedir = True
         self.ncores = 1
 
@@ -24,15 +25,20 @@ class Model:
                 self.deletedir = params['deletedir']
             if 'homedir' in params:
                 self.homedir = params['homedir']
-                self.inputdir = os.path.abspath(os.path.join(self.homedir,"./input_files"))
+                self.inputdir = os.path.abspath(os.path.join(self.homedir,"input_files"))
             if 'inputdir' in params:
                 self.inputdir = params['inputdir']
             if 'ncores' in params:
                 self.ncores = params['ncores']
-
+            if 'stwave' in params:
+                self.stwave_exec = params['stwave']
+        #some sanity checks
+        assert os.path.isdir(self.inputdir)
+        assert os.path.isdir(self.homedir)
+        
     def create_dir(self,idx=None):
         
-        mydirbase = "./simul/simul"
+        mydirbase = os.path.join(os.path.curdir,"simul","simul")
         if idx is None:
             idx = self.idx
         
@@ -83,6 +89,7 @@ class Model:
     def read_output(self, mydir):
         
         # read outputs from mydir
+        assert os.path.isdir(mydir)
         try: 
         # read significant wave height, mean period, mean direction from "stwave_out.wave.out" 
             with open(os.path.join(mydir,'stwave_out.wave.out'),'r') as f:# wave height, mean wave period, mean wave direction
@@ -107,7 +114,7 @@ class Model:
 
                 #Hm0, T, alpha
         except IOError:
-            print("Could not read file ./stwave_out.wave.out") 
+            print("Could not read file {0}".format(os.path.join(mydir,'stwave_out.wave.out')))
 
         # read peak wave period from "stwave_out.TP.out" 
         try:
@@ -134,7 +141,7 @@ class Model:
                 w = 2.*np.pi/Tp
         
         except IOError:
-            print("Could not read file ./stwave_out.Tp.out") 
+            print("Could not read file {0}".format(os.path.join(mydir,'stwave_out.Tp.out'))) 
 
 
         # Read wave number from c2shore.out
@@ -168,14 +175,15 @@ class Model:
                 return c
 
         except IOError:
-            print("Could not read file ./c2shore.out") 
+            print("Could not read file {0}".format(os.path.join(mydir,'c2shore.out'))) 
 
     def run_model(self,simul_dir):
         '''
             run stwave by changing directory to simul_dir, execute, then come back to home directory
         '''
         os.chdir(simul_dir)
-        call(["./stwave","stwave_out.sim"])
+        call([self.stwave_exec,"stwave_out.sim"])
+        #call(["./stwave","stwave_out.sim"])
         os.chdir(self.homedir)        
         
         # or you can run in shell environment
@@ -208,7 +216,7 @@ class Model:
             start = time()
         
             # I don't think running in shell mode is recommended but it works for now.
-            Parallel(n_jobs = ncores)(delayed(call)(["cd " + mydirs[idx] + ";./stwave stwave_out.sim"],shell=True) for idx in range(nruns))
+            Parallel(n_jobs = ncores)(delayed(call)(["cd " + mydirs[idx] + ";{0} stwave_out.sim".format(self.stwave_exec)],shell=True) for idx in range(nruns))
         
             print('-- time for running %d stwave simulations (parallel) on %d cores is %g sec' % (nruns, ncores,round(time() - start)))
         
