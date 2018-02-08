@@ -233,7 +233,7 @@ class PCGA:
             if 'alphamax_LM' in params:
                 self.alphamax_LM = params['alphamax_LM']
             else:
-                self.alphamax_LM = 10.**4. # does it sound ok?
+                self.alphamax_LM = 10.**3. # does it sound ok?
 
         self.linesearch = True if 'linesearch' not in self.params else self.params['linesearch']
         
@@ -264,12 +264,12 @@ class PCGA:
         print("   Posterior cov computation                     : %s" % (self.post_cov))
         if self.post_cov:
             if self.post_diag_direct:
-                print("   Posterior posterior vaiance compuation        : Direct")
+                print("   Posterior variance computation                  : Direct")
             else:
-                print("   Posterior posterior vaiance compuation        : Fast")
+                print("   Posterior variance computation                  : Approx.")
         print("   Number of CPU cores (n_core)                  : %d" % (self.ncores))
         print("   Maximum GN iterations                         : %d" % (self.maxiter))
-        print("   machine precision (delta = sqrt(precision)    : %e" % (self.precision))
+        print("   machine precision (delta = sqrt(precision))   : %e" % (self.precision))
         print("   Tol for iterations (norm(sol_diff)/norm(sol)) : %e" % (self.restol))
         print("   Levenberg-Marquardt                           : %s" % (self.LM))
         print("   Line search                                   : %s" % (self.linesearch))
@@ -568,7 +568,8 @@ class PCGA:
         start2 = time()
         sqrtGDCov = GeneralizedSQRTCovarianceMatrix(U_data,HZ) # sqrt of generalized data covariance
         sigma_cR = svds(sqrtGDCov, k= min(n-p,n_pc), which='LM', maxiter = n, return_singular_vectors=False)
-        print("computed Jacobian-Matrix products in : %f secs, eig. val. of generalized data covariance : %f secs" % (start1 - start2,time()-start2))
+        print("computed Jacobian-Matrix products in : %f secs" % (start1 - start2))
+        #print("computed Jacobian-Matrix products in : %f secs, eig. val. of generalized data covariance : %f secs" % (start1 - start2,time()-start2))
 
         # Construct HQ directly 
         HQ = np.dot(HZ,Z.T) 
@@ -636,7 +637,8 @@ class PCGA:
             raise ValueError("np.size(simul_obs_all,1) != nopts")
 
         obj_best = 1.e+20
-        print('%d objective value evaluations' % nopts)
+        if self.verbose:
+            print('%d objective value evaluations' % nopts)
         for i in range(nopts):
             if self.objeval: # If true, we do accurate computation
                 obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = False) 
@@ -644,7 +646,8 @@ class PCGA:
                 obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = True) 
                 
             if obj < obj_best: 
-                print('%d-th solution obj %e (alpha %f)' % (i,obj,alpha[i]))
+                if self.verbose:
+                    print('%d-th solution obj %e (alpha %f)' % (i,obj,alpha[i]))
                 s_hat = s_hat_all[:,i:i+1]
                 beta = beta_all[:,i:i+1]
                 simul_obs_new = simul_obs_all[:,i:i+1]
@@ -690,7 +693,8 @@ class PCGA:
             # Matrix handle for sqrt of Generalized Data Covariance
             sqrtGDCovfun = LinearOperator( (n,n_pc), matvec=mv, rmatvec = rmv, dtype = 'd')
             sigma_cR = svds(sqrtGDCovfun, k= min(n-p,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
-            print("computed Jacobian-Matrix products in %f secs, eig. val. of generalized data covariance : %f secs (%8.2e, %8.2e, %8.2e)" % (start2 - start1, time()-start2,sigma_cR[0],sigma_cR.min(),sigma_cR.max()))
+            print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
+            #print("computed Jacobian-Matrix products in %f secs, eig. val. of generalized data covariance : %f secs (%8.2e, %8.2e, %8.2e)" % (start2 - start1, time()-start2,sigma_cR[0],sigma_cR.min(),sigma_cR.max()))
         else: # Compute eig(P*(HQHT+R)*P) approximately by svd(P*(HZ*HZ' + R)*P) # need to do for each alpha[i]*R
             print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
 
@@ -729,11 +733,11 @@ class PCGA:
             self.Psi_U = Psi_U
 
         if self.LM:
-            print('Solve saddle point (co-kriging) systems with Levenberg-Marquardt')
+            print('solve saddle point (co-kriging) systems with Levenberg-Marquardt')
             nopts = self.nopts_LM
             alpha = 10**(np.linspace(0.,np.log10(self.alphamax_LM),nopts))
         else:
-            print('Solve saddle point (co-kriging) system')
+            print('solve saddle point (co-kriging) system')
             nopts = 1
             alpha = np.array([1.0])
 
@@ -856,7 +860,7 @@ class PCGA:
 
         # evaluate objective values and select best value
         obj_best = 1.e+20
-        if self.LM:
+        if self.LM and self.verbose:
             print('%d objective value evaluations' % nopts)
 
         i_best = 0
@@ -868,7 +872,8 @@ class PCGA:
                 obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = True) 
                 
             if obj < obj_best: 
-                print("%d-th solution obj %e (alpha %f)" % (i,obj,alpha[i]))
+                if self.verbose:
+                    print("%d-th solution obj %e (alpha %f)" % (i,obj,alpha[i]))
                 s_hat = s_hat_all[:,i:i+1]
                 beta = beta_all[:,i:i+1]
                 simul_obs_new = simul_obs_all[:,i:i+1]
@@ -920,7 +925,7 @@ class PCGA:
             s_hat_all[:,i:i+1] = delta[i]*s_past + (1.-delta[i])*s_cur
 
         # parallel
-        print('evaluate Line Search solutions')
+        print('evaluate linesearch solutions')
         if self.parallel:
             simul_obs_all = self.ParallelForwardSolve(s_hat_all)
         else:
@@ -942,7 +947,8 @@ class PCGA:
                 obj = self.ObjectiveFunctionNoBeta(s_hat_all[:,i:i+1], simul_obs_all[:,i:i+1],1) 
             
             if obj < obj_best: 
-                print('%d-th solution obj %e (delta %f)' % (i,obj,delta[i]))
+                if self.verbose:
+                    print('%d-th solution obj %e (delta %f)' % (i,obj,delta[i]))
                 s_hat = s_hat_all[:,i:i+1]
                 simul_obs_new = simul_obs_all[:,i:i+1]
                 obj_best = obj
@@ -972,8 +978,8 @@ class PCGA:
         simul_obs_init = self.ForwardSolve(s_init)
         self.simul_obs_init = simul_obs_init
         RMSE_init = np.linalg.norm(simul_obs_init-self.obs)/np.sqrt(n)
-        nRMSE_init = np.linalg.norm( np.divide(simul_obs_init-self.obs,self.R) )/np.sqrt(n)
-        print('RMSE (norm(obs. diff.)/sqrt(nobs)): %g, normalized RMSE (norm(obs. diff./R)/sqrt(nobs)): %g' % (RMSE_init, nRMSE_init))
+        nRMSE_init = np.linalg.norm( np.divide(simul_obs_init-self.obs,self.sqrtR) )/np.sqrt(n)
+        print('obs. RMSE (norm(obs. diff.)/sqrt(nobs)): %g, normalized obs. RMSE (norm(obs. diff./sqrtR)/sqrt(nobs)): %g' % (RMSE_init, nRMSE_init))
         simul_obs = np.copy(simul_obs_init)
         s_cur = np.copy(s_init)
         s_past = np.copy(s_init)
@@ -983,7 +989,7 @@ class PCGA:
             print("***** Iteration %d ******" % (i+1))
             s_cur, beta_cur, simul_obs_cur, obj = self.LinearIteration(s_past, simul_obs)
 
-            print("- time for iteration %d is %g sec" %((i+1), round(time()-start)))
+            print("- Geostat. inversion at iteration %d is %g sec" %((i+1), round(time()-start)))
             print("- Q2:%e, cR: %e at iteration %d" %(self.Q2_cur,self.cR_cur,(i+1)))
             
             if obj < self.obj_best:
@@ -996,7 +1002,7 @@ class PCGA:
                 self.cR_best = self.cR_cur
             else: 
                 if self.linesearch:
-                    print('perform simple linesearch due to no progress in obj values')
+                    print('perform simple linesearch due to no progress in obj value')
                     s_cur, simul_obs_cur, obj = self.LineSearch(s_cur, s_past)
                     if obj < self.obj_best:
                         self.obj_best = obj
@@ -1005,27 +1011,31 @@ class PCGA:
                         self.iter_best = i+1
                     else:
                         if i > 1:
-                            print('no progress in obj values')
+                            print('no progress in obj value')
                             iter_cur = i+1
                             break
                         else:
-                            print('no progress in obj values but wait for one more iteration..')
+                            print('no progress in obj value but wait for one more iteration..')
                             # allow first few iterations
                             pass # allow for 
                 else:
-                    print('no progress in obj values')
+                    print('no progress in obj value')
                     iter_cur = i +1
                     break
 
             res = np.linalg.norm(s_past-s_cur)/np.linalg.norm(s_past)
             RMSE_cur = np.linalg.norm(simul_obs_cur-self.obs)/np.sqrt(n)
-            nRMSE_cur = np.linalg.norm( np.divide(simul_obs_cur-self.obs,self.R) )/np.sqrt(n)
+            nRMSE_cur = np.linalg.norm( np.divide(simul_obs_cur-self.obs,self.sqrtR) )/np.sqrt(n)
         
             if self.s_true is not None:            
                 err = np.linalg.norm(s_cur-self.s_true)/np.linalg.norm(self.s_true)
-                print("- iteration %d: relative L2-norm diff (w.r.t prev. iter. sol.) is %g, objective function is %e, rel. L2-norm error (w.r.t truth) is %g, obs. RMSE is %g, obs. normalized RMSE is %g" %((i+1), res, obj, err, RMSE_cur, nRMSE_cur))
+                print("== iteration %d summary ==" % (i+1))
+                print("= objective function is %e, relative L2-norm diff btw sol %d and sol %d is %g" % (obj,res,i,i+1))
+                print("= L2-norm error (w.r.t truth) is %g, obs. RMSE is %g, obs. normalized RMSE is %g" % (err, RMSE_cur, nRMSE_cur))
             else:
-                print("- iteration %d: relative L2-norm diff (w.r.t prev. iter. sol.) is %g, objective function is %e, and RMSE is %g, normalized RMSE is %g" %((i+1), res, obj, RMSE_cur, nRMSE_cur))
+                print("== iteration %d summary ==" % (i+1))
+                print("= objective function is %e, relative L2-norm diff btw sol %d and sol %d is %g" % (obj,res,i,i+1))
+                print("= obs. RMSE is %g, obs. normalized RMSE is %g" % (RMSE_cur, nRMSE_cur))
 
             if res < restol:
                 iter_cur = i + 1
@@ -1036,7 +1046,7 @@ class PCGA:
             self.objvals.append(float(obj))
 
             if self.iter_save:
-                print("- save results at iteration %d" % (i+1))
+                print("- save results in text at iteration %d" % (i+1))
                 np.savetxt('./shat' + str(i+1) + '.txt', s_cur)
                 np.savetxt('./simulobs' + str(i+1) + '.txt', simul_obs_cur)
                 #self.post_diagv = self.ComputePosteriorDiagonalEntries(self.HZ, self.HX, self.i_best,self.R)
@@ -1058,12 +1068,12 @@ class PCGA:
         #return s_cur, beta_cur, simul_obs, iter_cur
         print("------------ Inversion Summary ---------------------------")
         print("** Found solution at iteration %d" %(self.iter_best))
-        print("** Solution RMSE %g , initial RMSE %g, where RMSE = (norm(obs. diff.)/sqrt(nobs)), Solution nRMSE %g, init. nRMSE %g" %(np.linalg.norm(self.simul_obs_best-self.obs)/np.sqrt(self.n),RMSE_init, np.linalg.norm( np.divide(self.simul_obs_best-self.obs,self.R) )/np.sqrt(n)
+        print("** Solution RMSE %g , initial RMSE %g, where RMSE = (norm(obs. diff.)/sqrt(nobs)), Solution nRMSE %g, init. nRMSE %g" %(np.linalg.norm(self.simul_obs_best-self.obs)/np.sqrt(self.n),RMSE_init, np.linalg.norm( np.divide(self.simul_obs_best-self.obs,self.sqrtR) )/np.sqrt(n)
         , nRMSE_init))
         print("** Final objective function value is %e" %(self.obj_best))
         print("** Final predictive model checking Q2, cR is %e, %e" %(self.Q2_best, self.cR_best))
 
-        return self.s_best, self.simul_obs_best, self.iter_best, self.post_diagv
+        return self.s_best, self.simul_obs_best, self.post_diagv, self.iter_best
 
     def Run(self):
         start = time()
@@ -1073,12 +1083,12 @@ class PCGA:
         if self.priorU is None or self.priord is None:
             self.ComputePriorEig()
 
-        s_hat, simul_obs, iter_best, post_diagv = self.GaussNewton()
+        s_hat, simul_obs, post_diagv, iter_best = self.GaussNewton()
         #start = time()
         print("** Total elapsed time is %f secs" % (time()-start))
         print("----------------------------------------------------------")
         if self.post_cov or self.post_cov == "diag":
-            return s_hat, simul_obs, iter_best, post_diagv
+            return s_hat, simul_obs, post_diagv, iter_best
         else:
             return s_hat, simul_obs, iter_best
 
@@ -1210,7 +1220,7 @@ class PCGA:
             b[0:n] = np.dot(HZ, (np.multiply(np.sqrt(self.priord), self.priorU[i:i + 1, :].T)))
             b[n:n + p] = self.X[i:i + 1, :].T
             v[i] = priorvar - np.dot(b.T,P(b))
-            if i % 10000 == 0:
+            if i % 10000 == 0 and i > 0:
                 print("%d-th element evalution done.." % (i))
         v[v > priorvar] = priorvar
 
