@@ -1,0 +1,5 @@
+#files to ignore by default
+
+*.pyc
+
+*~
