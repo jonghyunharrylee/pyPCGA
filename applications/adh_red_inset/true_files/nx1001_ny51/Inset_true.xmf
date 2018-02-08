@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd">
+<Xdmf Version="2.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid CollectionType="Temporal" GridType="Collection" Name="Mesh">
+      <Grid GridType="Uniform">
+        <Time Value="0.000000"/>
+        <Topology NumberOfElements="100000" Type="Triangle">
+          <DataItem DataType="Int" Dimensions="100000 3" Format="HDF">Inset_true_p0.h5:/Geometry/elements/0</DataItem>
+        </Topology>
+        <Geometry Type="XYZ">
+          <DataItem DataType="Float" Dimensions="51051 3" Format="HDF" Precision="8">Inset_true_p0.h5:/Geometry/nodes/0</DataItem>
+          <Information Name="my_nnode" Value="51051"/>
+        </Geometry>
+        <Set Ghost="1" SetType="Node"/>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Surface_Elevation">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Surface_Elevation/0</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Depth">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Depth/0</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Vector" Center="Node" Name="Velocity">
+          <DataItem DataType="Float" Dimensions="51051 3" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Velocity/0</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Concentration 1">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Concentration 1/0</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Error">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Error/0</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Hydro Error">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Hydro Error/0</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Concentration_Error 1">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Concentration_Error 1/0</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid GridType="Uniform">
+        <Time Value="1868.231620"/>
+        <Topology NumberOfElements="100000" Type="Triangle">
+          <DataItem DataType="Int" Dimensions="100000 3" Format="HDF">Inset_true_p0.h5:/Geometry/elements/0</DataItem>
+        </Topology>
+        <Geometry Type="XYZ">
+          <DataItem DataType="Float" Dimensions="51051 3" Format="HDF" Precision="8">Inset_true_p0.h5:/Geometry/nodes/0</DataItem>
+          <Information Name="my_nnode" Value="51051"/>
+        </Geometry>
+        <Set Ghost="1" SetType="Node"/>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Surface_Elevation">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Surface_Elevation/1</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Depth">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Depth/1</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Vector" Center="Node" Name="Velocity">
+          <DataItem DataType="Float" Dimensions="51051 3" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Velocity/1</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Concentration 1">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Concentration 1/1</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Error">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Error/1</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Hydro Error">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Hydro Error/1</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Concentration_Error 1">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Concentration_Error 1/1</DataItem>
+        </Attribute>
+      </Grid>
+      <Grid GridType="Uniform">
+        <Time Value="3600.000000"/>
+        <Topology NumberOfElements="100000" Type="Triangle">
+          <DataItem DataType="Int" Dimensions="100000 3" Format="HDF">Inset_true_p0.h5:/Geometry/elements/0</DataItem>
+        </Topology>
+        <Geometry Type="XYZ">
+          <DataItem DataType="Float" Dimensions="51051 3" Format="HDF" Precision="8">Inset_true_p0.h5:/Geometry/nodes/0</DataItem>
+          <Information Name="my_nnode" Value="51051"/>
+        </Geometry>
+        <Set Ghost="1" SetType="Node"/>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Surface_Elevation">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Surface_Elevation/2</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Depth">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Depth/2</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Vector" Center="Node" Name="Velocity">
+          <DataItem DataType="Float" Dimensions="51051 3" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Velocity/2</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Concentration 1">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Concentration 1/2</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Error">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Error/2</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Hydro Error">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Hydro Error/2</DataItem>
+        </Attribute>
+        <Attribute AttributeType="Scalar" Center="Node" Name="Concentration_Error 1">
+          <DataItem DataType="Float" Dimensions="51051" Format="HDF" Precision="8">Inset_true_p0.h5:Data/Concentration_Error 1/2</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+  </Domain>
+</Xdmf>

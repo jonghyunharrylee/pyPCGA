@@ -1,0 +1,12 @@
+
+##test logically rectangular domain for riverine inversion
+input xy_Inset
+output grid_Inset_nx1001_ny51
+nx 1001
+ny 51
+nnodes 10
+precision 1e-12
+newton 1
+rectangle rect_Inset
+sigmas sigmas_Inset
+        
