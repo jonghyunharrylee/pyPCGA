@@ -9,6 +9,7 @@ updates
 - Fast posterior variance/std computation using exact preconditioner
 
 to-do 
+- Python 3 support 
 - automatic covariance model parameter calibration
 - clean up the code with better interface
 - link with ERDC-stwave script (currently using a script for bathymetry update) 
