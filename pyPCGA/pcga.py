@@ -5,7 +5,7 @@ import sys,os
 from covariance.mat import *
 from inspect import getsource
 
-from scipy.sparse.linalg import gmres, minres, svds # IterativeSolve
+from scipy.sparse.linalg import gmres, minres, svds, eigsh # IterativeSolve
 from scipy.sparse.linalg import LinearOperator # Matrix-free IterativeSolve
 from IPython.core.debugger import Tracer; debug_here = Tracer()
 #from pdb import set_trace
@@ -319,7 +319,7 @@ class PCGA:
         #twopass = False if not 'twopass' in self.params else self.params['twopass']
         start = time()
         if method == 'arpack':
-            from scipy.sparse.linalg import eigsh
+            #from scipy.sparse.linalg import eigsh
             self.priord, self.priorU = eigsh(self.Q, k = n_pc)
             self.priord = self.priord[::-1]
             self.priord = self.priord.reshape(-1,1) # make a column vector
@@ -692,7 +692,7 @@ class PCGA:
 
             # Matrix handle for sqrt of Generalized Data Covariance
             sqrtGDCovfun = LinearOperator( (n,n_pc), matvec=mv, rmatvec = rmv, dtype = 'd')
-            sigma_cR = svds(sqrtGDCovfun, k= min(n-p,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
+            sigma_cR = svds(sqrtGDCovfun, k= min(n-p-1,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
             print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
             #print("computed Jacobian-Matrix products in %f secs, eig. val. of generalized data covariance : %f secs (%8.2e, %8.2e, %8.2e)" % (start2 - start1, time()-start2,sigma_cR[0],sigma_cR.min(),sigma_cR.max()))
         else: # Compute eig(P*(HQHT+R)*P) approximately by svd(P*(HZ*HZ' + R)*P) # need to do for each alpha[i]*R
@@ -702,32 +702,48 @@ class PCGA:
         if self.precond != False:
             # GHEP : HQHT u = lamdba R u => u = R^{-1/2} y 
             if R.shape[0] == 1:
-                # n by n_pc
+                # original implementation was sqrt of R^{-1/2} HZ n by n_pc
+                # svds cannot compute entire n_pc eigenvalues so do this for n by n matrix
+                # this leads to double the cost
                 def pmv(v):
-                    return np.multiply(self.invsqrtR,np.dot(HZ,v))
+                    return np.multiply(self.invsqrtR, np.dot(HZ,(np.dot(HZ.T, np.multiply(self.invsqrtR, v)))))
+                    #return np.multiply(self.invsqrtR,np.dot(HZ,v))
                 def prmv(v):
-                    return np.dot(HZ.T,np.multiply(self.invsqrtR,v))
+                    #return np.dot(HZ.T,np.multiply(self.invsqrtR,v))
+                    return pmv(v)
             else:
                 # n by n
                 def pmv(v):
-                    return np.multiply(self.invsqrtR.reshape(v.shape),np.dot(HZ,np.multiply(self.invsqrtR.reshape(v.shape),v)))
+                    return np.multiply(self.invsqrtR.reshape(v.shape),np.dot(HZ,(np.dot(HZ.T,np.multiply(self.invsqrtR.reshape(v.shape),v)))))
                 def prmv(v):
                     return pmv(v)
 
             # Matrix handle for sqrt of Data Covariance
-            sqrtDataCovfun = LinearOperator( (n,n_pc), matvec=pmv, rmatvec = prmv, dtype = 'd')
+            #sqrtDataCovfun = LinearOperator( (n,n_pc), matvec=pmv, rmatvec = prmv, dtype = 'd')
+            #sqrtDataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
+            DataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
 
-            [Psi_U,Psi_sigma,Psi_V] = svds(sqrtDataCovfun, k= min(n,n_pc)-1, which='LM', maxiter = n, return_singular_vectors='u')
+            #[Psi_U,Psi_sigma,Psi_V] = svds(sqrtDataCovfun, k= min(n,n_pc), which='LM', maxiter = n, return_singular_vectors='u')
+            [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=min(n, n_pc), which='LM', maxiter=n)
+
+            #print("eig. val. of sqrt data covariance (%8.2e, %8.2e, %8.2e)" % (Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
+#print(Psi_sigma)
 
             Psi_U = np.multiply(self.invsqrtR,Psi_U)
-            if R.shape[0] == 1:
-                Psi_sigma = Psi_sigma**2 # because we use svd(HZ) instead of svd(HQHT+R)
+            #if R.shape[0] == 1:
+            #    Psi_sigma = Psi_sigma**2 # because we use svd(HZ) instead of svd(HQHT+R)
             index_Psi_sigma = np.argsort(Psi_sigma)
             index_Psi_sigma = index_Psi_sigma[::-1]
             Psi_sigma = Psi_sigma[index_Psi_sigma]
             Psi_U = Psi_U[:,index_Psi_sigma]
             Psi_U = Psi_U[:,Psi_sigma > 0]
             Psi_sigma =  Psi_sigma[Psi_sigma > 0]
+
+            if self.verbose:
+                print("eig. val. of data covariance (%8.2e, %8.2e, %8.2e)" % (
+                Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
+                if Psi_U.shape[1] != n_pc:
+                    print('- rank of data covariance :%d for preconditioner construction', Psi_U.shape[1])
 
             self.Psi_sigma = Psi_sigma
             self.Psi_U = Psi_U
@@ -761,10 +777,9 @@ class PCGA:
 
             b = np.zeros((n+p,1), dtype = 'd')
             b[:n] = self.obs[:] - simul_obs + Hs[:]
-        
+
             callback = Residual()
-        
-            #Residual and maximum iterations	
+            #Residual and maximum iterations
             itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
             solver_maxiter = m if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
 
@@ -796,6 +811,7 @@ class PCGA:
                 x, info = gmres(Afun, b, tol=itertol, restart=restart, maxiter=solver_maxiter, callback=callback, M=P)
                 if self.verbose: print("-- Number of iterations for gmres %g" %(callback.itercount()))
                 if info != 0: # if not converged
+                    callback = Residual()
                     x, info = minres(Afun, b, x0 = x, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
                     if self.verbose: print("-- Number of iterations for minres %g and info %d" %(callback.itercount(),info))
             else:
@@ -835,7 +851,7 @@ class PCGA:
                 
                 # Matrix handle for sqrt of Generalized Data Covariance
                 sqrtGDCovfun = LinearOperator( (n,n_pc), matvec=mv, rmatvec = rmv, dtype = 'd')
-                sigma_cR = svds(sqrtGDCovfun, k= min(n-p,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
+                sigma_cR = svds(sqrtGDCovfun, k= min(n-p,n_pc), which='LM', maxiter = n, return_singular_vectors=False)
                 tmp_cR[:sigma_cR.shape[0]] = sigma_cR[:,np.newaxis] # need to test this later
                 
             cR_all[:,i:i+1] = Q2_all[:,i:i+1]*np.exp(np.log(tmp_cR).sum()/(n-p))
@@ -990,7 +1006,7 @@ class PCGA:
             s_cur, beta_cur, simul_obs_cur, obj = self.LinearIteration(s_past, simul_obs)
 
             print("- Geostat. inversion at iteration %d is %g sec" %((i+1), round(time()-start)))
-            print("- Q2:%e, cR: %e at iteration %d" %(self.Q2_cur,self.cR_cur,(i+1)))
+            #print("- Q2:%e, cR: %e at iteration %d" %(self.Q2_cur,self.cR_cur,(i+1))) # don't neet to report
             
             if obj < self.obj_best:
                 self.obj_best = obj
@@ -1030,11 +1046,11 @@ class PCGA:
             if self.s_true is not None:            
                 err = np.linalg.norm(s_cur-self.s_true)/np.linalg.norm(self.s_true)
                 print("== iteration %d summary ==" % (i+1))
-                print("= objective function is %e, relative L2-norm diff btw sol %d and sol %d is %g" % (obj,res,i,i+1))
+                print("= objective function is %e, relative L2-norm diff btw sol %d and sol %d is %g" % (obj,i,i+1,res))
                 print("= L2-norm error (w.r.t truth) is %g, obs. RMSE is %g, obs. normalized RMSE is %g" % (err, RMSE_cur, nRMSE_cur))
             else:
                 print("== iteration %d summary ==" % (i+1))
-                print("= objective function is %e, relative L2-norm diff btw sol %d and sol %d is %g" % (obj,res,i,i+1))
+                print("= objective function is %e, relative L2-norm diff btw sol %d and sol %d is %g" % (obj,i,i+1,res))
                 print("= obs. RMSE is %g, obs. normalized RMSE is %g" % (RMSE_cur, nRMSE_cur))
 
             if res < restol:
@@ -1057,10 +1073,10 @@ class PCGA:
             start = time()
             if self.post_diag_direct:
                 print("start direct posterior variance computation ")
-                self.post_diagv = self.ComputePosteriorDiagonalEntriesDirect(self.HZ, self.HX, self.i_best,self.R)
+                self.post_diagv = self.ComputePosteriorDiagonalEntriesDirect(self.HZ, self.HX, self.i_best, self.R)
             else:
                 print("start posterior variance computation")
-                self.post_diagv = self.ComputePosteriorDiagonalEntries(self.HZ, self.HX, self.i_best,self.R)
+                self.post_diagv = self.ComputePosteriorDiagonalEntries(self.HZ, self.HX, self.i_best, self.R)
             print("posterior diag. computed in %f secs" % (time()-start))
             if self.iter_save:
                 np.savetxt('./postv.txt', self.post_diagv)
@@ -1163,9 +1179,7 @@ class PCGA:
         n_pc = self.n_pc
         priorvar = self.prior_std ** 2
 
-        v = np.zeros((m, 1), dtype='d')
-
-        # Create matrix context
+        ## Create matrix context
         #if R.shape[0] == 1:
         #    def mv(v):
         #        return np.concatenate(((np.dot(HZ, np.dot(HZ.T, v[0:n])) + np.multiply(np.multiply(alpha[i_best], R),v[0:n]) + np.dot(HX,v[n:n + p])),(np.dot(HX.T, v[0:n]))), axis=0)
@@ -1173,21 +1187,20 @@ class PCGA:
         #    def mv(v):
         #        return np.concatenate(((np.dot(HZ, np.dot(HZ.T, v[0:n])) + np.multiply(np.multiply(alpha[i_best], R.reshape(v[0:n].shape))) + np.dot(HX, v[n:n + p])),(np.dot(HX.T, v[0:n]))), axis=0)
 
-        # Matrix handle
+        ## Matrix handle
         #Afun = LinearOperator((n + p, n + p), matvec=mv, rmatvec=mv, dtype='d')
 
-        #callback = Residual()
-        # Residual and maximum iterations
-        #itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
-        #solver_maxiter = m if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
+        callback = Residual()
+        ## Residual and maximum iterations
+        itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
+        solver_maxiter = m if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
 
-        #Preconditioner
+        ##Preconditioner
         def invPsi(v):
             Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
             Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
             Psi_UTv = np.dot(Psi_U.T, v)
             return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
-
 
         def Pmv(v):
             invPsiv = invPsi(v[0:n])
@@ -1212,15 +1225,55 @@ class PCGA:
         #        print("-- Number of iterations for gmres %g for this element" % (callback.itercount()))
         #v[v>priorvar] = priorvar
         #print("gmres compute variance: %f sec" % (time() - start))
+        #Z = np.zeros((m,n_pc), dtype ='d')
+        #for i in range(n_pc):
+        #    Z[:,i:i+1] = np.dot(sqrt(self.priord[i]),self.priorU[:,i:i+1]) # use sqrt to make it scalar
+        ## Construct Psi directly
+        #Ri = np.multiply(alpha[i_best], R)
+        #if isinstance(Ri,float):
+        #    Psi = np.dot(HZ,HZ.T)+ np.multiply(Ri,np.eye(n,dtype='d'))
+        #elif Ri.shape[0] == 1 and Ri.ndim == 1:
+        #    Psi = np.dot(HZ,HZ.T)+ np.multiply(Ri,np.eye(n,dtype='d'))
+        #else:
+        #    Psi = np.dot(HZ,HZ.T)+ np.diag(Ri)
+        #HQ = np.dot(HZ,Z.T)
+
+        #Create matrix system and solve it
+        # cokriging matrix
+        #A = np.zeros((n+p,n+p),dtype='d')
+        #b = np.zeros((n+p,1),dtype='d')
+
+        #A[0:n,0:n] = np.copy(Psi)
+        #A[0:n,n:n+p] = np.copy(HX)
+        #A[n:n+p,0:n] = np.copy(HX.T)
 
         #start = time()
         v = np.zeros((m, 1), dtype='d')
+
         for i in range(m):
             b = np.zeros((n + p, 1), dtype='d')
             b[0:n] = np.dot(HZ, (np.multiply(np.sqrt(self.priord), self.priorU[i:i + 1, :].T)))
             b[n:n + p] = self.X[i:i + 1, :].T
+
             v[i] = priorvar - np.dot(b.T,P(b))
-            if i % 10000 == 0 and i > 0:
+            #if i < 50:
+            #    print(v[i])
+            #if i < 15:
+            #    tmp = np.dot(b.T, np.linalg.solve(A, b))
+            #    callback = Residual()
+            #    invAb, info = gmres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+            #    print("-- Number of iterations for gmres %g and info %d" % (callback.itercount(), info))
+            #    print("%d: %g %g %g" % (i, v[i], priorvar - np.dot(b.T, invAb.reshape(-1,1)),priorvar - tmp))
+
+            #    b = np.zeros((n + p, 1), dtype='d')
+            #    b[0:n] = np.dot(HZ,(np.multiply(np.sqrt(self.priord),self.priorU[i:i+1,:].T)))
+            #    b[n:n + p] = self.X[i:i+1,:].T
+            #    invAb, info = gmres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+            #    #invAb, info = minres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+
+            #    v[i] = priorvar - np.dot(b.T, invAb.reshape(-1,1))
+
+            if i % 10000 == 0 and i > 0 and self.verbose:
                 print("%d-th element evalution done.." % (i))
         v[v > priorvar] = priorvar
 

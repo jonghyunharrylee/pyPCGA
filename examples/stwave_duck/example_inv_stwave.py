@@ -56,7 +56,7 @@ def forward_model(s,parallelization,ncores = None):
     return simul_obs
 
 params = {'R':(0.1)**2, 'n_pc':50,
-          'maxiter':10, 'restol':0.05,
+          'maxiter':10, 'restol':0.01,
           'matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N,
           'prior_std':prior_std,'prior_cov_scale':prior_cov_scale,
           'kernel':kernel, 'post_cov':"diag",
