@@ -16,7 +16,7 @@ xmax = np.array([110.*5. - dx[0]/2., 83.*5. - dx[1]/2.])
 
 # covairance kernel and scale parameters
 # following Hojat's paper
-prior_std = 1.0
+prior_std = 1.5
 prior_cov_scale = np.array([18.*5., 18.*5.])
 def kernel(r): return (prior_std**2)*np.exp(-r**2)
 
