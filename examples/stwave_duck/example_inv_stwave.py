@@ -6,6 +6,7 @@ import numpy as np
 import stwave as st
 from pyPCGA import PCGA
 import math
+import datetime as dt
 
 # model domain and discretization
 N = np.array([110,83])
@@ -45,9 +46,20 @@ obs = np.loadtxt('obs.txt')
 #X[:,0] = 1/np.sqrt(m)
 #X[:,1] = np.sqrt(110.*5. - pts[:,0])/np.linalg.norm(np.sqrt(110.*5. - pts[:,0]))
 
+nx = 110
+ny = 83
+Lx = 550
+Ly = 415
+x0, y0 = (62.0, 568.0)
+t1 = dt.datetime(2015, 10, 07, 20, 00)
+t2 = dt.datetime(2015, 10, 07, 21, 00)
+
+stwave_params = {'nx': nx, 'ny': ny, 'Lx': Lx, 'Ly': Ly, 'x0': x0, 'y0': y0, 't1': t1, 't2': t2,
+          'offline_dataloc': "./input_files/8m-array_2015100718_2015100722.nc"}
+
 # prepare interface to run as a function
 def forward_model(s,parallelization,ncores = None):
-    model = st.Model()
+    model = st.Model(stwave_params)
     
     if parallelization:
         simul_obs = model.run(s,parallelization,ncores)
