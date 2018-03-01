@@ -66,11 +66,15 @@ forward_prob.writeHotFile(sim_prefix)
 velocity_obs_loc = np.loadtxt(velocity_obs_file)
 elev_obs_loc = np.loadtxt(elevation_obs_file)
 
+##which time step to use in the calculation
+ntsim=1
+
 ##instantiate the inverse problem which controls the forward model simulation
 prm = setup_Red_Inset.RedRiverProblem(forward_prob.mesh,
                                       forward_prob,
                                       velocity_obs_loc,
                                       elev_obs_loc,
+                                      ntsim=ntsim,
                                       sim_prefix=sim_prefix,
                                       debug_rigid_lid=False,
                                       AdH_version=adh_version,
