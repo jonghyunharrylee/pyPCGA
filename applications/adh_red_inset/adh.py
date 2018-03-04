@@ -20,7 +20,10 @@ class Model:
 
         from psutil import cpu_count  # physcial cpu counts
         self.ncores = cpu_count(logical=False)
-
+        self.ntsim = 1
+        # inflow discharge and free surface elevation at the boundary
+        self.z_f = 4.5 
+        self.Q_b = 400
         if params is not None: 
             if 'deletedir' in params:
                 self.deletedir = params['deletedir']
@@ -37,16 +40,18 @@ class Model:
             self.adh_mesh = params['adh_mesh']
             self.adh_bc = params['adh_bc']
 
+            if 'adh_ntsim' in params: self.ntsim = params['adh_ntsim']
+            # inflow discharge and free surface elevation at the boundary
+            # needed for writing initial condtions potentailly
+            if 'z_f' in params: self.z_f = params['z_f']
+            if 'Q_b' in params: self.Q_b = params['Q_b']
+            
             self.velocity_obs_file = params['velocity_obs_file']
             self.elevation_obs_file = params['elevation_obs_file']
             self.true_soln_file_h5 = None if 'true_soln_file_h5' not in params else params[
                 'true_soln_file_h5']
-            self.true_soln_meshbase = None if 'true_soln_meshbase' not in params else params[
-        'true_soln_meshbase']
+            self.true_soln_meshbase = None if 'true_soln_meshbase' not in params else params['true_soln_meshbase']
             self.sim_dir = './simul' if 'sim_dir' not in params else params['sim_dir']
-        # inflow discharge and free surface elevation at the boundary
-        self.Q_b = 400
-        self.z_f = 4.5
 
     def create_dir(self,idx=None):
         
@@ -96,6 +101,7 @@ class Model:
                                               elev_obs_loc,
                                               sim_prefix=sim_prefix,
                                               debug_rigid_lid=False,
+                                              ntsim=self.ntsim,
                                               AdH_version=self.adh_version,
                                               pre_adh_path=self.pre_adh_exec,
                                               adh_path=self.adh_exec,
