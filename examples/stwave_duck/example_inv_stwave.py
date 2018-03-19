@@ -1,7 +1,6 @@
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt 
-from scipy.io import savemat, loadmat
 import numpy as np
 import stwave as st
 from pyPCGA import PCGA
@@ -99,16 +98,17 @@ post_std2d = post_std.reshape(N[1],N[0])
 minv = s_true.min()
 maxv = s_true.max()
 
-fig, axes = plt.subplots(1,2)
-plt.suptitle('prior var.: (%g)^2, n_pc : %d' % (prior_std,params['n_pc']))
-im = axes[0].imshow(np.flipud(np.fliplr(-s_true2d)), extent=[0, 110, 0, 83], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
+fig, axes = plt.subplots(1,2, figsize=(15,5))
+plt.suptitle('prior var.: (%g)^2, n_pc : %d' % (prior_std, params['n_pc']))
+im = axes[0].imshow(np.flipud(np.fliplr(-s_true2d)), extent=[0, 110, 0, 83], vmin=-7., vmax=0.,
+                    cmap=plt.get_cmap('jet'))
 axes[0].set_title('(a) True', loc='left')
 axes[0].set_aspect('equal')
-axes[0].set_xlabel('Offshore distance (m)')
-axes[0].set_ylabel('Alongshore distance (m)')
+axes[0].set_xlabel('Offshore distance (px)')
+axes[0].set_ylabel('Alongshore distance (px)')
 axes[1].imshow(np.flipud(np.fliplr(-s_hat2d)), extent=[0, 110, 0, 83], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
 axes[1].set_title('(b) Estimate', loc='left')
-axes[1].set_xlabel('Offshore distance (m)')
+axes[1].set_xlabel('Offshore distance (px)')
 axes[1].set_aspect('equal')
 fig.subplots_adjust(right=0.8)
 cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
@@ -127,42 +127,43 @@ fig.savefig('std.png')
 plt.close(fig)
 
 # estimated deterministic trend
-#Xbeta = np.dot(prob.X,prob.beta_best)
-#Xbeta2d = Xbeta.reshape(N[1],N[0])
+# Xbeta = np.dot(prob.X,prob.beta_best)
+# Xbeta2d = Xbeta.reshape(N[1],N[0])
 
-fig, axes = plt.subplots(1,2)
-fig.suptitle('transect with prior var.: (%g)^2, n_pc : %d, lx = %f m, ly = %f m' % (prior_std, params['n_pc'],prior_cov_scale[0],prior_cov_scale[1]))
+fig, axes = plt.subplots(1, 2)
+fig.suptitle('transect with prior var.: (%g)^2, n_pc : %d, lx = %f m, ly = %f m' % (
+prior_std, params['n_pc'], prior_cov_scale[0], prior_cov_scale[1]))
 
-linex = np.arange(1,111)*5.0
-line1_true = s_true2d[83-25+1,:]
-line1 = s_hat2d[83-25+1,:]
-line1_u = s_hat2d[83-25+1,:] + 1.96*post_std2d[83-25+1,:]
-line1_l = s_hat2d[83-25+1,:] - 1.96*post_std2d[83-25+1,:]
-#line1_X = Xbeta2d[83-25+1,:]
+linex = np.arange(1, 111) * 5.0
+line1_true = s_true2d[83 - 25 + 1, :]
+line1 = s_hat2d[83 - 25 + 1, :]
+line1_u = s_hat2d[83 - 25 + 1, :] + 1.96 * post_std2d[83 - 25 + 1, :]
+line1_l = s_hat2d[83 - 25 + 1, :] - 1.96 * post_std2d[83 - 25 + 1, :]
+# line1_X = Xbeta2d[83-25+1,:]
 
-line2_true = s_true2d[83-45+1,:]
-line2 = s_hat2d[83-45+1,:]
-line2_u = s_hat2d[83-45+1,:] + 1.96*post_std2d[83-45+1,:]
-line2_l = s_hat2d[83-45+1,:] - 1.96*post_std2d[83-45+1,:]
-#line2_X = Xbeta2d[83-45+1,:]
+line2_true = s_true2d[83 - 45 + 1, :]
+line2 = s_hat2d[83 - 45 + 1, :]
+line2_u = s_hat2d[83 - 45 + 1, :] + 1.96 * post_std2d[83 - 45 + 1, :]
+line2_l = s_hat2d[83 - 45 + 1, :] - 1.96 * post_std2d[83 - 45 + 1, :]
+# line2_X = Xbeta2d[83-45+1,:]
 
-axes[0].plot(linex, np.flipud(-line1_true),'r-', label='True')
-axes[0].plot(linex, np.flipud(-line1),'k-', label='Estimated')
-axes[0].plot(linex, np.flipud(-line1_u),'k--', label='95% credible interval')
-axes[0].plot(linex, np.flipud(-line1_l),'k--')
-#axes[0].plot(linex, np.flipud(-line1_X),'b--', label='Drift/Trend')
+axes[0].plot(linex, np.flipud(-line1_true), 'r-', label='True')
+axes[0].plot(linex, np.flipud(-line1), 'k-', label='Estimated')
+axes[0].plot(linex, np.flipud(-line1_u), 'k--', label='95% credible interval')
+axes[0].plot(linex, np.flipud(-line1_l), 'k--')
+# axes[0].plot(linex, np.flipud(-line1_X),'b--', label='Drift/Trend')
 axes[0].set_title('(a) 125 m', loc='left')
-#axes[0].set_title('(a) 25 px', loc='left')
+# axes[0].set_title('(a) 25 px', loc='left')
 handles, labels = axes[0].get_legend_handles_labels()
 axes[0].legend(handles, labels)
 
-axes[1].plot(linex, np.flipud(-line2_true),'r-', label='True')
-axes[1].plot(linex, np.flipud(-line2),'k-', label='Estimated')
-axes[1].plot(linex, np.flipud(-line2_u),'k--', label='95% credible interval')
-axes[1].plot(linex, np.flipud(-line2_l),'k--')
-#axes[1].plot(linex, np.flipud(-line2_X),'b--', label='Drift/Trend')
+axes[1].plot(linex, np.flipud(-line2_true), 'r-', label='True')
+axes[1].plot(linex, np.flipud(-line2), 'k-', label='Estimated')
+axes[1].plot(linex, np.flipud(-line2_u), 'k--', label='95% credible interval')
+axes[1].plot(linex, np.flipud(-line2_l), 'k--')
+# axes[1].plot(linex, np.flipud(-line2_X),'b--', label='Drift/Trend')
 axes[1].set_title('(b) 225 m', loc='left')
-#axes[1].set_title('(b) 45 px', loc='left')
+# axes[1].set_title('(b) 45 px', loc='left')
 handles, labels = axes[1].get_legend_handles_labels()
 axes[1].legend(handles, labels)
 fig.savefig('transect.png')
@@ -171,38 +172,38 @@ plt.close(fig)
 nobs = prob.obs.shape[0]
 fig = plt.figure()
 plt.title('obs. vs simul.')
-plt.plot(prob.obs,simul_obs,'.')
+plt.plot(prob.obs, simul_obs, '.')
 plt.xlabel('observation')
 plt.ylabel('simulation')
-minobs = np.vstack((prob.obs,simul_obs)).min(0)
-maxobs = np.vstack((prob.obs,simul_obs)).max(0)
-plt.plot(np.linspace(minobs,maxobs,20),np.linspace(minobs,maxobs,20),'k-')
+minobs = np.vstack((prob.obs, simul_obs)).min(0)
+maxobs = np.vstack((prob.obs, simul_obs)).max(0)
+plt.plot(np.linspace(minobs, maxobs, 20), np.linspace(minobs, maxobs, 20), 'k-')
 plt.axis('equal')
 axes = plt.gca()
-axes.set_xlim([math.floor(minobs),math.ceil(maxobs)])
-axes.set_ylim([math.floor(minobs),math.ceil(maxobs)])
+axes.set_xlim([math.floor(minobs), math.ceil(maxobs)])
+axes.set_ylim([math.floor(minobs), math.ceil(maxobs)])
 fig.savefig('obs.png', dpi=fig.dpi)
-#plt.show()
+# plt.show()
 plt.close(fig)
 
 fig = plt.figure()
-plt.semilogy(range(len(prob.objvals)),prob.objvals,'r-')
+plt.semilogy(range(len(prob.objvals)), prob.objvals, 'r-')
 plt.title('obj values over iterations')
 plt.axis('tight')
 fig.savefig('obj.png', dpi=fig.dpi)
 plt.close(fig)
 
-fig, axes = plt.subplots(4,4, sharex = True, sharey = True)
+fig, axes = plt.subplots(4, 4, sharex=True, sharey=True)
 fig.suptitle('n_pc : %d' % params['n_pc'])
 for i in range(4):
     for j in range(4):
-        axes[i,j].imshow(prob.priorU[:,(i*4+j)*2].reshape(N[1],N[0]), extent=[0, 110, 0, 83])
-        axes[i,j].set_title('%d-th eigv' %((i*4+j)*2))
+        axes[i, j].imshow(prob.priorU[:, (i * 4 + j) * 2].reshape(N[1], N[0]), extent=[0, 110, 0, 83])
+        axes[i, j].set_title('%d-th eigv' % ((i * 4 + j) * 2))
 fig.savefig('eigv.png', dpi=fig.dpi)
 plt.close(fig)
-    
+
 fig = plt.figure()
-plt.semilogy(prob.priord,'o')
+plt.semilogy(prob.priord, 'o')
 fig.savefig('eig.png', dpi=fig.dpi)
-#plt.show()
-plt.close(fig) 
+# plt.show()
+plt.close(fig)
