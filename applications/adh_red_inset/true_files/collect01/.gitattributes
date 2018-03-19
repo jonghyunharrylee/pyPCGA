@@ -1,0 +1,2 @@
+triangles.txt filter=lfs diff=lfs merge=lfs -text
+meshnode.txt filter=lfs diff=lfs merge=lfs -text

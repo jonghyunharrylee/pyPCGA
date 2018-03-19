@@ -329,6 +329,14 @@ version of AdH being used. Relevant options are 5 or anything less [5]
                         help="pre_adh executable location for v4 adh [None]",
                         action="store",
                         default=None)
+    parser.add_argument("--true_soln_file_h5",
+                        help="Data file for the true solution",
+                        action="store",
+                        default="./true_files/Inset_true_p0.h5")
+    parser.add_argument("--true_soln_meshbase",
+                        help="base name for meshes holding the true solution",
+                        action="store",
+                        default="./true_files/Inset_true")
 
     opts = parser.parse_args()
 
@@ -373,9 +381,10 @@ version of AdH being used. Relevant options are 5 or anything less [5]
                                                                y_varies_fastest=ens_y_varies_fastest)
 
 
-
-    true_soln_file_h5='./true_files/Inset_true_p0.h5'
-    true_soln_meshbase= './true_files/Inset_true'
+    assert os.path.isfile(true_soln_file_h5)
+    
+    true_soln_file_h5=opts.true_soln_file_h5
+    true_soln_meshbase= opts.true_soln_meshbase
 
 
     np.random.seed(opts.seed)

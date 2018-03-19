@@ -19,11 +19,38 @@ adh_params = {'sim_dir': './simul',
               'adh_rect': './mesh_files/nx1001_ny51/rect_Inset_nx1001_ny51',
               'adh_mesh': './mesh_files/nx1001_ny51/Inset_nx1001_ny51.3dm',
               'adh_bc': './true_files/nx1001_ny51/Inset_true_v46.bc',
+              'adh_ntsim': 2,
+              'z_f': 4.8,'Q_f': 700., #free-surface elevation and default inflow
               'velocity_obs_file': './observation_files/observation_loc_N250_M8_J1_I10.dat',
               'elevation_obs_file': './observation_files/observation_loc_none.dat',
               'true_soln_file_h5': './true_files/nx1001_ny51/Inset_true_v46_p0.h5',
               'true_soln_meshbase': './true_files/nx1001_ny51/Inset_true_v46'
               }
+
+adh_params_collect01 = {'sim_dir': './simul',
+                        'adh_exec': './bin/v4/adh',
+                        'pre_adh_exec': './bin/v4/pre_adh',
+                        'adh_version': 4.5,
+                        'adh_grid': './mesh_files/collect01/grid_Inset_02262018',
+                        'adh_rect': './mesh_files/collect01/rect_Inset_02262018',
+                        'adh_mesh': './mesh_files/collect01/Inset_02262018_gridgen.3dm',
+                        'adh_bc': './true_files/collect01/Inset_true_v46.bc',
+                        'adh_ntsim': 1,
+                        'z_f': 4.8,'Q_f': 700., #free-surface elevation and default inflow
+                        'velocity_obs_file': './observation_files/collect01/observation_loc_N250_M8_J1_I10.dat',
+                        'elevation_obs_file': './observation_files/collect01/observation_loc_none.dat',
+                        'true_soln_file_h5': './true_files/collect01/Inset_true_v46_p0.h5',
+                        'true_soln_meshbase': './true_files/collect01/Inset_true_v46'
+                        }
+
+#which set of simulation parameters to use
+sim_params = adh_params_collect01 #adh_params
+#where the 'true' solution is
+true_file = './mesh_files/collect01/z_Inset_02262018' #true.txt
+obs_file  = './observation_files/collect01/observations.dat' #obs.txt
+#describe the mesh for visualization
+elements_file='./true_files/collect01/triangles.txt'#'triangles.txt'
+nodes_file   ='./true_files/collect01/meshnode.txt'#'meshnode.txt'
 
 nx = 1001
 ny = 51
@@ -49,10 +76,10 @@ def kernel(r): return (prior_std ** 2) * np.exp(-r ** 2)
 XX, YY = np.meshgrid(x, y)
 pts = np.hstack((XX.ravel()[:, np.newaxis], YY.ravel()[:, np.newaxis]))
 
-s_true = np.loadtxt('true.txt')
+s_true = np.loadtxt(true_file)
 s_true = s_true.reshape(-1, 1)
 
-obs = np.loadtxt('obs.txt')
+obs = np.loadtxt(obs_file)
 obs = obs.reshape(-1, 1)
 
 s_init = np.mean(s_true) * np.ones((m, 1))
@@ -62,7 +89,7 @@ s_init = np.mean(s_true) * np.ones((m, 1))
 
 # prepare interface to run as a function
 def forward_model(s, parallelization, ncores=None):
-    mymodel = adh.Model(adh_params)
+    mymodel = adh.Model(sim_params)
 
     if parallelization:
         if ncores is None:
@@ -78,14 +105,14 @@ def forward_model(s, parallelization, ncores=None):
     return simul_obs
 
 params = {'R': (0.05) ** 2, 'n_pc': 100,
-          'maxiter': 10, 'restol': 5e-2,
+          'maxiter': 6, 'restol': 5e-2, #mwf drop from 10 for checking
           'matvec': 'FFT', 'xmin': xmin,
           'xmax': xmax, 'N': N,
           'prior_std': prior_std, 'prior_cov_scale': prior_cov_scale,
           'kernel': kernel, 'post_cov': True, 'precond': True,
           'parallel': True, 'LM': True,
           'linesearch': True,
-          'forward_params': adh_params,
+          'forward_params': sim_params,
           'forward_model_verbose': False, 'verbose': False,
           'iter_save': True
           }
@@ -114,9 +141,9 @@ s_true2d = s_true.reshape(N[1], N[0])
 minv = s_true.min()
 maxv = s_true.max()
 
-triangles = np.loadtxt("triangles.txt")
-meshnode = np.loadtxt("meshnode.txt")
-velocity_obs_loc = np.loadtxt("./observation_loc_N250_M8_J1_I10.dat")
+triangles = np.loadtxt(elements_file)
+meshnode = np.loadtxt(nodes_file)
+velocity_obs_loc = np.loadtxt(sim_params['velocity_obs_file'])
 
 matplotlib.rcParams.update({'font.size': 16})
 
