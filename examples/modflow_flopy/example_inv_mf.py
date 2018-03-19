@@ -17,7 +17,7 @@ Lx = 1000.; Ly = 750.; Lz = 1; nlay = 1; nrow = 75; ncol = 100
 Q = 25.; Rch = 0.001
 ztop = 0.; zbot = -1.
 
-# seems very comfusing, but python array in order of col, row and lay
+# seems confusing considering flopy notation, remember python array ordering of col, row and lay
 N = np.array([ncol, nrow, nlay])
 m = np.prod(N)
 dx = np.array([10., 10., 1.])
