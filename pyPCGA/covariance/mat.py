@@ -1,12 +1,13 @@
+from __future__ import print_function
 import numpy as np
-# for Python 2 compatibility
+
 try:
     from exceptions import NotImplementedError, KeyError 
 except:
     pass
 
-from toeplitz import CreateRow, ToeplitzProduct
-from dense import GenerateDenseMatrix
+from .toeplitz import CreateRow, ToeplitzProduct
+from .dense import GenerateDenseMatrix
 
 __all__ = ['Residual','CovarianceMatrix']
             

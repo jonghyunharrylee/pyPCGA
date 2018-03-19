@@ -1,184 +1,202 @@
-from numpy import *
-from scitools.numpyutils import ndgrid
-import scipy.io as sio
+'''
+    toeplitz matrix-vector mutliplication adapted from Arvind Saibaba's code
+'''
+import numpy as np
 
-__all__ =['CreateRow','ToeplitzProduct','Realizations']
+__all__ = ['CreateRow', 'ToeplitzProduct', 'Realizations']
 
-# Haven't really tested dim = 3
-def DistanceVector(x,y,theta):
-	dim = x.ndim 
+def DistanceVector(x, y, theta):
+    dim = x.shape[1]
+    DM = np.zeros(x.shape[0])
 
-	DM = zeros(x.shape[0])
+    if dim == 1:
+        DM = (x[:] - y) ** 2. / theta ** 2.
+    else:
+        for i in np.arange(dim):
+            DM += (x[:, i] - y[i]) ** 2. / theta[i] ** 2.
 
-	if dim == 1:
-		DM = (x[:] - y)**2./theta**2.
-
-	else:	
-		for i in arange(dim):
-			DM += (x[:,i]-y[i])**2./theta[i]**2.
-		
-	
-	DM = sqrt(DM)
-	return DM
+    DM = np.sqrt(DM)
+    return DM
 
 
-def CreateRow(xmin,xmax,N,kernel,theta):
-	dim = N.size
-	
-	if dim == 1:
-		x = linspace(xmin[0],xmax[0],N[0])
-		R = DistanceVector(x,x[0],theta)
+def CreateRow(xmin, xmax, N, kernel, theta):
+    """
+    Create row column of covariance matrix
+    """
+    dim = N.size
 
-	elif dim == 2:
-		x1 = linspace(xmin[0],xmax[0],N[0])
-		x2 = linspace(xmin[1],xmax[1],N[1])
+    if dim == 1:
+        x = np.linspace(xmin[0], xmax[0], N[0])
+        R = DistanceVector(x, x[0], theta)
+        x = x.reshape(-1,1) # make it 2D for consistency
+    elif dim == 2:
+        x1 = np.linspace(xmin[0], xmax[0], N[0])
+        x2 = np.linspace(xmin[1], xmax[1], N[1])
 
-		xx, yy = ndgrid(x1,x2)
-	
-		x = vstack((ravel(xx, order = 'F'),ravel(yy, order = 'F'))).transpose()
-		R = DistanceVector(x,x[0,:].transpose(),theta)
+        xx, yy = np.meshgrid(x1, x2, indexing='ij')
 
-	elif dim == 3:
-		x1 = linspace(xmin[0],xmax[0],N[0])
-		x2 = linspace(xmin[1],xmax[1],N[1])
-		x3 = linspace(xmin[2],xmax[2],N[2])
+        x = np.vstack((np.ravel(xx, order='F'), np.ravel(yy, order='F'))).transpose()
+        R = DistanceVector(x, x[0, :].transpose(), theta)
 
-		xx, yy, zz = ndgrid(x1,x2,x3)
-	
-		x = vstack((ravel(xx, order = 'F'),ravel(yy, order = 'F'),ravel(zz, order = 'F'))).transpose()
-		R = DistanceVector(x,x[0,:].transpose(),theta)
+    elif dim == 3:
+        x1 = np.linspace(xmin[0], xmax[0], N[0])
+        x2 = np.linspace(xmin[1], xmax[1], N[1])
+        x3 = np.linspace(xmin[2], xmax[2], N[2])
 
-	else:
-		print('Wrong dimension')
+        #xx, yy, zz = np.meshgrid(x1, x2, x3, indexing='ij')
+        xx, yy, zz = np.meshgrid(x1, x2, x3, indexing='ij')
 
-	row = kernel(R)
-	return row, x
+        x = np.vstack((np.ravel(xx, order='F'), np.ravel(yy, order='F'), np.ravel(zz, order='F'))).transpose()
+        R = DistanceVector(x, x[0, :].transpose(), theta)
 
-def ToeplitzProduct(x,row,N):
+    else:
+        raise ValueError("Support 1,2 and 3 dimensions")
 
-	dim = N.size 
-	
-	if dim == 1:
-		circ = concatenate((row,row[-2:0:-1]))
-		padded = concatenate((x,zeros(n-2))) 
+    row = kernel(R)
 
-		result = fft.ifft(fft.fft(circ)*fft.fft(padded))
-		result = real(result[0:N[0]])
-		
-	elif dim == 2:
-		circ = reshape(row,(N[0],N[1]),order = 'F')
-		circ = concatenate((circ,circ[:,-2:0:-1]),axis=1)
-		circ = concatenate((circ,circ[-2:0:-1,:]),axis=0)
-		
-		n = shape(circ)
-		padded = reshape(x,(N[0],N[1]),order = 'F')		
-
-		result = fft.ifft2(fft.fft2(circ)*fft.fft2(padded,n))
-		result = real(result[0:N[0],0:N[1]])
-		result = reshape(result,-1,order = 'F')
-
-	elif dim ==3:
-		circ = reshape(row,(N[0],N[1],N[2]),order = 'F')
-		circ = concatenate((circ,circ[:,:,-2:0:-1]),axis=2)
-		circ = concatenate((circ,circ[:,-2:0:-1,:]),axis=1)
-		circ = concatenate((circ,circ[-2:0:-1,:,:]),axis=0)
-		
-		n = shape(circ)
-		padded = reshape(x,N,order = 'F')		
-
-		result = fft.ifftn(fft.fftn(circ)*fft.fftn(padded,n))
-		result = real(result[0:N[0],0:N[1],0:N[2]])
-		result = reshape(result,-1, order = 'F')
+    return row, x
 
 
-	else: 
-		print('Wrong dimension')
-	
-	return result
+def ToeplitzProduct(x, row, N):
+    ''' Toeplitz matrix times x
+
+    :param x: x for Qx
+    :param row: from CreateRow
+    :param N: size in each dimension ex) N = [2,3,4]
+    :return: Qx
+    '''
+    dim = N.size
+
+    if dim == 1:
+        circ = np.concatenate((row, row[-2:0:-1]))
+        padded = np.concatenate((x, np.zeros(N[0] - 2)))
+        print(row)
+        print(circ)
+        result = np.fft.ifft(np.fft.fft(circ) * np.fft.fft(padded))
+        result = np.real(result[0:N[0]])
+
+    elif dim == 2:
+        circ = np.reshape(row, (N[0], N[1]), order='F')
+        circ = np.concatenate((circ, circ[:, -2:0:-1]), axis=1)
+        circ = np.concatenate((circ, circ[-2:0:-1, :]), axis=0)
+
+        n = np.shape(circ)
+        padded = np.reshape(x, (N[0], N[1]), order='F')
+
+        result = np.fft.ifft2(np.fft.fft2(circ) * np.fft.fft2(padded, n))
+        result = np.real(result[0:N[0], 0:N[1]])
+        result = np.reshape(result, -1, order='F')
+
+    elif dim == 3:
+        circ = np.reshape(row, (N[0], N[1], N[2]), order='F')
+        circ = np.concatenate((circ, circ[:, :, -2:0:-1]), axis=2)
+        circ = np.concatenate((circ, circ[:, -2:0:-1, :]), axis=1)
+        circ = np.concatenate((circ, circ[-2:0:-1, :, :]), axis=0)
+
+        n = np.shape(circ)
+        padded = np.reshape(x, N, order='F')
+
+        result = np.fft.ifftn(np.fft.fftn(circ) * np.fft.fftn(padded, n))
+        result = np.real(result[0:N[0], 0:N[1], 0:N[2]])
+        result = np.reshape(result, -1, order='F')
+    else:
+        raise ValueError("Support 1,2 and 3 dimensions")
+
+    return result
 
 
-def Realizations(row,N):
-	dim = N.size
-	if dim == 1:
-		circ = concatenate((row,row[-2:0:-1]))
-		n = circ.shape
+def Realizations(row, N):
+    dim = N.size
+    if dim == 1:
+        circ = np.concatenate((row, row[-2:0:-1]))
+        n = circ.shape
 
-		eps = random.normal(0,1,n) + 1j*random.normal(0,1,n)
-		res = fft.ifft(sqrt(fft.fft(circ))*eps)*sqrt(n)
+        eps = np.random.normal(0, 1, n) + 1j * np.random.normal(0, 1, n)
+        res = np.fft.ifft(np.sqrt(np.fft.fft(circ)) * eps) * np.sqrt(n)
 
-		r1 = real(res[0:N[0]]);	r2 = imag(res[0:N[0]]);
-		
-	elif dim == 2:
-		circ = reshape(row,(N[0],N[1]),order = 'F')
-		circ = concatenate((circ,circ[:,-2:0:-1]),axis=1)
-		circ = concatenate((circ,circ[-2:0:-1,:]),axis=0)
-		
-		n = shape(circ)
-		eps = random.normal(0,1,n) + 1j*random.normal(0,1,n)		
+        r1 = np.real(res[0:N[0]])
+        r2 = np.imag(res[0:N[0]])
 
-		res = fft.ifft2(sqrt(fft.fft2(circ))*eps)*sqrt(n[0]*n[1])
-		res = res[0:N[0],0:N[1]]
-		res = reshape(res,-1,order = 'F')
-		
-		r1 = real(res); 	r2 = imag(res);	
+    elif dim == 2:
+        circ = np.reshape(row, (N[0], N[1]), order='F')
+        circ = np.concatenate((circ, circ[:, -2:0:-1]), axis=1)
+        circ = np.concatenate((circ, circ[-2:0:-1, :]), axis=0)
 
-	elif dim == 3:
-		circ = reshape(row,(N[0],N[1],N[2]),order = 'F')
-		circ = concatenate((circ,circ[:,:,-2:0:-1]),axis=2)
-		circ = concatenate((circ,circ[:,-2:0:-1,:]),axis=1)
-		circ = concatenate((circ,circ[-2:0:-1,:,:]),axis=0)
+        n = np.shape(circ)
+        eps = np.random.normal(0, 1, n) + 1j * np.random.normal(0, 1, n)
 
-		
-		n = shape(circ)
-		eps = random.normal(0,1,n) + 1j*random.normal(0,1,n)		
+        res = np.fft.ifft2(np.sqrt(np.fft.fft2(circ)) * eps) * np.sqrt(n[0] * n[1])
+        res = res[0:N[0], 0:N[1]]
+        res = np.reshape(res, -1, order='F')
 
-		res = fft.ifftn(sqrt(fft.fftn(circ))*eps)*sqrt(n[0]*n[1]*n[2])
-		res = res[0:N[0],0:N[1],0:N[2]]
-		res = reshape(res,-1,order = 'F')
-		
-		r1 = real(res); 	r2 = imag(res);	
+        r1 = np.real(res)
+        r2 = np.imag(res)
 
-	return r1, r2, eps
+    elif dim == 3:
+        circ = np.reshape(row, (N[0], N[1], N[2]), order='F')
+        circ = np.concatenate((circ, circ[:, :, -2:0:-1]), axis=2)
+        circ = np.concatenate((circ, circ[:, -2:0:-1, :]), axis=1)
+        circ = np.concatenate((circ, circ[-2:0:-1, :, :]), axis=0)
 
+        n = np.shape(circ)
+        eps = np.random.normal(0, 1, n) + 1j * np.random.normal(0, 1, n)
 
+        res = np.fft.ifftn(np.sqrt(np.fft.fftn(circ)) * eps) * np.sqrt(n[0] * n[1] * n[2])
+        res = res[0:N[0], 0:N[1], 0:N[2]]
+        res = np.reshape(res, -1, order='F')
+
+        r1 = np.real(res)
+        r2 = np.imag(res)
+    else:
+        raise ValueError("Support 1,2 and 3 dimensions")
+
+    return r1, r2, eps
 
 if __name__ == '__main__':
 
     import numpy as np
 
+
     def kernel(R):
-        return 0.01*exp(-R)
+        return 0.01 * np.exp(-R)
 
-    #dim = 3
-    #N = array([5, 5, 5])
-    dim = 2
-    N = array([2, 3])
+    #dim = 1
+    #N = np.array([5])
+    #dim = 2
+    #N = np.array([2, 3])
+    dim = 3
+    N = np.array([2, 3, 4])
 
-    row, pts = CreateRow(zeros(dim),ones(dim),N, kernel, ones((dim),dtype='d'))    
+    row, pts = CreateRow(np.zeros(dim), np.ones(dim), N, kernel, np.ones((dim), dtype='d'))
     n = pts.shape
-    for i in arange(n[0]):
-        print(pts[i,0], pts[i,1])
-    
-    if dim == 2:
-        #v = random.rand(N[0],N[1])
-        v = np.ones((N[0],N[1]))
+    #for i in np.arange(n[0]):
+    #    print(pts[i, 0], pts[i, 1])
+    if dim == 1:
+        v = np.random.rand(N[0])
+    elif dim == 2:
+        v = np.random.rand(N[0]*N[1])
+        #v = np.ones((N[0], N[1]))
     elif dim == 3:
-        v = random.rand(N[0],N[1],N[2])
-    
-    res = ToeplitzProduct(v,row,N)
-    
-    r1, r2, ep = Realizations(row,N)
-    #sio.savemat('Q.mat',{'row':row,'pts':pts,'N':N,'r1':r1,'r2':r2,'ep':ep,'v':v,'res':res})
-    
-    from dense import GenerateDenseMatrix
-    mat = GenerateDenseMatrix(pts, kernel)
-    #res1 = np.dot(mat,v.ravel()[:,np.newaxis])
-    res1 = np.dot(mat,v.ravel())
-    #print(v.ravel()[:,np.newaxis])
-    print(v.ravel())
-    print(res1)
-    print(np.linalg.norm(res1))
-    print("rel. error %g" % (np.linalg.norm(res-res1)/np.linalg.norm(res1)))
+        v = np.random.rand(N[0]*N[1]*N[2])
 
-    print(mat)
-    print(row)
+    res = ToeplitzProduct(v, row, N)
+
+    r1, r2, ep = Realizations(row, N)
+    # import scipy.io as sio
+    # sio.savemat('Q.mat',{'row':row,'pts':pts,'N':N,'r1':r1,'r2':r2,'ep':ep,'v':v,'res':res})
+
+    from dense import GenerateDenseMatrix
+
+    mat = GenerateDenseMatrix(pts, kernel)
+    res1 = np.dot(mat, v)
+    # res1 = np.dot(mat,v.ravel()[:,np.newaxis])
+    #res1 = np.dot(mat, v.ravel())
+    # print(v.ravel()[:,np.newaxis])
+    #print(v.ravel())
+    #print(res1)
+    #print(np.linalg.norm(res1))
+
+    print("rel. error %g for cov. mat. row (CreateRow)" % (np.linalg.norm(mat[0,:] - row) / np.linalg.norm(mat[0,:])))
+    print("rel. error %g" % (np.linalg.norm(res - res1) / np.linalg.norm(res1)))
+    #print(mat[0,:])
+    #print(row)
