@@ -172,8 +172,9 @@ class PCGA:
                 self.post_diag_direct = False
             if 'post_diag_direct' in params:
                 self.post_diag_direct = params['post_diag_direct']
-            if self.post_diag_direct:
-                print("WARNING!! : you chose to perform direct posterior variance analysis, which would take forever! plz use post_diag_direct=True")
+                if self.post_diag_direct:
+                    print("WARNING!! : you chose to perform direct posterior variance analysis, which would take forever! You can use post_diag_direct=False")
+
         #CrossCovariance computed by Jacobian-free low-rank FD approximation if you want to save..
         if 'JacSave' in params:
             self.JacSave = params['JacSave']
