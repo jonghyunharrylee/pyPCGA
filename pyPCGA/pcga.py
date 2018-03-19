@@ -2,7 +2,7 @@ from time import time
 from math import isnan, sqrt
 import numpy as np
 import sys,os
-from covariance.mat import *
+from .covariance.mat import CovarianceMatrix, Residual
 from inspect import getsource
 
 from scipy.sparse.linalg import gmres, minres, svds, eigsh # IterativeSolve
@@ -166,7 +166,7 @@ class PCGA:
             self.post_cov = False
 
         if self.post_cov or self.post_cov == "diag":
-            if self.n <= 1000: # choose arbitrary..
+            if self.n <= 500: # choose arbitrary..
                 self.post_diag_direct = True
             else:
                 self.post_diag_direct = False
@@ -376,7 +376,7 @@ class PCGA:
         nruns = np.size(x,1)
         deltas = np.zeros((nruns,1),'d') 
 
-        if delta is None or math.isnan(delta) or delta == 0:
+        if delta is None or isnan(delta) or delta == 0:
             for i in range(nruns):
                 mag = np.dot(s.T,x[:,i:i+1])
                 absmag = np.dot(abs(s.T),abs(x[:,i:i+1]))
@@ -566,8 +566,23 @@ class PCGA:
 
         # Compute eig(P*HQHT*P) approximately by svd(P*HZ)
         start2 = time()
-        sqrtGDCov = GeneralizedSQRTCovarianceMatrix(U_data,HZ) # sqrt of generalized data covariance
-        sigma_cR = svds(sqrtGDCov, k= min(n-p,n_pc), which='LM', maxiter = n, return_singular_vectors=False)
+
+        #sqrtGDCov = GeneralizedSQRTCovarianceMatrix(U_data,HZ) # sqrt of generalized data covariance
+        # sigma_cR = svds(sqrtGDCov, k= min(n-p,n_pc), which='LM', maxiter = n, return_singular_vectors=False)
+
+        def mv(v):
+            # P*HZ*x = ((I-(U_data*U_data.T))*HZ)*x '''
+            tmp = np.dot(HZ, v)
+            y = tmp - np.dot(U_data, np.dot(U_data.T, tmp))
+            return y
+
+        def rmv(v):
+            return np.dot(HZ.T, v) - np.dot(HZ.T, np.dot(U_data, np.dot(U_data.T, v)))
+
+        # Matrix handle for sqrt of Generalized Data Covariance
+        sqrtGDCovfun = LinearOperator((n, n_pc), matvec=mv, rmatvec=rmv, dtype='d')
+        sigma_cR = svds(sqrtGDCovfun, k=min(n - p - 1, n_pc - 1), which='LM', maxiter=n, return_singular_vectors=False)
+
         print("computed Jacobian-Matrix products in : %f secs" % (start1 - start2))
         #print("computed Jacobian-Matrix products in : %f secs, eig. val. of generalized data covariance : %f secs" % (start1 - start2,time()-start2))
 
@@ -947,9 +962,9 @@ class PCGA:
         else:
             for i in range(nopts):
                 if i == 0:
-                    simul_obs_all = self.ForwardSolve(x)
+                    simul_obs_all = self.ForwardSolve(s_hat_all[:,i:i+1])
                 else:
-                    simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(x)), axis=1)
+                    simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(s_hat_all[:,i:i+1])), axis=1)
 
         # will change assert to valueerror
         assert(np.size(simul_obs_all,1) == nopts)
@@ -1053,12 +1068,6 @@ class PCGA:
                 print("= objective function is %e, relative L2-norm diff btw sol %d and sol %d is %g" % (obj,i,i+1,res))
                 print("= obs. RMSE is %g, obs. normalized RMSE is %g" % (RMSE_cur, nRMSE_cur))
 
-            if res < restol:
-                iter_cur = i + 1
-                break
-
-            s_past = np.copy(s_cur)
-            simul_obs = np.copy(simul_obs_cur)
             self.objvals.append(float(obj))
 
             if self.iter_save:
@@ -1069,10 +1078,17 @@ class PCGA:
                 #if self.post_cov or self.post_cov == "diag":
                 #    np.savetxt('./diagv' + str(i + 1) + '.txt', self.post_diagv)
 
+            if res < restol:
+                iter_cur = i + 1
+                break
+
+            s_past = np.copy(s_cur)
+            simul_obs = np.copy(simul_obs_cur)
+
         if self.post_cov or self.post_cov == "diag": # assume linesearch result close to the current solution
             start = time()
             if self.post_diag_direct:
-                print("start direct posterior variance computation ")
+                print("start direct posterior variance computation - this option works for O(nobs) ~ 100")
                 self.post_diagv = self.ComputePosteriorDiagonalEntriesDirect(self.HZ, self.HX, self.i_best, self.R)
             else:
                 print("start posterior variance computation")
@@ -1108,9 +1124,6 @@ class PCGA:
         else:
             return s_hat, simul_obs, iter_best
 
-    """
-        functions below have not been implmented yet
-    """
     def ComputePosteriorDiagonalEntriesDirect(self,HZ,HX,i_best,R):
         """
         Computing posterior diagonal entries
@@ -1161,7 +1174,7 @@ class PCGA:
             if i % 1000 == 0:
                 print("%d-th element evaluated" % (i))
 
-        v[v<priorvar] = priorvar
+        v[v > priorvar] = priorvar
 
         #print("compute variance: %f sec" % (time() - start))
         return v
@@ -1295,52 +1308,7 @@ class PCGA:
         Saibaba, Lee and Kitanidis, 2016
 		to be implemented
         """
-        m = self.m
-        n = self.n
-        p = self.p
-        n_pc = self.n_pc
-        priorvar = self.prior_std**2
-        Z = np.zeros((m,n_pc), dtype ='d')
-        for i in range(n_pc):
-            Z[:,i:i+1] = np.dot(sqrt(self.priord[i]),self.priorU[:,i:i+1])  # use sqrt to make it scalar
-
-        v = np.zeros((m,1),dtype='d')
-        v1 = np.zeros((m,1),dtype='d')
-        priorvar1 = np.zeros((m,1),dtype='d')
-
-        # Construct Psi directly
-        if isinstance(R,float):
-            Psi = np.dot(HZ,HZ.T)+ np.multiply(R,np.eye(n,dtype='d'))
-        elif R.shape[0] == 1 and R.ndim == 1:
-            Psi = np.dot(HZ,HZ.T)+ np.multiply(R,np.eye(n,dtype='d'))
-        else:
-            Psi = np.dot(HZ,HZ.T)+ np.diag(R)
-
-        HQ = np.dot(HZ,Z.T)
-
-        #Create matrix system and solve it
-        # cokriging matrix
-        A = np.zeros((n+p,n+p),dtype='d')
-        b = np.zeros((n+p,1),dtype='d')
-
-        A[0:n,0:n] = np.copy(Psi)
-        A[0:n,n:n+p] = np.copy(HX)
-        A[n:n+p,0:n] = np.copy(HX.T)
-        start = time()
-        for i in range(m):
-            priorvar1[i] = np.dot(Z[i,:],Z[i,:].T)
-
-        for i in range(m):
-            b = np.zeros((n+p,1),dtype='d')
-            b[0:n] = HQ[:,i:i+1]
-            b[n:n+p] = self.X[i:i+1,:].T
-            tmp = np.dot(b.T,np.linalg.solve(A, b)) 
-            v[i] =  priorvar1[i] - tmp
-            v1[i] = priorvar - tmp
-            
-        print("compute variance: %f sec" % (time() - start))
-        
-        return v, v1
+        return NotImplementedError
     
     def CompareSpectrum(self, filename):
         """
@@ -1380,36 +1348,6 @@ class PCGA:
 
         raise NotImplementedError
 
-    def computeP(y,HX,HZ,R,rtol=1e-5):
-        # not used.. 
-        time_null1 = time()
-        u, s, v = np.linalg.svd(HX.T)
-        rank = (s > rtol*s[0]).sum()
-        
-        T = v[rank:].T.copy()
-        T = T.T.copy()
-        print('time for null operation %f sec with rank %d' % (time()-time_null1, myrank))
-        
-        # 
-        if isinstance(R,float):
-            Psi = np.dot(HZ,HZ.T)+ np.multiply(R,np.eye(n,dtype='d'))
-        elif R.shape[0] == 1 and R.ndim == 1:
-            Psi = np.dot(HZ,HZ.T)+ np.multiply(R,np.eye(n,dtype='d'))
-        else:
-            Psi = np.dot(HZ,HZ.T)+ np.diag(R)
-
-        Pyy = np.dot(T.T, np.linalg.solve(np.dot(T,np.dot(PSI,T.T)),T))
-        P, sP, VP = np.linalg.svd(Pyy,full_matrices=False,compute_uv=True)
-        P = P[:,:n-p].T
-
-        mydelta = np.dot(P,y)
-        mydeltacov = np.dot(P,np.dot(PSI,P.T))
-        myeps = mydelta**2/mydeltacov.diagonal()[:,np.newaxis]
-        Q2 = myeps.sum()/(n-p)
-        cR = Q21*np.exp(np.log(mydeltacov.diagonal()).sum()/(n-p))
-        
-        return Q2, cR, P 
-
 class CovarianceMatrixbyUd:
     def __init__(self,priord,priorU):
         self.dtype = 'd'
@@ -1424,26 +1362,7 @@ class CovarianceMatrixbyUd:
         return y
 
     def rmatvec(self,x):
-        return matvec(self,x)
-
-class DataCovarianceMatrix:
-    '''
-    (HQHT + R)x 
-    '''
-    def __init__(self,HZ):
-        self.dtype = 'd'
-        n = priord.shape[0]
-        self.shape = (n,n)
-        #self.priord = priord
-        #self.priorU = priorU
-        self.HZ = HZ
-
-    def matvec(self,x):
-        y = np.dot(self.HZ,np.dot(self.HZ.T,x)) + np.dot(R,x)
-        return y
-
-    def rmatvec(self,x):
-        return matvec(self,x)
+        return self.matvec(x)
 
 class HiddenPrints:
     def __enter__(self):

@@ -165,7 +165,7 @@ if __name__ == '__main__':
     #dim = 2
     #N = np.array([2, 3])
     dim = 3
-    N = np.array([2, 3, 4])
+    N = np.array([5, 6, 7])
 
     row, pts = CreateRow(np.zeros(dim), np.ones(dim), N, kernel, np.ones((dim), dtype='d'))
     n = pts.shape
@@ -175,7 +175,6 @@ if __name__ == '__main__':
         v = np.random.rand(N[0])
     elif dim == 2:
         v = np.random.rand(N[0]*N[1])
-        #v = np.ones((N[0], N[1]))
     elif dim == 3:
         v = np.random.rand(N[0]*N[1]*N[2])
 
@@ -185,18 +184,14 @@ if __name__ == '__main__':
     # import scipy.io as sio
     # sio.savemat('Q.mat',{'row':row,'pts':pts,'N':N,'r1':r1,'r2':r2,'ep':ep,'v':v,'res':res})
 
-    from dense import GenerateDenseMatrix
+    from .dense import GenerateDenseMatrix
 
     mat = GenerateDenseMatrix(pts, kernel)
     res1 = np.dot(mat, v)
-    # res1 = np.dot(mat,v.ravel()[:,np.newaxis])
-    #res1 = np.dot(mat, v.ravel())
-    # print(v.ravel()[:,np.newaxis])
-    #print(v.ravel())
-    #print(res1)
-    #print(np.linalg.norm(res1))
 
     print("rel. error %g for cov. mat. row (CreateRow)" % (np.linalg.norm(mat[0,:] - row) / np.linalg.norm(mat[0,:])))
     print("rel. error %g" % (np.linalg.norm(res - res1) / np.linalg.norm(res1)))
     #print(mat[0,:])
     #print(row)
+    #print(res1)
+    #print(np.linalg.norm(res1))

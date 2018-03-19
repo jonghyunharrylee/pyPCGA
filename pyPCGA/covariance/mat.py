@@ -1,11 +1,6 @@
 from __future__ import print_function
 import numpy as np
 
-try:
-    from exceptions import NotImplementedError, KeyError 
-except:
-    pass
-
 from .toeplitz import CreateRow, ToeplitzProduct
 from .dense import GenerateDenseMatrix
 
