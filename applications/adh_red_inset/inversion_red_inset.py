@@ -136,6 +136,9 @@ savemat('results.mat', {'s_hat': s_hat, 'simul_obs': simul_obs,
                         'maxiter': prob.maxiter, 'i_best': prob.i_best,
                         'restol': prob.restol, 'diagv': post_diagv})
 
+#go ahead and save the last solution to a file
+np.savetxt('shat.txt',s_hat)
+
 s_hat2d = s_hat.reshape(N[1], N[0])
 s_true2d = s_true.reshape(N[1], N[0])
 minv = s_true.min()
@@ -223,7 +226,7 @@ fig.savefig('obs.png', dpi=fig.dpi)
 plt.close(fig)
 
 fig = plt.figure()
-plt.semilogy(range(len(prob.objvals)), prob.objvals, 'r-')
+plt.semilogy(range(len(prob.objvals.flat[:])), prob.objvals.flat[:], 'r-')
 plt.title('obj values over iterations')
 plt.axis('tight')
 fig.savefig('obj.png', dpi=fig.dpi)
