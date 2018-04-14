@@ -52,8 +52,8 @@ if adh_version < 5:
 
 ##instantiate the class that describes the forward problem geometry, boundary conditions, initial conditions
 # inflow discharge and free surface elevation at the boundary
-Q_b = 700
-z_f = 4.8
+Q_b = 965.
+z_f = 4.764
 
 forward_prob = setup_Red_Inset.RedRiver(grid_file=grid_gridgen, rect_file=rect_gridgen, mesh_file=mesh_gridgen, initial_free_surface_elevation=z_f)
 
@@ -67,7 +67,7 @@ velocity_obs_loc = np.loadtxt(velocity_obs_file)
 elev_obs_loc = np.loadtxt(elevation_obs_file)
 
 ##which time step to use in the calculation
-ntsim=1
+ntsim=4
 ##instantiate the inverse problem which controls the forward model simulation
 prm = setup_Red_Inset.RedRiverProblem(forward_prob.mesh,
                                       forward_prob,

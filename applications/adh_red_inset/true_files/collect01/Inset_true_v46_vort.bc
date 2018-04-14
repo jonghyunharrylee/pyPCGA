@@ -231,9 +231,9 @@ EGS 50050 51051 16
 
 ! Constant Discharge EGS 15
 XY1 5 3 0 0 
-0	0.0
-1600	792.0581212
-86400   792.0581212
+0	965
+1600	965
+86400   965
 
 !mwf original Discharges
 XY1 1 1518 2 0 "00"
@@ -1759,9 +1759,9 @@ XY1 1 1518 2 0 "00"
 !mwf constant tailwater
 !mwf make a constant tail water
 XY1 6 3 0 0 0 
-0.0	4.8
-600     4.8
-21608.6903	4.8
+0.0	4.764
+600     4.764
+8640000	4.764
 
 !mwf orig Tailwater
 XY1 2 1014 2 0 "Hours"
@@ -2798,25 +2798,25 @@ XY1 4 4 0 0
 1000 300
 21890000 300
 
-FR MNG 1 0.025
-FR MNG 2 0.025
-FR MNG 3 0.025
-FR MNG 4 0.025
-FR MNG 5 0.025
-FR MNG 6 0.025
-FR MNG 7 0.025
-FR MNG 8 0.025
-FR MNG 9 0.025
-FR MNG 10 0.025
-FR MNG 11 0.025
-FR MNG 12 0.025
-FR MNG 13 0.025
-FR MNG 14 0.025
-FR MNG 15 0.025
+FR MNG 1 0.02
+FR MNG 2 0.02
+FR MNG 3 0.02
+FR MNG 4 0.02
+FR MNG 5 0.02
+FR MNG 6 0.02
+FR MNG 7 0.02
+FR MNG 8 0.02
+FR MNG 9 0.02
+FR MNG 10 0.02
+FR MNG 11 0.02
+FR MNG 12 0.02
+FR MNG 13 0.02
+FR MNG 14 0.02
+FR MNG 15 0.02
 
 
-NB DIS 15 1
-NB OTW 16 2
+NB DIS 15 5
+NB OTW 16 6
 
 
 !mwf orig
@@ -2826,13 +2826,13 @@ NB OTW 16 2
 !TC TF  10.0 3
 
 !mwf try an hour in seconds
-!TC T0  0 0 "02/20/2017 00:0:0 AM" approximately
+TC T0  0 0 "02/20/2017 00:0:0 AM" approximately
 
-!TC TF  21600.
+TC TF  86400.
 
-TC T0  73440.0 0 "02/20/2017 00:0:0 AM" approximately
+!TC T0  73440.0 0 "02/20/2017 00:0:0 AM" approximately
 
-TC TF  95044.0 0
+!TC TF  95044.0 0
 
 !time stepping
 TC IDT 4

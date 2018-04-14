@@ -35,8 +35,8 @@ adh_params_collect01 = {'sim_dir': './simul',
                         'adh_rect': './mesh_files/collect01/rect_Inset_02262018',
                         'adh_mesh': './mesh_files/collect01/Inset_02262018_gridgen.3dm',
                         'adh_bc': './true_files/collect01/Inset_true_v46.bc',
-                        'adh_ntsim': 1,
-                        'z_f': 4.8,'Q_f': 700., #free-surface elevation and default inflow
+                        'adh_ntsim': 4,
+                        'z_f': 4.764,'Q_f': 965., #free-surface elevation and default inflow
                         'velocity_obs_file': './observation_files/collect01/observation_loc_N250_M8_J1_I10.dat',
                         'elevation_obs_file': './observation_files/collect01/observation_loc_none.dat',
                         'true_soln_file_h5': './true_files/collect01/Inset_true_v46_p0.h5',
