@@ -22,7 +22,7 @@ Code contributors include:
 * Jonghyun Harry Lee 
 * Matthew Farthing
 
-FFT-based matvec code is adapted from Arvind Saibaba's work. 
+FFT-based matvec code is adapted from Arvind Saibaba's work (https://github.com/arvindks/kle). 
 
 # References
 
