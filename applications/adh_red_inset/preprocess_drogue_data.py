@@ -11,6 +11,7 @@ def append_drifter_runs(files,add_z=None):
     for f in files:
         df = pandas.read_csv(f)
         df = df[np.isfinite(df['u'])]
+        df = df[np.isfinite(df['depth'])]
         dfs.append(df)
     dfall = pandas.concat(dfs)
     if add_z is None:
