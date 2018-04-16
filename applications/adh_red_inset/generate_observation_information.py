@@ -39,7 +39,8 @@ if adh_version < 5:
 
 ##spatial location of observations
 # filename for velocity observation locations
-velocity_obs_file = "./observation_files/collect01/observation_loc_N250_M8_J1_I10.dat"  # drifter locations
+#velocity_obs_file = "./observation_files/collect01/observation_loc_N250_M8_J1_I10.dat"  # drifter locations
+velocity_obs_file = "./observation_files/collect01/collect01_drifter_run1_locations.dat"  # drifter locations
 # filename for elevation observation location
 elevation_obs_file = "./observation_files/collect01/observation_loc_none.dat"  # empty
 
@@ -87,7 +88,7 @@ prm = setup_Red_Inset.RedRiverProblem(forward_prob.mesh,
 ##write these out in the reference domain or not
 write_coords_in_reference_domain = True
 #where to write the observations 
-obs_dir = os.path.join(os.getcwd(),'observation_files','collect01')
+obs_dir = os.path.join(os.getcwd(),'observation_files','collect01/drifter/run1')
 
 t0 = 0.
 x_true = prm.get_true_solution(t0)

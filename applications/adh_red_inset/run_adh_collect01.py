@@ -39,7 +39,8 @@ if adh_version < 5:
 
 ##spatial location of observations
 # filename for velocity observation locations
-velocity_obs_file = "./observation_files/collect01/observation_loc_N250_M8_J1_I10.dat"  # drifter locations
+#velocity_obs_file = "./observation_files/collect01/observation_loc_N250_M8_J1_I10.dat"  # drifter locations
+velocity_obs_file = "./observation_files/collect01/collect01_drifter_run1_locations.dat"  # drifter locations
 # filename for elevation observation location
 elevation_obs_file = "./observation_files/collect01/observation_loc_none.dat"  # empty
 
@@ -67,7 +68,7 @@ velocity_obs_loc = np.loadtxt(velocity_obs_file)
 elev_obs_loc = np.loadtxt(elevation_obs_file)
 
 ##which time step to use in the calculation
-ntsim=4
+ntsim=1
 ##instantiate the inverse problem which controls the forward model simulation
 prm = setup_Red_Inset.RedRiverProblem(forward_prob.mesh,
                                       forward_prob,
@@ -84,14 +85,80 @@ prm = setup_Red_Inset.RedRiverProblem(forward_prob.mesh,
                                       Q_b=Q_b,
                                       z_f=z_f)
 
+##write these out in the reference domain or not
+write_coords_in_reference_domain = True
+#where to write the observations 
+obs_dir = os.path.join(os.getcwd(),'observation_files','collect01/drifter/run1')
+
 t0 = 0.
 x_true = prm.get_true_solution(t0)
 #measurment matrix
-H_meas = prm.get_measurement_matrix(t0)
+H = prm.get_measurement_matrix(t0)
 x_dummy = x_true.copy()
 
-z_in = x_true[:prm.nn]
-x_dummy[:prm.nn] = z_in
-x_dummy[prm.nn:] = prm.compute_velocity(z_in, t0)
+mesh = forward_prob.mesh
+##observations from the true solution
+obs = H.dot(x_true)
 
-x_meas = H_meas.dot(x_dummy)
+fortran_base = 1
+obs_indices = H.indices.copy()
+obs_indices+= fortran_base
+
+obs_file    = os.path.join(obs_dir,'observations.dat')
+obsind_file = os.path.join(obs_dir,'observations_indices.dat')
+obsloc_file = os.path.join(obs_dir,'observations_coords.dat')
+state_file = os.path.join(obs_dir,'state_coords.dat')
+print "Saving observations and indices to {0} and {1}".format(obs_file,obsind_file)
+
+assert obs.shape[0] == prm.nrobs
+header='{0:d}'.format(prm.nrobs)
+np.savetxt(obs_file,obs,header=header,comments='')
+assert obs_indices.shape[0] == prm.nrobs
+np.savetxt(obsind_file,obs_indices,header=header,comments='',fmt='%d')
+
+#mwf hack, state is stored as
+#[z_0,z_1,...,z_{Nn-1},vx_0,vy_0,vx_1,vy_1,...]
+#mwf debug
+#import pdb
+#pdb.set_trace()
+velocity_offset = prm.nn    
+obs_nodeids = np.where(H.indices < prm.nn, H.indices, (H.indices-velocity_offset)/prm.velocity_dim)
+obs_coords = mesh.nodeArray[obs_nodeids,0:2]
+if write_coords_in_reference_domain:
+    #also compute the logical indices
+    obs_I = np.mod(obs_nodeids,mesh.nx)
+    obs_J = np.floor_divide(obs_nodeids,mesh.nx)
+    dx_index = (forward_prob.geometry.Lx-forward_prob.geometry.x0[0])/float(mesh.nx)
+    dy_index = (forward_prob.geometry.Ly-forward_prob.geometry.x0[1])/float(mesh.ny)
+    obs_coords[:,0]=forward_prob.geometry.x0[0] + obs_I*dx_index
+    obs_coords[:,1]=forward_prob.geometry.x0[1] + obs_J*dy_index
+
+
+np.savetxt(obsloc_file,obs_coords,header=header,comments='')
+
+#save the coordinates of all the state variables as well
+obs_state = np.zeros((prm.ndof,prm.velocity_dim),'d')
+obs_state[:velocity_offset,:]=mesh.nodeArray[:,0:prm.velocity_dim]
+obs_state[velocity_offset::prm.velocity_dim,:]=mesh.nodeArray[:,0:prm.velocity_dim]
+obs_state[velocity_offset+1::prm.velocity_dim,:]=mesh.nodeArray[:,0:prm.velocity_dim]
+if write_coords_in_reference_domain:
+    #also compute the logical indices
+    state_nodeids=np.arange(prm.nn)
+    obs_I = np.mod(state_nodeids,mesh.nx)
+    obs_J = np.floor_divide(state_nodeids,mesh.nx)
+    dx_index = (forward_prob.geometry.Lx-forward_prob.geometry.x0[0])/float(mesh.nx)
+    dy_index = (forward_prob.geometry.Ly-forward_prob.geometry.x0[1])/float(mesh.ny)
+    #z
+    obs_state[:velocity_offset,0] = forward_prob.geometry.x0[0] + obs_I*dx_index
+    obs_state[:velocity_offset,1] = forward_prob.geometry.x0[1] + obs_J*dy_index
+    #vx
+    obs_state[velocity_offset::prm.velocity_dim,0]=forward_prob.geometry.x0[0] + obs_I*dx_index
+    obs_state[velocity_offset::prm.velocity_dim,0]=forward_prob.geometry.x0[1] + obs_J*dy_index
+    #vy
+    obs_state[velocity_offset+1::prm.velocity_dim,0]=forward_prob.geometry.x0[0] + obs_I*dx_index
+    obs_state[velocity_offset+1::prm.velocity_dim,1]=forward_prob.geometry.x0[1] + obs_J*dy_index
+
+
+header_state='{0:d}'.format(prm.ndof)
+
+np.savetxt(state_file,obs_state,header=header_state,comments='')

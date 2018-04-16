@@ -37,7 +37,7 @@ adh_params_collect01 = {'sim_dir': './simul',
                         'adh_bc': './true_files/collect01/Inset_true_v46.bc',
                         'adh_ntsim': 4,
                         'z_f': 4.764,'Q_f': 965., #free-surface elevation and default inflow
-                        'velocity_obs_file': './observation_files/collect01/observation_loc_N250_M8_J1_I10.dat',
+                        'velocity_obs_file': './observation_files/collect01/collect01_drifter_run1_locations.dat',
                         'elevation_obs_file': './observation_files/collect01/observation_loc_none.dat',
                         'true_soln_file_h5': './true_files/collect01/Inset_true_v46_p0.h5',
                         'true_soln_meshbase': './true_files/collect01/Inset_true_v46'
@@ -47,7 +47,7 @@ adh_params_collect01 = {'sim_dir': './simul',
 sim_params = adh_params_collect01 #adh_params
 #where the 'true' solution is
 true_file = './mesh_files/collect01/z_Inset_02262018' #true.txt
-obs_file  = './observation_files/collect01/observations.dat' #obs.txt
+obs_file  = './observation_files/collect01/collect01_drifter_run1_velocities_synthetic.dat' #obs.txt
 #describe the mesh for visualization
 elements_file='./true_files/collect01/triangles.txt'#'triangles.txt'
 nodes_file   ='./true_files/collect01/meshnode.txt'#'meshnode.txt'
