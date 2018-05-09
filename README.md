@@ -11,7 +11,7 @@ updates
 
 version 0.2 will include
 - automatic covariance model parameter calibration
-- link with FMM (pyFMM3D) and HMatrix (pyHmatrix)
+- link with FMM (pyFMM3D) and HMatrix (pyHmatrix) to support unstructured grids 
 
 # Credits
 
