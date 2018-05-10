@@ -386,10 +386,14 @@ class PCGA:
                 else:
                     signmag = -1.
 
-                deltas[i] = signmag*sqrt(precision)*(max(abs(mag),absmag))/((np.linalg.norm(x[:,i:i+1]))**2 + np.finfo(float).eps)
-                if deltas[i] == 0:
-                    print('%d-th delta: signmag %g, precision %g, max abs %g, norm %g' % (i,signmag, precision,(max(abs(mag),absmag)), (np.linalg.norm(x)**2)))
+                deltas[i] = signmag*sqrt(precision)*(max(abs(mag),absmag))/((np.linalg.norm(x[:,i:i+1])+ np.finfo(float).eps)**2)
+                
+                if deltas[i] == 0: # s = 0 or x = 0
+                    print("%d-th delta: signmag %g, precision %g, max abs %g, norm %g" % (i,signmag, precision,(max(abs(mag),absmag)), (np.linalg.norm(x)**2)))
+                    
                     deltas[i] = sqrt(precision)
+
+                    print("%d-th delta: assigned as sqrt(precision) - %g", deltas[i])
                     #raise ValueError('delta is zero? - plz check your s_init is within a reasonable range')
 
                 # reuse storage x by updating x
@@ -418,6 +422,7 @@ class PCGA:
         # solve Hx HZ HQT
         for i in range(nruns):
             Jxs[:,i:i+1] = np.true_divide((simul_obs_purturbation[:,i:i+1] - simul_obs),deltas[i])
+        
         return Jxs
 
     def CreateSyntheticData(self, s = None, noise = False):
@@ -694,7 +699,8 @@ class PCGA:
         # Compute Jacobian-Matrix products
         start1 = time()
         HX, HZ, Hs, U_data = self.JacMat(s_cur, simul_obs, Z)
-
+        #debug_here()
+                        
         start2 = time()
         
         # Compute Q2/cR for covariance model validation
