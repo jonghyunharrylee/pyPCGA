@@ -386,10 +386,11 @@ class PCGA:
                 else:
                     signmag = -1.
 
-                deltas[i] = signmag*sqrt(precision)*(max(abs(mag),absmag))/((np.linalg.norm(x[:,i:i+1]))**2)
+                deltas[i] = signmag*sqrt(precision)*(max(abs(mag),absmag))/((np.linalg.norm(x[:,i:i+1]))**2 + np.finfo(float).eps)
                 if deltas[i] == 0:
                     print('%d-th delta: signmag %g, precision %g, max abs %g, norm %g' % (i,signmag, precision,(max(abs(mag),absmag)), (np.linalg.norm(x)**2)))
-                    raise ValueError('delta is zero? - plz check your s_init is within a reasonable range')
+                    deltas[i] = sqrt(precision)
+                    #raise ValueError('delta is zero? - plz check your s_init is within a reasonable range')
 
                 # reuse storage x by updating x
                 x[:,i:i+1] = s + deltas[i]*x[:,i:i+1]
@@ -734,13 +735,17 @@ class PCGA:
                 def prmv(v):
                     return pmv(v)
 
+            #if self.verbose:
+            #    print('preconditioner construction using Generalized Eigen-decomposition')
+            #    print("n :%d & n_pc: %d" % (n,n_pc))
+
             # Matrix handle for sqrt of Data Covariance
             #sqrtDataCovfun = LinearOperator( (n,n_pc), matvec=pmv, rmatvec = prmv, dtype = 'd')
             #sqrtDataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
             DataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
 
             #[Psi_U,Psi_sigma,Psi_V] = svds(sqrtDataCovfun, k= min(n,n_pc), which='LM', maxiter = n, return_singular_vectors='u')
-            [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=min(n, n_pc), which='LM', maxiter=n)
+            [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=min(n-1, n_pc), which='LM', maxiter=n)
 
             #print("eig. val. of sqrt data covariance (%8.2e, %8.2e, %8.2e)" % (Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
 #print(Psi_sigma)
@@ -759,7 +764,7 @@ class PCGA:
                 print("eig. val. of data covariance (%8.2e, %8.2e, %8.2e)" % (
                 Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
                 if Psi_U.shape[1] != n_pc:
-                    print('- rank of data covariance :%d for preconditioner construction', Psi_U.shape[1])
+                    print("- rank of data covariance :%d for preconditioner construction" % (Psi_U.shape[1]))
 
             self.Psi_sigma = Psi_sigma
             self.Psi_U = Psi_U
@@ -867,7 +872,7 @@ class PCGA:
                 
                 # Matrix handle for sqrt of Generalized Data Covariance
                 sqrtGDCovfun = LinearOperator( (n,n_pc), matvec=mv, rmatvec = rmv, dtype = 'd')
-                sigma_cR = svds(sqrtGDCovfun, k= min(n-p,n_pc), which='LM', maxiter = n, return_singular_vectors=False)
+                sigma_cR = svds(sqrtGDCovfun, k= min(n-p,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
                 tmp_cR[:sigma_cR.shape[0]] = sigma_cR[:,np.newaxis] # need to test this later
                 
             cR_all[:,i:i+1] = Q2_all[:,i:i+1]*np.exp(np.log(tmp_cR).sum()/(n-p))
@@ -1348,6 +1353,10 @@ class PCGA:
         print("Time for uncertainty computation is", time() - start)
 
         raise NotImplementedError
+
+    #def __str__(self):
+    #    """simply return the name when the PCGA object is printed"""
+    #    return self.__class__.__name__
 
 class CovarianceMatrixbyUd:
     def __init__(self,priord,priorU):
