@@ -11,18 +11,18 @@ updates
 
 version 0.2 will include
 - automatic covariance model parameter calibration
-- link with FMM (pyFMM3D) and HMatrix (pyHmatrix)
+- link with FMM (pyFMM3D) and HMatrix (pyHmatrix) to support unstructured grids 
 
 # Credits
 
-pyPCGA is based on Lee et al. [2016] and currently used for Stanford-USACE ERDC project and NSF EPSCoR `Ike Wai project. 
+pyPCGA is based on Lee et al. [2016] and currently used for Stanford-USACE ERDC project led by EF Darve and PK Kitanidis and NSF EPSCoR `Ike Wai project. 
 
 Code contributors include:
 
 * Jonghyun Harry Lee 
 * Matthew Farthing
 
-FFT-based matvec code is adapted from Arvind Saibaba's work 
+FFT-based matvec code is adapted from Arvind Saibaba's work (https://github.com/arvindks/kle). 
 
 # References
 
