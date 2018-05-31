@@ -224,6 +224,7 @@ class PCGA:
             self.params['objeval'] = False
             self.objeval = False
 
+
         if 'LM' in params:
             self.LM = params['LM'] # Levenberg Marquart
             if 'nopts_LM' in params:
@@ -236,6 +237,19 @@ class PCGA:
             else:
                 self.alphamax_LM = 10.**3. # does it sound ok?
 
+            if 'LM_smin' in params:
+                self.LM_smin = params['LM_smin']
+            else:
+                self.LM_smin = None
+
+            if 'LM_smax' in params:
+                self.LM_smax = params['LM_smax']
+            else:
+                self.LM_smax = None
+        else:
+            self.LM_smin = None
+            self.LM_smax = None
+            
         self.linesearch = True if 'linesearch' not in self.params else self.params['linesearch']
         
         if self.linesearch:
@@ -256,24 +270,27 @@ class PCGA:
             self.CreateSyntheticData(s_true, noise = True)
 
         print("------------ Inversion Parameters -------------------------")
-        print("   Number of unknowns                            : %d" % (self.m))
-        print("   Number of observations                        : %d" % (self.n))
-        print("   Number of principal components (n_pc)         : %d" % (self.n_pc))
-        print("   Prior model                                   : %s" % (getsource(self.kernel)))
-        print("   Prior variance                                : %e" % (self.prior_std ** 2))
-        print("   Prior scale (correlation) parameter           : %s" % (self.prior_cov_scale))
-        print("   Posterior cov computation                     : %s" % (self.post_cov))
+        print("   Number of unknowns                               : %d" % (self.m))
+        print("   Number of observations                           : %d" % (self.n))
+        print("   Number of principal components (n_pc)            : %d" % (self.n_pc))
+        print("   Prior model                                      : %s" % (getsource(self.kernel)))
+        print("   Prior variance                                   : %e" % (self.prior_std ** 2))
+        print("   Prior scale (correlation) parameter              : %s" % (self.prior_cov_scale))
+        print("   Posterior cov computation                        : %s" % (self.post_cov))
         if self.post_cov:
             if self.post_diag_direct:
-                print("   Posterior variance computation                  : Direct")
+                print("   Posterior variance computation                   : Direct")
             else:
-                print("   Posterior variance computation                  : Approx.")
-        print("   Number of CPU cores (n_core)                  : %d" % (self.ncores))
-        print("   Maximum GN iterations                         : %d" % (self.maxiter))
-        print("   machine precision (delta = sqrt(precision))   : %e" % (self.precision))
-        print("   Tol for iterations (norm(sol_diff)/norm(sol)) : %e" % (self.restol))
-        print("   Levenberg-Marquardt                           : %s" % (self.LM))
-        print("   Line search                                   : %s" % (self.linesearch))
+                print("   Posterior variance computation                   : Approx.")
+        print("   Number of CPU cores (n_core)                     : %d" % (self.ncores))
+        print("   Maximum GN iterations                            : %d" % (self.maxiter))
+        print("   machine precision (delta = sqrt(precision))      : %e" % (self.precision))
+        print("   Tol for iterations (norm(sol_diff)/norm(sol))    : %e" % (self.restol))
+        print("   Levenberg-Marquardt (LM)                         : %s" % (self.LM))
+        if self.LM:
+            print("   LM solution range constraints (LM_smin, LM_smax) : %s, %s" % (self.LM_smin,self.LM_smax))
+        
+        print("   Line search                                      : %s" % (self.linesearch))
         print("-----------------------------------------------------------")
 
     def DriftFunctions(self, method):
@@ -600,6 +617,7 @@ class PCGA:
             print('Solve geostatistical inversion problem (co-kriging, saddle point systems) with Levenberg-Marquardt')
             nopts = self.nopts_LM 
             alpha = 10**(np.linspace(0.,np.log10(self.alphamax_LM),nopts))
+            
         else:
             print('Solve geostatistical inversion problem (co-kriging, saddle point systems)')
             nopts = 1
@@ -609,7 +627,9 @@ class PCGA:
         s_hat_all = np.zeros((m,nopts),'d')
         Q2_all = np.zeros((1,nopts),'d')
         cR_all = np.zeros((1,nopts),'d')
-            
+        LM_eval = np.zeros(nopts,dtype=bool) # if LM_smax, LM_smin defined and solution violates them, LM_eval[i] becomes True
+        
+
         for i in range(nopts): # sequential evaluation for now
             # Construct Psi directly 
             Psi = np.dot(HZ,HZ.T) + np.multiply(np.multiply(alpha[i],R),np.eye(n,dtype='d'))
@@ -632,6 +652,15 @@ class PCGA:
             xi = x[0:n,np.newaxis]
             beta_all[:,i:i+1] = x[n:n+p,np.newaxis]
             s_hat_all[:,i:i+1] = np.dot(self.X,beta_all[:,i:i+1]) + np.dot(HQ.T,xi)
+            
+            # check prescribed solution range for LM evaluations
+            if self.LM_smin is not None:
+                if s_hat_all[:,i:i+1].min() <= self.LM_smin:
+                    LM_eval[i] = True
+            if self.LM_smax is not None:
+                if s_hat_all[:,i:i+1].max() >= self.LM_smax:
+                    LM_eval[i] = True
+
             Q2_all[:,i:i+1] = np.dot(b[:n].T,xi)/(n-p)
 
             tmp_cR = np.zeros((n-p,1),'d')
@@ -639,21 +668,30 @@ class PCGA:
             tmp_cR[:] = np.multiply(alpha[i],self.R) 
             tmp_cR[:sigma_cR.shape[0]] = tmp_cR[:sigma_cR.shape[0]] + (sigma_cR[:,np.newaxis])**2
             cR_all[:,i:i+1] = Q2_all[:,i:i+1]*np.exp(np.log(tmp_cR).sum()/(n-p))
-                
-        # parallel
+
+        # evaluate solutions       
         if self.LM:
             print("evaluate LM solutions")
+            if self.parallel :
+                simul_obs_all = -10000.0*np.ones((n,nopts),'d')
+                s_hat_all_tmp = s_hat_all[:,np.invert(LM_eval)]
+                simul_obs_all_tmp = self.ParallelForwardSolve(s_hat_all_tmp)
+                simul_obs_all[:,np.invert(LM_eval)] = simul_obs_all_tmp
+            else:
+                for i in range(nopts):
+                    if i == 0:
+                        if LM_eval[i]:
+                            simul_obs_all = -10000.0*np.ones(simul_obs.shape) # arbitrary values
+                        else:
+                            simul_obs_all = self.ForwardSolve(s_hat_all[:,i:i+1])
+                    else:
+                        if LM_eval[i]:
+                            simul_obs_all = np.concatenate((simul_obs_all, -10000.0*np.ones(simul_obs.shape)), axis=1)
+                        else:
+                            simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(s_hat_all[:,i:i+1])), axis=1)
         else:
             print("evaluate the best solution")
-
-        if self.parallel:
-            simul_obs_all = self.ParallelForwardSolve(s_hat_all)
-        else:
-            for i in range(nopts):
-                if i == 0:
-                    simul_obs_all = self.ForwardSolve(s_hat_all[:,i:i+1])
-                else:
-                    simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(s_hat_all[:,i:i+1])), axis=1)
+            simul_obs_all = self.ForwardSolve(s_hat_all)
 
         if np.size(simul_obs_all,1) != nopts:
             raise ValueError("np.size(simul_obs_all,1) != nopts")
@@ -663,9 +701,15 @@ class PCGA:
             print('%d objective value evaluations' % nopts)
         for i in range(nopts):
             if self.objeval: # If true, we do accurate computation
-                obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = False) 
+                if LM_eval[i]:
+                    obj = 1.e+20
+                else:
+                    obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = False) 
             else: # we compute through PCGA approximation
-                obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = True) 
+                if LM_eval[i]:
+                    obj = 1.e+20
+                else:
+                    obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = True) 
                 
             if obj < obj_best: 
                 if self.verbose:
@@ -702,7 +746,8 @@ class PCGA:
         #debug_here()
                         
         start2 = time()
-        
+        print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
+            
         # Compute Q2/cR for covariance model validation
         if R.shape[0] == 1: # Compute eig(P*(HQHT+R)*P) approximately by svd(P*HZ)**2 + R if R is single number
             def mv(v):
@@ -716,13 +761,16 @@ class PCGA:
             # Matrix handle for sqrt of Generalized Data Covariance
             sqrtGDCovfun = LinearOperator( (n,n_pc), matvec=mv, rmatvec = rmv, dtype = 'd')
             sigma_cR = svds(sqrtGDCovfun, k= min(n-p-1,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
-            print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
+            if self.verbose:
+                print("eig. val. of generalized data covariance : %f secs (%8.2e, %8.2e, %8.2e)" % (time()-start2,sigma_cR[0],sigma_cR.min(),sigma_cR.max()))
             #print("computed Jacobian-Matrix products in %f secs, eig. val. of generalized data covariance : %f secs (%8.2e, %8.2e, %8.2e)" % (start2 - start1, time()-start2,sigma_cR[0],sigma_cR.min(),sigma_cR.max()))
         else: # Compute eig(P*(HQHT+R)*P) approximately by svd(P*(HZ*HZ' + R)*P) # need to do for each alpha[i]*R
-            print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
+            pass
+            #print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
 
         # preconditioner construction
-        if self.precond != False:
+        if self.precond:
+            tStart_precond = time()
             # GHEP : HQHT u = lamdba R u => u = R^{-1/2} y 
             if R.shape[0] == 1:
                 # original implementation was sqrt of R^{-1/2} HZ n by n_pc
@@ -751,8 +799,8 @@ class PCGA:
             DataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
 
             #[Psi_U,Psi_sigma,Psi_V] = svds(sqrtDataCovfun, k= min(n,n_pc), which='LM', maxiter = n, return_singular_vectors='u')
-            [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=min(n-1, n_pc), which='LM', maxiter=n)
-
+            [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=min(n-1, n_pc-1), which='LM', maxiter=n)
+                
             #print("eig. val. of sqrt data covariance (%8.2e, %8.2e, %8.2e)" % (Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
 #print(Psi_sigma)
 
@@ -767,6 +815,7 @@ class PCGA:
             Psi_sigma =  Psi_sigma[Psi_sigma > 0]
 
             if self.verbose:
+                print("time for data covarance construction : %f sec " % (time()- tStart_precond))
                 print("eig. val. of data covariance (%8.2e, %8.2e, %8.2e)" % (
                 Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
                 if Psi_U.shape[1] != n_pc:
@@ -788,10 +837,11 @@ class PCGA:
         s_hat_all = np.zeros((m,nopts),'d')
         Q2_all = np.zeros((1,nopts),'d')
         cR_all = np.zeros((1,nopts),'d')
-            
+        LM_eval = np.zeros(nopts, dtype=bool) # if LM_smax, LM_smin defined and solution violates them, LM_eval[i] becomes True
+        #     
         for i in range(nopts): # this is sequential for now
             
-            #Create matrix context
+            # Create matrix context for cokriging matrix-vector multiplication 
             if R.shape[0] == 1:
                 def mv(v):
                     return np.concatenate(( (np.dot(HZ,np.dot(HZ.T,v[0:n])) + np.multiply(np.multiply(alpha[i],R),v[0:n]) + np.dot(HX,v[n:n+p])) , (np.dot(HX.T,v[0:n])) ),axis = 0)
@@ -812,25 +862,39 @@ class PCGA:
 
             # construction preconditioner
             if self.precond:
-
+                #
+                # Lee et al. WRR 2016 Eq 16 - 21, Saibaba et al. NLAA 2015
+                # R_LM = alpha * R
+                # Psi_U_LM = 1./sqrt(alpha) * Psi_U
+                # Psi_sigma = Psi_sigma/alpha
+                # 
+               
                 if R.shape[0] == 1:
 
                     def invPsi(v):
-                        Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1))
+                        Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.) )
                         Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U)
                         Psi_UTv = np.dot(Psi_U_i.T, v)
                         return np.multiply(np.multiply((1./alpha[i]),self.invR),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
 
-                    def Pmv(v):
-                        invPsiv = invPsi(v[0:n])
-                        S = np.dot(HX.T, invPsi(HX)) # p by p matrix
-                        invSHXTinvPsiv = np.linalg.solve(S,np.dot(HX.T,invPsiv))
-                        invPsiHXinvSHXTinvPsiv = invPsi(np.dot(HX,invSHXTinvPsiv))
-                        #return np.concatenate( ((invPsiv - invPsiHXinvSHXTinvPsiv + invPsiHXinvSv1), (invSHXTinvPsiv - Sv1)),axis = 0)
-                        return np.concatenate(
-                            ((invPsiv - invPsiHXinvSHXTinvPsiv), (invSHXTinvPsiv)), axis=0)
                 else:
-                    return NotImplemented
+
+                    def invPsi(v):
+                        Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.))
+                        Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U)
+                        Psi_UTv = np.dot(Psi_U_i.T, v)
+                        return np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+
+                # Preconditioner construction Lee et al. WRR 2016 Eq (14)  
+                # typo in Eq (14), (2,2) block matrix should be -S^-1 instead of -S                 
+                def Pmv(v):
+                    invPsiv = invPsi(v[0:n])
+                    S = np.dot(HX.T, invPsi(HX)) # p by p matrix
+                    invSHXTinvPsiv = np.linalg.solve(S,np.dot(HX.T,invPsiv))
+                    invPsiHXinvSHXTinvPsiv = invPsi(np.dot(HX,invSHXTinvPsiv))
+                    invPsiHXinvSv1 = invPsi(np.dot(HX,np.linalg.solve(S,v[n:])))
+                    invSv1  = np.linalg.solve(S,v[n:])
+                    return np.concatenate( ((invPsiv - invPsiHXinvSHXTinvPsiv + invPsiHXinvSv1), (invSHXTinvPsiv - invSv1)),axis = 0)
                     
                 P = LinearOperator( (n+p,n+p), matvec=Pmv, rmatvec = Pmv, dtype = 'd')
 
@@ -849,13 +913,28 @@ class PCGA:
                     x, info = gmres(Afun, b, x0=x, tol=itertol, maxiter=solver_maxiter, callback=callback)
                     print("-- Number of iterations for gmres: %g, info: %d, tol: %f" % (callback.itercount(),info, itertol))
 
-            #Extract components and postprocess
+            # Extract components and postprocess
             # x.shape = (n+p,), so need to increase the dimension (n+p,1)
             xi = x[0:n,np.newaxis]
             beta_all[:,i:i+1] = x[n:n+p,np.newaxis]
+            
             #from IPython.core.debugger import Tracer; debug_here = Tracer()
             s_hat_all[:,i:i+1] = np.dot(self.X,beta_all[:,i:i+1]) + np.dot(Z,np.dot(HZ.T,xi))
-            if self.verbose: print("%d - min(s): %g, max(s) :%g" % (i,s_hat_all[:,i:i+1].min(),s_hat_all[:,i:i+1].max()))
+            
+            # check prescribed solution range for LM evaluations
+            if self.LM_smin is not None:
+                if s_hat_all[:,i:i+1].min() <= self.LM_smin:
+                    LM_eval[i] = True
+            if self.LM_smax is not None:
+                if s_hat_all[:,i:i+1].max() >= self.LM_smax:
+                    LM_eval[i] = True
+
+            if self.verbose: 
+                if LM_eval[i]:
+                    print("%d - min(s): %g, max(s) :%g - violate LM_smin or LM_smax" % (i,s_hat_all[:,i:i+1].min(),s_hat_all[:,i:i+1].max()))
+                else:
+                    print("%d - min(s): %g, max(s) :%g" % (i,s_hat_all[:,i:i+1].min(),s_hat_all[:,i:i+1].max()))
+            
             Q2_all[:,i:i+1] = np.dot(b[:n].T,xi)/(n-p)
                 
             # model validation, predictive diagnostics cR/Q2
@@ -865,37 +944,66 @@ class PCGA:
                 tmp_cR[:sigma_cR.shape[0]] = tmp_cR[:sigma_cR.shape[0]] + (sigma_cR[:,np.newaxis])**2
             else:
                 # need to find efficient way to compute cR once
+                # approximation
                 def mv(v):
                     # P*(HZ*HZ.T + R)*P*x = P = (I-(U_data*U_data.T))
-                    Pv =  v - np.dot(U_data,np.dot(U_data.T,v))
-                    RPv = np.multiply(R,Pv)
-                    PRPv = np.dot(U_data,np.dot(U_data.T,RPv))
-                    HQHTPv = np.dot(HZ,np.dot(HZ.T,RPv))
-                    PHQHTPv = HQHTPv - np.dot(U_data,np.dot(U_data.T,HQHTPv))
-                    return PHQHTPv + PRPv
+                    #debug_here()
+                    Pv =  v - np.dot(U_data,np.dot(U_data.T,v)) # P * v : n by 1
+                    RPv = np.multiply(alpha[i],np.multiply(R.reshape(v.shape),Pv))    # alpha*R*P*v : n by 1
+                    PRPv = RPv - np.dot(U_data,np.dot(U_data.T,RPv))  # P*R*P*v : n by 1
+                    HQHTPv = np.dot(HZ,np.dot(HZ.T,Pv))  # HQHTPv : n by 1
+                    PHQHTPv = HQHTPv - np.dot(U_data,np.dot(U_data.T,HQHTPv)) # P*HQHT*P*v
+                    return PHQHTPv + PRPv 
                 def rmv(v):
                     return mv(v) # symmetric matrix
                 
-                # Matrix handle for sqrt of Generalized Data Covariance
-                sqrtGDCovfun = LinearOperator( (n,n_pc), matvec=mv, rmatvec = rmv, dtype = 'd')
-                sigma_cR = svds(sqrtGDCovfun, k= min(n-p,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
-                tmp_cR[:sigma_cR.shape[0]] = sigma_cR[:,np.newaxis] # need to test this later
+                # Matrix handle for Generalized Data Covariance
+                sqrtGDCovfun = LinearOperator( (n,n), matvec=mv, rmatvec = rmv, dtype = 'd')
+                sigma_cR = svds(sqrtGDCovfun, k= min(n_pc,n-1), which='LM', maxiter = n, return_singular_vectors=False)
+                
+                tmp_cR = np.zeros((n-p,1),'d')
+                tmp_cR[:] = np.multiply(alpha[i],R[:-p])
+                
+                tmp_cR[:sigma_cR.shape[0]] = sigma_cR[:,np.newaxis]
+                
+                uniqueR = np.unique(R)
+                lenR = len(uniqueR)
+                lenRi = int((n - sigma_cR.shape[0])/lenR)
+                strtidx = sigma_cR.shape[0]
+                for iR in range(lenR):
+                    tmp_cR[strtidx:strtidx+lenRi] = alpha[iR]*uniqueR[iR]
+                    strtidx = strtidx+lenRi
+                tmp_cR[strtidx:] = alpha[iR]*uniqueR[iR]
                 
             cR_all[:,i:i+1] = Q2_all[:,i:i+1]*np.exp(np.log(tmp_cR).sum()/(n-p))
-            #debug_here()
-        
-        # evaluate solutions from LM 
+
+        # evaluate solutions
         if self.LM:
-            print('evaluate LM solutions')
+            print("evaluate LM solutions")
             if self.parallel:
-                simul_obs_all = self.ParallelForwardSolve(s_hat_all)
+                simul_obs_all = -10000.0*np.ones((n,nopts),'d')
+                s_hat_all_tmp = s_hat_all[:,np.invert(LM_eval)]
+                #print(s_hat_all_tmp.shape)
+                save_ncores = self.ncores
+                self.ncores = s_hat_all_tmp.shape[1] 
+                simul_obs_all_tmp = self.ParallelForwardSolve(s_hat_all_tmp)
+                self.ncores = save_ncores
+                print("LM solution evaluted")
+                simul_obs_all[:,np.invert(LM_eval)] = simul_obs_all_tmp
             else:
                 for i in range(nopts):
                     if i == 0:
-                        simul_obs_all = self.ForwardSolve(s_hat_all[:,i:i+1])
+                        if LM_eval[i]:
+                            simul_obs_all = -10000.0*np.ones(simul_obs.shape) # arbitrary values
+                        else:
+                            simul_obs_all = self.ForwardSolve(s_hat_all[:,i:i+1])
                     else:
-                        simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(s_hat_all[:,i:i+1])), axis=1)
+                        if LM_eval[i]:
+                            simul_obs_all = np.concatenate((simul_obs_all, -10000.0*np.ones(simul_obs.shape)), axis=1)
+                        else:
+                            simul_obs_all = np.concatenate((simul_obs_all, self.ForwardSolve(s_hat_all[:,i:i+1])), axis=1)       
         else:
+            print("evaluate the best solution")
             simul_obs_all = self.ForwardSolve(s_hat_all)
 
         if np.size(simul_obs_all,1) != nopts:
@@ -904,16 +1012,22 @@ class PCGA:
         # evaluate objective values and select best value
         obj_best = 1.e+20
         if self.LM and self.verbose:
-            print('%d objective value evaluations' % nopts)
+            print("%d objective value evaluations" % nopts)
 
-        i_best = 0
+        i_best = -1
         
         for i in range(nopts):
             if self.objeval: # If true, we do accurate computation
-                obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = False) 
+                if LM_eval[i]:
+                    obj = 1.e+20
+                else:
+                    obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = False) 
             else: # we compute through PCGA approximation
-                obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = True) 
-                
+                if LM_eval[i]:
+                    obj = 1.e+20
+                else:
+                    obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = True) 
+
             if obj < obj_best: 
                 if self.verbose:
                     print("%d-th solution obj %e (alpha %f)" % (i,obj,alpha[i]))
@@ -924,7 +1038,13 @@ class PCGA:
                 self.Q2_cur = Q2_all[:,i:i+1]
                 self.cR_cur = cR_all[:,i:i+1]
                 i_best = i
-            
+
+        if i_best == -1:
+            print("no better solution found ..")
+            s_hat = s_cur
+            simul_obs_new = simul_obs
+            beta = 0.
+
         if self.post_cov or self.post_cov == "diag":
             self.HZ = HZ
             self.HX = HX
@@ -1027,6 +1147,10 @@ class PCGA:
         s_cur = np.copy(s_init)
         s_past = np.copy(s_init)
 
+        if self.iter_save:
+            np.savetxt('./shat0.txt', s_init)
+            np.savetxt('./simulobs0.txt', simul_obs_init)
+        
         for i in range(maxiter):
             start = time()
             print("***** Iteration %d ******" % (i+1))
@@ -1220,20 +1344,31 @@ class PCGA:
         itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
         solver_maxiter = m if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
 
-        ##Preconditioner
-        def invPsi(v):
-            Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
-            Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
-            Psi_UTv = np.dot(Psi_U.T, v)
-            return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+        
+        # Benzi et al. 2005, eq 3.5
 
+        if R.shape[0] == 1:
+            def invPsi(v):
+                Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
+                Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
+                Psi_UTv = np.dot(Psi_U.T, v)
+                return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+        else:
+            def invPsi(v):
+                Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
+                Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
+                Psi_UTv = np.dot(Psi_U.T, v)
+                return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+
+        # Direct Inverse of cokkring matrix - Lee et al. WRR 2016 Eq (14)  
+        # typo in Eq (14), (2,2) block matrix should be -S^-1 instead of -S                 
         def Pmv(v):
             invPsiv = invPsi(v[0:n])
             S = np.dot(HX.T, invPsi(HX))  # p by p matrix
             invSHXTinvPsiv = np.linalg.solve(S, np.dot(HX.T, invPsiv))
             invPsiHXinvSHXTinvPsiv = invPsi(np.dot(HX, invSHXTinvPsiv))
             return np.concatenate(((invPsiv - invPsiHXinvSHXTinvPsiv), (invSHXTinvPsiv)), axis=0)
-
+            
         P = LinearOperator((n + p, n + p), matvec=Pmv, rmatvec=Pmv, dtype='d')
 
         #start = time()
