@@ -5,20 +5,20 @@ A few quick and dirty routines hardwired for plotting stwave example
 import numpy as np
 import matplotlib.pyplot as plt
 
-def get_transect(nx,ny,dx,dy,s_true2d,post_std2d,ix):
+def get_transect(nx,ny,dx,dy,s,s_true,post_std,ix):
     linex = np.arange(1,nx+1)*dx
-    line1_true = s_true2d[ny-ix+1,:]
-    line1 = s_hat2d[ny-ix+1,:]
-    line1_u = s_hat2d[ny-ix+1,:] + 1.96*post_std2d[ny-ix+1,:]
-    line1_l = s_hat2d[ny-ix+1,:] - 1.96*post_std2d[ny-ix+1,:]
+    line1_true = s_true[ny-ix+1,:]
+    line1 = s[ny-ix+1,:]
+    line1_u = s[ny-ix+1,:] + 1.96*post_std[ny-ix+1,:]
+    line1_l = s[ny-ix+1,:] - 1.96*post_std[ny-ix+1,:]
 
     return linex,line1_true,line1,line1_u,line1_l
 
 
-def plot_transect(nx,ny,dx,dy,s_true2d,post_std2d,ix,axes=None,linewidth=3):
+def plot_transect(nx,ny,dx,dy,s,s2,post_std,ix,axes=None,linewidth=3):
     if axes is None:
         axes = plt.gca()
-    linex,line1_true,line1,line1_u,line1_l = get_transect(nx,ny,dx,dy,s_true2d,post_std2d,ix)
+    linex,line1_true,line1,line1_u,line1_l = get_transect(nx,ny,dx,dy,s,s2,post_std,ix)
     axes.plot(linex, np.flipud(-line1_true),'r-', label='True',linewidth=linewidth)
     axes.plot(linex, np.flipud(-line1),'k-', label='Estimated',linewidth=linewidth)
     axes.plot(linex, np.flipud(-line1_u),'k--', label='95% credible interval',linewidth=linewidth)
@@ -75,7 +75,7 @@ def plot_2x1(nx,ny,dx,dy,s0,s1,fig=None,tit0='True',tit1='Estimate',
     axes[0].set_ylabel('Alongshore distance [m]')
     im1 = axes[1].imshow(np.flipud(np.fliplr(-s1)), extent=[0, linex[-1], 0, liney[-1]], vmin=vmin[1], vmax=vmax[1], 
                    cmap=plt.get_cmap(cmap_type))
-    axes[1].set_title('(b) Estimate'.format(tit1), loc='left')
+    axes[1].set_title('(b) {0}'.format(tit1), loc='left')
     axes[1].set_xlabel('Offshore distance [m]')
     axes[1].set_aspect('equal')
     fig.subplots_adjust(right=0.8)
