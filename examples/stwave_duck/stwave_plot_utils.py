@@ -5,20 +5,20 @@ A few quick and dirty routines hardwired for plotting stwave example
 import numpy as np
 import matplotlib.pyplot as plt
 
-def get_transect(nx,ny,dx,dy,s,post_std,ix):
+def get_transect(nx,ny,dx,dy,s_true2d,post_std2d,ix):
     linex = np.arange(1,nx+1)*dx
-    line1_true = s[ny-ix+1,:]
-    line1 = s[ny-ix+1,:]
-    line1_u = s[ny-ix+1,:] + 1.96*post_std[ny-ix+1,:]
-    line1_l = s[ny-ix+1,:] - 1.96*post_std[ny-ix+1,:]
+    line1_true = s_true2d[ny-ix+1,:]
+    line1 = s_hat2d[ny-ix+1,:]
+    line1_u = s_hat2d[ny-ix+1,:] + 1.96*post_std2d[ny-ix+1,:]
+    line1_l = s_hat2d[ny-ix+1,:] - 1.96*post_std2d[ny-ix+1,:]
 
     return linex,line1_true,line1,line1_u,line1_l
 
 
-def plot_transect(nx,ny,dx,dy,s,post_std,ix,axes=None,linewidth=3):
+def plot_transect(nx,ny,dx,dy,s_true2d,post_std2d,ix,axes=None,linewidth=3):
     if axes is None:
         axes = plt.gca()
-    linex,line1_true,line1,line1_u,line1_l = get_transect(nx,ny,dx,dy,s,post_std,ix)
+    linex,line1_true,line1,line1_u,line1_l = get_transect(nx,ny,dx,dy,s_true2d,post_std2d,ix)
     axes.plot(linex, np.flipud(-line1_true),'r-', label='True',linewidth=linewidth)
     axes.plot(linex, np.flipud(-line1),'k-', label='Estimated',linewidth=linewidth)
     axes.plot(linex, np.flipud(-line1_u),'k--', label='95% credible interval',linewidth=linewidth)
