@@ -27,8 +27,8 @@ t2 = dt.datetime(2016, 07, 22, 20, 30)
 
 # covairance kernel and scale parameters
 # following Hojat's paper
-prior_std = 2.5
-prior_cov_scale = np.array([100., 150.])
+prior_std = 1.5
+prior_cov_scale = np.array([100., 100.])
 def kernel(r): return (prior_std**2)*np.exp(-r**2)
 
 # for plotting
@@ -46,13 +46,13 @@ s_true = z0-s_true
 obs_file  = os.path.join(uas_dir,'observation_files','wave_speed_measurements.txt')
 obs = np.loadtxt(obs_file)
 #observation indices
-obs_inds_file  = os.path.join(uas_dir,'observation_files','wavespeed_measurement_cells.txt')
+obs_inds_file  = os.path.join(uas_dir,'observation_files','wave_speed_measurement_cells.txt')
 obs_inds  = np.loadtxt(obs_inds_file,dtype='i')
 
 # 1st-order polynomial (linear trend)
-#X = np.zeros((m,2),'d')
-#X[:,0] = 1/np.sqrt(m)
-#X[:,1] = pts[:,0]/np.linalg.norm(pts[:,0])
+X = np.zeros((m,2),'d')
+X[:,0] = 1/np.sqrt(m)
+X[:,1] = pts[:,0]/np.linalg.norm(pts[:,0])
 
 # 2nd-order polynomial 
 #X = np.zeros((m,3),'d')
@@ -80,7 +80,7 @@ def forward_model(s,parallelization,ncores = None):
         simul_obs = model.run(s,parallelization)
     return simul_obs
 
-params = {'R':(0.1)**2, 'n_pc':70,
+params = {'R':(0.2)**2, 'n_pc':200,
           'maxiter':10, 'restol':0.01,
           'matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N,
           'prior_std':prior_std,'prior_cov_scale':prior_cov_scale,
@@ -94,11 +94,11 @@ params = {'R':(0.1)**2, 'n_pc':70,
 #params['ncores'] = 36, with parallell True, it will determine maximum physcial core unless specified
 
 s_init = np.mean(s_true)*np.ones((m,1))
-#s_init = np.copy(s_true) # you can try with s_true! 
+#s_init = np.copy(s_true); s_init = s_init[:,np.newaxis] # you can try with s_true! 
 
 # initialize
-prob = PCGA(forward_model, s_init, pts, params, s_true, obs)
-#prob = PCGA(forward_model, s_init, pts, params, s_true, obs, X = X) #if you want to add your own drift X 
+#prob = PCGA(forward_model, s_init, pts, params, s_true, obs)
+prob = PCGA(forward_model, s_init, pts, params, s_true, obs, X = X) #if you want to add your own drift X 
 
 # run inversion
 s_hat, simul_obs, post_diagv, iter_best = prob.Run()
@@ -114,13 +114,13 @@ maxv = s_true.max()
 
 fig, axes = plt.subplots(1,2, figsize=(15,5))
 plt.suptitle('prior var.: (%g)^2, n_pc : %d' % (prior_std, params['n_pc']))
-im = axes[0].imshow(np.flipud(np.fliplr(-s_true2d)), extent=[0, nx, 0, 83], vmin=-7., vmax=0.,
+im = axes[0].imshow(np.flipud(np.fliplr(-s_true2d)), extent=[0, nx, 0, ny], vmin=-7., vmax=0.,
                     cmap=plt.get_cmap('jet'))
 axes[0].set_title('(a) True', loc='left')
 axes[0].set_aspect('equal')
 axes[0].set_xlabel('Offshore distance (px)')
 axes[0].set_ylabel('Alongshore distance (px)')
-axes[1].imshow(np.flipud(np.fliplr(-s_hat2d)), extent=[0, nx, 0, 83], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
+axes[1].imshow(np.flipud(np.fliplr(-s_hat2d)), extent=[0, nx, 0, ny], vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
 axes[1].set_title('(b) Estimate', loc='left')
 axes[1].set_xlabel('Offshore distance (px)')
 axes[1].set_aspect('equal')
@@ -131,7 +131,7 @@ fig.savefig('best.png')
 plt.close(fig)
 
 fig = plt.figure()
-im = plt.imshow(np.flipud(np.fliplr(post_std2d)), extent=[0, nx, 0, 83], cmap=plt.get_cmap('jet'))
+im = plt.imshow(np.flipud(np.fliplr(post_std2d)), extent=[0, nx, 0, ny], cmap=plt.get_cmap('jet'))
 plt.title('Uncertainty (std)', loc='left')
 plt.xlabel('Offshore distance (px)')
 plt.ylabel('Alongshore distance (px)')
@@ -148,7 +148,7 @@ fig, axes = plt.subplots(1, 2)
 fig.suptitle('transect with prior var.: (%g)^2, n_pc : %d, lx = %f m, ly = %f m' % (
 prior_std, params['n_pc'], prior_cov_scale[0], prior_cov_scale[1]))
 
-linex = np.arange(1, 111) * 5.0
+linex = np.arange(1, nx+1) * dx[0]
 line1_true = s_true2d[ny - 25 + 1, :]
 line1 = s_hat2d[ny - 25 + 1, :]
 line1_u = s_hat2d[ny - 25 + 1, :] + 1.96 * post_std2d[ny - 25 + 1, :]
