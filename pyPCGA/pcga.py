@@ -875,7 +875,11 @@ class PCGA:
                         Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.) )
                         Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U)
                         Psi_UTv = np.dot(Psi_U_i.T, v)
-                        return np.multiply(np.multiply((1./alpha[i]),self.invR),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                        if Psi_UTv.ndim == 1:
+                            return np.multiply(np.multiply((1./alpha[i]),self.invR),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                        else:
+                            Dmat = np.tile(Dvec[:Psi_U_i.shape[1]],(Psi_UTv.shape[1],1)).T
+                            return np.multiply(np.multiply((1./alpha[i]),self.invR),v) - np.dot(Psi_U_i, np.multiply(Dmat, Psi_UTv))
 
                 else:
 
@@ -883,8 +887,11 @@ class PCGA:
                         Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.))
                         Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U)
                         Psi_UTv = np.dot(Psi_U_i.T, v)
-                        return np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
-
+                        if Psi_UTv.ndim == 1:
+                            return np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                        else:
+                            Dmat = np.tile(Dvec[:Psi_U_i.shape[1]],(Psi_UTv.shape[1],1)).T
+                            return np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v) - np.dot(Psi_U_i, np.multiply(Dmat, Psi_UTv))
                 # Preconditioner construction Lee et al. WRR 2016 Eq (14)  
                 # typo in Eq (14), (2,2) block matrix should be -S^-1 instead of -S                 
                 def Pmv(v):
@@ -1352,14 +1359,21 @@ class PCGA:
                 Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
                 Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
                 Psi_UTv = np.dot(Psi_U.T, v)
-                return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                if Psi_UTv.ndim == 1:
+                    return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                else:                    
+                    Dmat = np.tile(Dvec[:Psi_U.shape[1]],(Psi_UTv.shape[1],1)).T
+                    return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dmat, Psi_UTv))
         else:
             def invPsi(v):
                 Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
                 Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
                 Psi_UTv = np.dot(Psi_U.T, v)
-                return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
-
+                if Psi_UTv.ndim == 1:#mwf debug
+                    return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                else:
+                    Dmat = np.tile(Dvec[:Psi_U.shape[1]],(Psi_UTv.shape[1],1)).T
+                    return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U, np.multiply(Dmat, Psi_UTv))
         # Direct Inverse of cokkring matrix - Lee et al. WRR 2016 Eq (14)  
         # typo in Eq (14), (2,2) block matrix should be -S^-1 instead of -S                 
         def Pmv(v):
