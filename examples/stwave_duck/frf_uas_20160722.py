@@ -43,11 +43,22 @@ elev_file = os.path.join(uas_dir,'observation_files','true_bathymetry.txt')
 s_true = np.loadtxt(elev_file)
 s_true = z0-s_true
 #observations extracted onto stwave grid
-obs_file  = os.path.join(uas_dir,'observation_files','wave_speed_measurements.txt')
-obs = np.loadtxt(obs_file)
+wave_obs_file  = os.path.join(uas_dir,'observation_files','wave_speed_measurements.txt')
+topo_obs_file  = os.path.join(uas_dir,'observation_files','topo_measurements.txt')
 #observation indices
-obs_inds_file  = os.path.join(uas_dir,'observation_files','wave_speed_measurement_cells.txt')
-obs_inds  = np.loadtxt(obs_inds_file,dtype='i')
+wave_obs_inds_file  = os.path.join(uas_dir,'observation_files','wave_speed_measurement_cells.txt')
+topo_obs_inds_file  = os.path.join(uas_dir,'observation_files','topo_measurement_cells.txt')
+
+include_topo_obs = True
+
+obs = np.loadtxt(wave_obs_file)
+wave_obs_inds  = np.loadtxt(wave_obs_inds_file,dtype='i')
+topo_obs_inds = None
+if include_topo_obs:
+    topo_obs = np.loadtxt(topo_obs_file)
+    topo_obs = z0-topo_obs #convert to bathymetry
+    obs = np.append(obs,topo_obs)
+    topo_obs_inds = np.loadtxt(topo_obs_inds_file,dtype='i')
 
 # 1st-order polynomial (linear trend)
 X = np.zeros((m,2),'d')
@@ -67,9 +78,10 @@ X[:,1] = pts[:,0]/np.linalg.norm(pts[:,0])
 
 
 stwave_params = {'nx': nx, 'ny': ny, 'Lx': Lx, 'Ly': Ly, 'x0': x0, 'y0': y0, 't1': t1, 't2': t2,
-                 'wave_speed_obs_indices':obs_inds,
+                 'wave_speed_obs_indices':wave_obs_inds,
+                 'topo_obs_indices':topo_obs_inds,
                  'offline_dataloc':"./input_files/FRF-ocean_waves_8m-array_201607.nc"}
-
+    
 # prepare interface to run as a function
 def forward_model(s,parallelization,ncores = None):
     model = st.Model(stwave_params)
