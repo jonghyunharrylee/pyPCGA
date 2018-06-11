@@ -27,7 +27,7 @@ t2 = dt.datetime(2016, 07, 22, 20, 30)
 
 # covairance kernel and scale parameters
 # following Hojat's paper
-prior_std = 1.5
+prior_std = 1.0
 prior_cov_scale = np.array([100., 150.])
 def kernel(r): return (prior_std**2)*np.exp(-r**2)
 
@@ -61,32 +61,16 @@ if include_topo_obs:
     obs = np.append(obs,topo_obs)
     topo_obs_inds = np.loadtxt(topo_obs_inds_file,dtype='i')
 
-std_waves = 0.5
+std_waves = 0.3
 std_obs   = std_waves
-#mwf doesn't work the way I have it setup now
-#mwf get traceback
-"""
-Traceback (most recent call last):
-  File "frf_uas_20160722.py", line 126, in <module>
-    s_hat, simul_obs, post_diagv, iter_best = prob.Run()
-  File "/Users/rdchlmwf/Public/code/pyPCGA/pyPCGA/pcga.py", line 1261, in Run
-    s_hat, simul_obs, post_diagv, iter_best = self.GaussNewton()
-  File "/Users/rdchlmwf/Public/code/pyPCGA/pyPCGA/pcga.py", line 1164, in GaussNewton
-    s_cur, beta_cur, simul_obs_cur, obj = self.LinearIteration(s_past, simul_obs)
-  File "/Users/rdchlmwf/Public/code/pyPCGA/pyPCGA/pcga.py", line 1078, in LinearIteration
-    s_hat, beta, simul_obs_new = self.IterativeSolve(s_cur, simul_obs, precond = precond)
-  File "/Users/rdchlmwf/Public/code/pyPCGA/pyPCGA/pcga.py", line 807, in IterativeSolve
-    Psi_U = np.multiply(self.invsqrtR,Psi_U)
-ValueError: operands could not be broadcast together with shapes (1269,) (1269,199) 
-"""
-#std_topo = 0.1
+std_topo = 0.2
 
-#std_obs = std_waves
-#if include_topo_obs and np.absolute(std_topo-std_waves) > 1.0e-6:
-#    std_obs = np.ones_like(obs)
-#    std_obs[:len(wave_obs)]=std_waves
-#    std_obs[len(wave_obs):]=std_topo
-#    std_obs = np.diag
+std_obs = std_waves
+if include_topo_obs:# and np.absolute(std_topo-std_waves) > 1.0e-6:
+    std_obs = np.ones_like(obs)
+    std_obs[:len(wave_obs)]=std_waves
+    std_obs[len(wave_obs):]=std_topo
+
 # 1st-order polynomial (linear trend)
 X = np.zeros((m,2),'d')
 X[:,0] = 1/np.sqrt(m)
@@ -119,7 +103,7 @@ def forward_model(s,parallelization,ncores = None):
         simul_obs = model.run(s,parallelization)
     return simul_obs
 
-params = {'R':std_obs**2, 'n_pc':200,
+params = {'R':std_obs**2, 'n_pc':70,
           'maxiter':10, 'restol':0.01,
           'matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N,
           'prior_std':prior_std,'prior_cov_scale':prior_cov_scale,
