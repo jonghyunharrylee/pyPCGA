@@ -135,8 +135,10 @@ class PCGA:
             
             self.R = np.array(params['R'])
             
-            if self.R.ndim == 0 or self.R.ndim == 1:
+            if self.R.ndim == 0:
                 self.R = np.array(params['R']).reshape(-1) # convert to 1d array (1,)
+            elif self.R.ndim == 1:
+                self.R = np.array(params['R']).reshape(-1,1) # convert to 2d n x 1 array
             elif self.R.ndim == 2:
                 self.R = np.array(params['R']).reshape(-1,1) # convert to 2d n x 1 array
             else:
@@ -783,6 +785,7 @@ class PCGA:
             #print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
 
         # preconditioner construction
+        # will add more description here
         if self.precond:
             tStart_precond = time()
             # GHEP : HQHT u = lamdba R u => u = R^{-1/2} y 
@@ -888,15 +891,28 @@ class PCGA:
                 # R_LM = alpha * R
                 # Psi_U_LM = 1./sqrt(alpha) * Psi_U
                 # Psi_sigma = Psi_sigma/alpha
-                # 
-               
+                #
+                # (R^-1 - UDvecU')*v
+                
                 if R.shape[0] == 1:
 
                     def invPsi(v):
-                        Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.) )
-                        Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U)
-                        Psi_UTv = np.dot(Psi_U_i.T, v)
-                        return np.multiply(np.multiply((1./alpha[i]),self.invR),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                        Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.) ) # (n_pc,)
+                        Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U) # (n, n_pc) (dim[1] can be n_pc-1, n)
+                        Psi_UTv = np.dot(Psi_U_i.T, v) # n_pc by n * v (can be (n,) or (n,p)) = (n_pc,) or (n_pc,p)
+                        
+                        alphainvRv = np.multiply(np.multiply((1./alpha[i]),self.invR),v)
+
+
+                        if Psi_UTv.ndim == 1:
+                            PsiDPsiTv = np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                        elif Psi_UTv.ndim == 2: # for invPsi(HX)
+                            DMat = np.tile(Dvec[:Psi_U_i.shape[1]],(Psi_UTv.shape[1],1)).T # n_pc by p
+                            PsiDPsiTv = np.dot(Psi_U_i,np.multiply(DMat,Psi_UTv))
+                        else:
+                            raise ValueError("Psi_U times vector should have a dimension smaller than 2 - current dim = %d" % (Psi_UTv.ndim))
+                            
+                        return alphainvRv - PsiDPsiTv
 
                 else:
 
@@ -904,7 +920,19 @@ class PCGA:
                         Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.))
                         Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U)
                         Psi_UTv = np.dot(Psi_U_i.T, v)
-                        return np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+
+                        if Psi_UTv.ndim == 1:
+                            alphainvRv = np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v)
+                            PsiDPsiTv = np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                        elif Psi_UTv.ndim == 2: # for invPsi(HX)
+                            RMat = np.tile(np.multiply((1./alpha[i]),self.invR),Psi_UTv.shape[1]) # may need to change this later in a more general way 06142018 Harry
+                            alphainvRv = np.multiply(RMat,v)
+                            Dmat = np.tile(Dvec[:Psi_U_i.shape[1]],(Psi_UTv.shape[1],1)).T # n_pc by p
+                            PsiDPsiTv = np.dot(Psi_U_i,np.multiply(Dmat,Psi_UTv))
+                        else:
+                            raise ValueError("Psi_U times vector should have a dimension smaller than 2 - current dim = %d" % (Psi_UTv.ndim))
+                        
+                        return alphainvRv - PsiDPsiTv
 
                 # Preconditioner construction Lee et al. WRR 2016 Eq (14)  
                 # typo in Eq (14), (2,2) block matrix should be -S^-1 instead of -S                 
@@ -1130,7 +1158,7 @@ class PCGA:
         obj_best = 1.e+20
         
         for i in range(nopts):
-            start0 = time()
+            
             if self.objeval: # If true, we do accurate computation
                 obj = self.ObjectiveFunctionNoBeta(s_hat_all[:,i:i+1], simul_obs_all[:,i:i+1],0) 
             else: # we compute through PCGA approximation
@@ -1369,13 +1397,39 @@ class PCGA:
                 Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
                 Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
                 Psi_UTv = np.dot(Psi_U.T, v)
-                return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+
+                alphainvRv = np.multiply(np.multiply((1./alpha[i_best]),self.invR),v)
+
+
+                if Psi_UTv.ndim == 1:
+                    PsiDPsiTv = np.dot(Psi_U, np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                elif Psi_UTv.ndim == 2: # for invPsi(HX)
+                    DMat = np.tile(Dvec[:Psi_U.shape[1]],(Psi_UTv.shape[1],1)).T # n_pc by p
+                    PsiDPsiTv = np.dot(Psi_U,np.multiply(DMat,Psi_UTv))
+                else:
+                    raise ValueError("Psi_U times vector should have a dimension smaller than 2 - current dim = %d" % (Psi_UTv.ndim))
+                    
+                return alphainvRv - PsiDPsiTv
+
         else:
             def invPsi(v):
                 Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
                 Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
                 Psi_UTv = np.dot(Psi_U.T, v)
-                return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+
+                if Psi_UTv.ndim == 1:
+                    alphainvRv = np.multiply(np.multiply((1./alpha[i_best]),self.invR.reshape(v.shape)),v)
+                    PsiDPsiTv = np.dot(Psi_U, np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                elif Psi_UTv.ndim == 2: # for invPsi(HX)
+                    RMat = np.tile(np.multiply((1./alpha[i_best]),self.invR),Psi_UTv.shape[1]) # may need to change this later in a more general way 06142018 Harry
+                    alphainvRv = np.multiply(RMat,v)
+                    Dmat = np.tile(Dvec[:Psi_U.shape[1]],(Psi_UTv.shape[1],1)).T # n_pc by p
+                    PsiDPsiTv = np.dot(Psi_U,np.multiply(Dmat,Psi_UTv))
+                else:
+                    raise ValueError("Psi_U times vector should have a dimension smaller than 2 - current dim = %d" % (Psi_UTv.ndim))
+                
+                return alphainvRv - PsiDPsiTv
+                #return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
 
         # Direct Inverse of cokkring matrix - Lee et al. WRR 2016 Eq (14)  
         # typo in Eq (14), (2,2) block matrix should be -S^-1 instead of -S                 
@@ -1415,6 +1469,7 @@ class PCGA:
             #    invAb, info = gmres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
             #    print("-- Number of iterations for gmres %g and info %d" % (callback.itercount(), info))
             #    print("%d: %g %g %g" % (i, v[i], priorvar - np.dot(b.T, invAb.reshape(-1,1)),priorvar - tmp))
+
             if i % 10000 == 0 and i > 0 and self.verbose:
                 print("%d-th element evalution done.." % (i))
         v[v > priorvar] = priorvar
