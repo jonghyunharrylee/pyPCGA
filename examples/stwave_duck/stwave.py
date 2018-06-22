@@ -54,7 +54,9 @@ class Model:
         self.true_elev_xyz_file = None if 'true_elev_xyz_file' not in params else params['true_elev_xyz_file']
         self.frfdataloc = None if 'frfdataloc' not in params else params['frfdataloc']
         self.chlDataLoc = None if 'chlDataLoc' not in params else params['chlDataLoc']
-
+        self.wave_speed_obs_indices = None if 'wave_speed_obs_indices' not in params else params['wave_speed_obs_indices']
+        self.topo_obs_indices = None if 'topo_obs_indices' not in params else params['topo_obs_indices']
+        
     def create_dir(self,idx=None):
         
         mydirbase = "./simul/simul"
@@ -109,7 +111,12 @@ class Model:
         # stwp.write_grid_coordinates_to_file()
 
         simul_obs = read_speed(sim_dir, 'stwave_out.sim')
-
+        if self.wave_speed_obs_indices is not None:
+            simul_obs = simul_obs[self.wave_speed_obs_indices]
+        if self.topo_obs_indices is not None:
+            topo_obs = bathy[self.topo_obs_indices]
+            simul_obs = np.append(simul_obs,topo_obs)
+            
         if self.deletedir:
             rmtree(sim_dir, ignore_errors=True)
             # self.cleanup(sim_dir)
