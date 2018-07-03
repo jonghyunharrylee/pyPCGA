@@ -11,8 +11,12 @@ from subprocess import call, check_output
 from time import time
 
 #requires mpi4py 3.0
-from mpi4py.futures import MPIPoolExecutor
+HAVE_MPIPOOL = True
 
+try:
+    from mpi4py.futures import MPIPoolExecutor
+except:
+    HAVE_MPIPOOL = False
 '''
 three operations
 1. write inputs
@@ -60,7 +64,8 @@ class Model:
         self.true_elev_xyz_file = None if 'true_elev_xyz_file' not in params else params['true_elev_xyz_file']
         self.frfdataloc = None if 'frfdataloc' not in params else params['frfdataloc']
         self.chlDataLoc = None if 'chlDataLoc' not in params else params['chlDataLoc']
-
+        if self.use_mpi_pool: assert HAVE_MPIPOOL
+        
     def create_dir(self,idx=None):
         
         mydirbase = "./simul/simul"
