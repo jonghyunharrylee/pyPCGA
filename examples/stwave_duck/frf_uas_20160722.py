@@ -20,20 +20,20 @@ N = np.array([nx,ny])
 m = np.prod(N) 
 dx = np.array([dx0,dx0])
 xmin = np.array([0. + dx[0]/2., 0. + dx[1]/2.])
-xmax = np.array([x0+Lx*dx[0] - dx[0]/2., y0+Ly*dx[1] - dx[1]/2.])
+xmax = np.array([Lx - dx[0]/2., Ly - dx[1]/2.])
 
 t1 = dt.datetime(2016, 07, 22, 19, 30)
 t2 = dt.datetime(2016, 07, 22, 20, 30)
 
 # covairance kernel and scale parameters
 # following Hojat's paper
-prior_std = 1.0
-prior_cov_scale = np.array([100., 150.])
+prior_std = 2.0
+prior_cov_scale = np.array([50., 50.])
 def kernel(r): return (prior_std**2)*np.exp(-r**2)
 
 # for plotting
-x = np.linspace(x0 + dx[0]/2., Lx - dx[0]/2. + x0, N[0])
-y = np.linspace(y0 + dx[1]/2., Ly - dx[1]/2. + y0, N[1])
+x = np.linspace(dx[0]/2., Lx - dx[0]/2. , N[0])
+y = np.linspace(dx[1]/2., Ly - dx[1]/2. , N[1])
 XX, YY = np.meshgrid(x, y)
 pts = np.hstack((XX.ravel()[:,np.newaxis], YY.ravel()[:,np.newaxis]))
 
@@ -61,9 +61,10 @@ if include_topo_obs:
     obs = np.append(obs,topo_obs)
     topo_obs_inds = np.loadtxt(topo_obs_inds_file,dtype='i')
 
+# if std_waves == std_topo, then use scalar R for now - Harry 20180702
 std_waves = 0.3
 std_obs   = std_waves
-std_topo = 0.2
+std_topo = 0.05
 
 std_obs = std_waves
 if include_topo_obs:# and np.absolute(std_topo-std_waves) > 1.0e-6:
@@ -103,14 +104,14 @@ def forward_model(s,parallelization,ncores = None):
         simul_obs = model.run(s,parallelization)
     return simul_obs
 
-params = {'R':std_obs**2, 'n_pc':70,
+params = {'R':std_obs**2, 'n_pc':50,
           'maxiter':10, 'restol':0.01,
           'matvec':'FFT','xmin':xmin, 'xmax':xmax, 'N':N,
           'prior_std':prior_std,'prior_cov_scale':prior_cov_scale,
           'kernel':kernel, 'post_cov':"diag",
           'precond':True, 'LM': True,
           'parallel':True, 'linesearch' : True,
-          'forward_model_verbose': False, 'verbose': False,
+          'forward_model_verbose': False, 'verbose': True,
           'iter_save': True}
 
 #params['objeval'] = False, if true, it will compute accurate objective function
@@ -152,6 +153,24 @@ cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
 fig.colorbar(im, cax=cbar_ax)
 fig.savefig('best.png')
 plt.close(fig)
+
+fig, axes = plt.subplots(1,2, figsize=(15,5))
+plt.suptitle('prior var.: (%g)^2, n_pc : %d' % (prior_std, params['n_pc']))
+im = axes[0].imshow(np.flipud(np.fliplr(-s_true2d)), extent=[0, nx, 0, ny], vmin=minv, vmax=maxv)
+axes[0].set_title('(a) True', loc='left')
+axes[0].set_aspect('equal')
+axes[0].set_xlabel('Offshore distance (px)')
+axes[0].set_ylabel('Alongshore distance (px)')
+axes[1].imshow(np.flipud(np.fliplr(-s_hat2d)), extent=[0, nx, 0, ny], vmin=minv, vmax=maxv)
+axes[1].set_title('(b) Estimate', loc='left')
+axes[1].set_xlabel('Offshore distance (px)')
+axes[1].set_aspect('equal')
+fig.subplots_adjust(right=0.8)
+cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+fig.colorbar(im, cax=cbar_ax)
+fig.savefig('best2.png')
+plt.close(fig)
+
 
 fig = plt.figure()
 im = plt.imshow(np.flipud(np.fliplr(post_std2d)), extent=[0, nx, 0, ny], cmap=plt.get_cmap('jet'))
@@ -244,3 +263,19 @@ plt.semilogy(prob.priord, 'o')
 fig.savefig('eig.png', dpi=fig.dpi)
 # plt.show()
 plt.close(fig)
+
+obs_loc_file  = os.path.join(uas_dir,'observation_files','wave_speed_measurement_locations.txt')
+obs_loc = np.loadtxt(obs_loc_file)
+topo_obs_loc_file = os.path.join(uas_dir,'observation_files','topo_measurement_locations.txt')
+topo_obs_loc = np.loadtxt(topo_obs_loc_file)
+
+fig = plt.figure()
+plt.pcolormesh(XX,YY,np.fliplr(-s_true2d), vmin=-7., vmax=0., cmap=plt.get_cmap('jet'))
+plt.colorbar()
+plt.scatter(Lx-obs_loc[:,0], obs_loc[:,1])
+plt.scatter(Lx-topo_obs_loc[:,0], topo_obs_loc[:,1], c='r')
+plt.axis([0, Lx, 0, Ly])
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('obs_loc.png')
+plt.close(fig)
+
