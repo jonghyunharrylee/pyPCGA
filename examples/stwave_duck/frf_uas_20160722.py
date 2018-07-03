@@ -29,6 +29,7 @@ t2 = dt.datetime(2016, 07, 22, 20, 30)
 # following Hojat's paper
 prior_std = 3.0
 prior_cov_scale = np.array([100., 100.])
+
 def kernel(r): return (prior_std**2)*np.exp(-r**2)
 
 # for plotting
