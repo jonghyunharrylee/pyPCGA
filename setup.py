@@ -18,7 +18,7 @@ setup(name=__name__,
       author_email='jonghyun.harry.lee@hawaii.edu',
       url='https://github.com/jonghyunharrylee/pyPCGA/',
       license='New BSD',
-      install_requires=['numpy>=1.9.0'],
+      install_requires=['numpy>=1.9.0','scipy>=0.18'],
       platforms='Windows, Mac OS-X, Linux',
       packages=['pyPCGA','pyPCGA.covariance'],
       version='0.1.0')

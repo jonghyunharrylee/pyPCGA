@@ -135,8 +135,10 @@ class PCGA:
             
             self.R = np.array(params['R'])
             
-            if self.R.ndim == 0 or self.R.ndim == 1:
+            if self.R.ndim == 0:
                 self.R = np.array(params['R']).reshape(-1) # convert to 1d array (1,)
+            elif self.R.ndim == 1:
+                self.R = np.array(params['R']).reshape(-1,1) # convert to 2d n x 1 array
             elif self.R.ndim == 2:
                 self.R = np.array(params['R']).reshape(-1,1) # convert to 2d n x 1 array
             else:
@@ -202,7 +204,7 @@ class PCGA:
                 params['drift'] = 'constant'
                 self.DriftFunctions(params['drift'])
         
-        ##### Matrix Solver (Saddle Point/Cokkriging System)
+        ##### Matrix Solver (Saddle Point/Cokriging System)
         # Matrix solver - default : False (iterative)
         self.direct = False if 'direct' not in self.params else self.params['direct']
         direct = self.direct
@@ -605,7 +607,14 @@ class PCGA:
 
         # Matrix handle for sqrt of Generalized Data Covariance
         sqrtGDCovfun = LinearOperator((n, n_pc), matvec=mv, rmatvec=rmv, dtype='d')
-        sigma_cR = svds(sqrtGDCovfun, k=min(n - p - 1, n_pc - 1), which='LM', maxiter=n, return_singular_vectors=False)
+        #sigma_cR = svds(sqrtGDCovfun, k=min(n - p - 1, n_pc - 1), which='LM', maxiter=n, return_singular_vectors=False)
+
+        if n_pc < n-p:
+            sigma_cR = svds(sqrtGDCovfun, k= n_pc, which='LM', maxiter=n-p, return_singular_vectors=False)
+        elif n_pc == n-p:
+            sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter=n-p, return_singular_vectors=False)
+        else:
+            sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter=n_pc, return_singular_vectors=False)
 
         print("computed Jacobian-Matrix products in : %f secs" % (start1 - start2))
         #print("computed Jacobian-Matrix products in : %f secs, eig. val. of generalized data covariance : %f secs" % (start1 - start2,time()-start2))
@@ -760,7 +769,14 @@ class PCGA:
 
             # Matrix handle for sqrt of Generalized Data Covariance
             sqrtGDCovfun = LinearOperator( (n,n_pc), matvec=mv, rmatvec = rmv, dtype = 'd')
-            sigma_cR = svds(sqrtGDCovfun, k= min(n-p-1,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
+            
+            #sigma_cR = svds(sqrtGDCovfun, k= min(n-p-1,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
+
+            if n_pc <= n-p:
+                sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter = n, return_singular_vectors=False)
+            else:
+                sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter = n_pc, return_singular_vectors=False)
+
             if self.verbose:
                 print("eig. val. of generalized data covariance : %f secs (%8.2e, %8.2e, %8.2e)" % (time()-start2,sigma_cR[0],sigma_cR.min(),sigma_cR.max()))
             #print("computed Jacobian-Matrix products in %f secs, eig. val. of generalized data covariance : %f secs (%8.2e, %8.2e, %8.2e)" % (start2 - start1, time()-start2,sigma_cR[0],sigma_cR.min(),sigma_cR.max()))
@@ -769,6 +785,7 @@ class PCGA:
             #print("computed Jacobian-Matrix products in %f secs" % (start2 - start1))
 
         # preconditioner construction
+        # will add more description here
         if self.precond:
             tStart_precond = time()
             # GHEP : HQHT u = lamdba R u => u = R^{-1/2} y 
@@ -793,14 +810,21 @@ class PCGA:
             #    print('preconditioner construction using Generalized Eigen-decomposition')
             #    print("n :%d & n_pc: %d" % (n,n_pc))
 
-            # Matrix handle for sqrt of Data Covariance
-            #sqrtDataCovfun = LinearOperator( (n,n_pc), matvec=pmv, rmatvec = prmv, dtype = 'd')
-            #sqrtDataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
+            ## Matrix handle for sqrt of Data Covariance
+            ##sqrtDataCovfun = LinearOperator( (n,n_pc), matvec=pmv, rmatvec = prmv, dtype = 'd')
+            ##sqrtDataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
+            ##[Psi_U,Psi_sigma,Psi_V] = svds(sqrtDataCovfun, k= min(n,n_pc), which='LM', maxiter = n, return_singular_vectors='u')
+            
+            # Matrix handle for Data Covariance
             DataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
 
-            #[Psi_U,Psi_sigma,Psi_V] = svds(sqrtDataCovfun, k= min(n,n_pc), which='LM', maxiter = n, return_singular_vectors='u')
-            [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=min(n-1, n_pc-1), which='LM', maxiter=n)
-                
+            if n_pc < n:
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc, which='LM', maxiter=n)
+            elif n_pc == n:
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc-1, which='LM', maxiter=n)
+            else:
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n, which='LM', maxiter=n_pc)
+            
             #print("eig. val. of sqrt data covariance (%8.2e, %8.2e, %8.2e)" % (Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
 #print(Psi_sigma)
 
@@ -867,19 +891,28 @@ class PCGA:
                 # R_LM = alpha * R
                 # Psi_U_LM = 1./sqrt(alpha) * Psi_U
                 # Psi_sigma = Psi_sigma/alpha
-                # 
-               
+                #
+                # (R^-1 - UDvecU')*v
+                
                 if R.shape[0] == 1:
 
                     def invPsi(v):
-                        Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.) )
-                        Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U)
-                        Psi_UTv = np.dot(Psi_U_i.T, v)
+                        Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.) ) # (n_pc,)
+                        Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U) # (n, n_pc) (dim[1] can be n_pc-1, n)
+                        Psi_UTv = np.dot(Psi_U_i.T, v) # n_pc by n * v (can be (n,) or (n,p)) = (n_pc,) or (n_pc,p)
+                        
+                        alphainvRv = np.multiply(np.multiply((1./alpha[i]),self.invR),v)
+
+
                         if Psi_UTv.ndim == 1:
-                            return np.multiply(np.multiply((1./alpha[i]),self.invR),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                            PsiDPsiTv = np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                        elif Psi_UTv.ndim == 2: # for invPsi(HX)
+                            DMat = np.tile(Dvec[:Psi_U_i.shape[1]],(Psi_UTv.shape[1],1)).T # n_pc by p
+                            PsiDPsiTv = np.dot(Psi_U_i,np.multiply(DMat,Psi_UTv))
                         else:
-                            Dmat = np.tile(Dvec[:Psi_U_i.shape[1]],(Psi_UTv.shape[1],1)).T
-                            return np.multiply(np.multiply((1./alpha[i]),self.invR),v) - np.dot(Psi_U_i, np.multiply(Dmat, Psi_UTv))
+                            raise ValueError("Psi_U times vector should have a dimension smaller than 2 - current dim = %d" % (Psi_UTv.ndim))
+                            
+                        return alphainvRv - PsiDPsiTv
 
                 else:
 
@@ -887,11 +920,20 @@ class PCGA:
                         Dvec = np.divide( (1./alpha[i] * Psi_sigma), ((1./alpha[i]) * Psi_sigma + 1.))
                         Psi_U_i = np.multiply((1. / sqrt(alpha[i])),Psi_U)
                         Psi_UTv = np.dot(Psi_U_i.T, v)
+
                         if Psi_UTv.ndim == 1:
-                            return np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v) - np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                            alphainvRv = np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v)
+                            PsiDPsiTv = np.dot(Psi_U_i, np.multiply(Dvec[:Psi_U_i.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                        elif Psi_UTv.ndim == 2: # for invPsi(HX)
+                            RMat = np.tile(np.multiply((1./alpha[i]),self.invR),Psi_UTv.shape[1]) # may need to change this later in a more general way 06142018 Harry
+                            alphainvRv = np.multiply(RMat,v)
+                            Dmat = np.tile(Dvec[:Psi_U_i.shape[1]],(Psi_UTv.shape[1],1)).T # n_pc by p
+                            PsiDPsiTv = np.dot(Psi_U_i,np.multiply(Dmat,Psi_UTv))
                         else:
-                            Dmat = np.tile(Dvec[:Psi_U_i.shape[1]],(Psi_UTv.shape[1],1)).T
-                            return np.multiply(np.multiply((1./alpha[i]),self.invR.reshape(v.shape)),v) - np.dot(Psi_U_i, np.multiply(Dmat, Psi_UTv))
+                            raise ValueError("Psi_U times vector should have a dimension smaller than 2 - current dim = %d" % (Psi_UTv.ndim))
+                        
+                        return alphainvRv - PsiDPsiTv
+
                 # Preconditioner construction Lee et al. WRR 2016 Eq (14)  
                 # typo in Eq (14), (2,2) block matrix should be -S^-1 instead of -S                 
                 def Pmv(v):
@@ -966,8 +1008,14 @@ class PCGA:
                 
                 # Matrix handle for Generalized Data Covariance
                 sqrtGDCovfun = LinearOperator( (n,n), matvec=mv, rmatvec = rmv, dtype = 'd')
-                sigma_cR = svds(sqrtGDCovfun, k= min(n_pc,n-1), which='LM', maxiter = n, return_singular_vectors=False)
                 
+                if n_pc < n-p:
+                    sigma_cR = svds(sqrtGDCovfun, k= n_pc, which='LM', maxiter = n-p, return_singular_vectors=False)
+                elif n_pc == n-p:
+                    sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter = n-p, return_singular_vectors=False)
+                else:
+                    sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter = n_pc, return_singular_vectors=False)
+                    
                 tmp_cR = np.zeros((n-p,1),'d')
                 tmp_cR[:] = np.multiply(alpha[i],R[:-p])
                 
@@ -1110,7 +1158,7 @@ class PCGA:
         obj_best = 1.e+20
         
         for i in range(nopts):
-            start0 = time()
+            
             if self.objeval: # If true, we do accurate computation
                 obj = self.ObjectiveFunctionNoBeta(s_hat_all[:,i:i+1], simul_obs_all[:,i:i+1],0) 
             else: # we compute through PCGA approximation
@@ -1332,7 +1380,6 @@ class PCGA:
 
         alpha = 10 ** (np.linspace(0., np.log10(self.alphamax_LM), self.nopts_LM))
 
-        n_pc = self.n_pc
         priorvar = self.prior_std ** 2
 
         ## Create matrix context
@@ -1342,38 +1389,48 @@ class PCGA:
         #else:
         #    def mv(v):
         #        return np.concatenate(((np.dot(HZ, np.dot(HZ.T, v[0:n])) + np.multiply(np.multiply(alpha[i_best], R.reshape(v[0:n].shape))) + np.dot(HX, v[n:n + p])),(np.dot(HX.T, v[0:n]))), axis=0)
-
-        ## Matrix handle
-        #Afun = LinearOperator((n + p, n + p), matvec=mv, rmatvec=mv, dtype='d')
-
-        callback = Residual()
-        ## Residual and maximum iterations
-        itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
-        solver_maxiter = m if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
-
         
-        # Benzi et al. 2005, eq 3.5
+        # Benzi et al. 2005, Eq 3.5
 
         if R.shape[0] == 1:
             def invPsi(v):
                 Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
                 Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
                 Psi_UTv = np.dot(Psi_U.T, v)
+
+                alphainvRv = np.multiply(np.multiply((1./alpha[i_best]),self.invR),v)
+
+
                 if Psi_UTv.ndim == 1:
-                    return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
-                else:                    
-                    Dmat = np.tile(Dvec[:Psi_U.shape[1]],(Psi_UTv.shape[1],1)).T
-                    return np.multiply(np.multiply((1. / alpha[i_best]), self.invR), v) - np.dot(Psi_U,np.multiply(Dmat, Psi_UTv))
+                    PsiDPsiTv = np.dot(Psi_U, np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                elif Psi_UTv.ndim == 2: # for invPsi(HX)
+                    DMat = np.tile(Dvec[:Psi_U.shape[1]],(Psi_UTv.shape[1],1)).T # n_pc by p
+                    PsiDPsiTv = np.dot(Psi_U,np.multiply(DMat,Psi_UTv))
+                else:
+                    raise ValueError("Psi_U times vector should have a dimension smaller than 2 - current dim = %d" % (Psi_UTv.ndim))
+                    
+                return alphainvRv - PsiDPsiTv
+
         else:
             def invPsi(v):
                 Dvec = np.divide(((1. / alpha[i_best]) * self.Psi_sigma), ((1. / alpha[i_best]) * self.Psi_sigma + 1))
                 Psi_U = np.multiply((1. / sqrt(alpha[i_best])),self.Psi_U)
                 Psi_UTv = np.dot(Psi_U.T, v)
-                if Psi_UTv.ndim == 1:#mwf debug
-                    return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+
+                if Psi_UTv.ndim == 1:
+                    alphainvRv = np.multiply(np.multiply((1./alpha[i_best]),self.invR.reshape(v.shape)),v)
+                    PsiDPsiTv = np.dot(Psi_U, np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+                elif Psi_UTv.ndim == 2: # for invPsi(HX)
+                    RMat = np.tile(np.multiply((1./alpha[i_best]),self.invR),Psi_UTv.shape[1]) # may need to change this later in a more general way 06142018 Harry
+                    alphainvRv = np.multiply(RMat,v)
+                    Dmat = np.tile(Dvec[:Psi_U.shape[1]],(Psi_UTv.shape[1],1)).T # n_pc by p
+                    PsiDPsiTv = np.dot(Psi_U,np.multiply(Dmat,Psi_UTv))
                 else:
-                    Dmat = np.tile(Dvec[:Psi_U.shape[1]],(Psi_UTv.shape[1],1)).T
-                    return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U, np.multiply(Dmat, Psi_UTv))
+                    raise ValueError("Psi_U times vector should have a dimension smaller than 2 - current dim = %d" % (Psi_UTv.ndim))
+                
+                return alphainvRv - PsiDPsiTv
+                #return np.multiply(np.multiply((1. / alpha[i_best]), self.invR.reshape(v.shape)), v) - np.dot(Psi_U,np.multiply(Dvec[:Psi_U.shape[1]].reshape(Psi_UTv.shape), Psi_UTv))
+
         # Direct Inverse of cokkring matrix - Lee et al. WRR 2016 Eq (14)  
         # typo in Eq (14), (2,2) block matrix should be -S^-1 instead of -S                 
         def Pmv(v):
@@ -1385,41 +1442,13 @@ class PCGA:
             
         P = LinearOperator((n + p, n + p), matvec=Pmv, rmatvec=Pmv, dtype='d')
 
-        #start = time()
-        #for i in range(m):
-        #    b = np.zeros((n + p, 1), dtype='d')
-        #    b[0:n] = np.dot(HZ,(np.multiply(np.sqrt(self.priord),self.priorU[i:i+1,:].T)))
-        #    b[n:n + p] = self.X[i:i+1,:].T
-        #    invAb, info = gmres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
-        #    #invAb, info = minres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
-
-        #    v[i] = priorvar - np.dot(b.T, invAb.reshape(-1,1))
-        #    if i % 1000 == 0:
-        #        print("%d-th element evalution done.." % (i))
-        #        print("-- Number of iterations for gmres %g for this element" % (callback.itercount()))
-        #v[v>priorvar] = priorvar
-        #print("gmres compute variance: %f sec" % (time() - start))
-        #Z = np.zeros((m,n_pc), dtype ='d')
-        #for i in range(n_pc):
-        #    Z[:,i:i+1] = np.dot(sqrt(self.priord[i]),self.priorU[:,i:i+1]) # use sqrt to make it scalar
-        ## Construct Psi directly
-        #Ri = np.multiply(alpha[i_best], R)
-        #if isinstance(Ri,float):
-        #    Psi = np.dot(HZ,HZ.T)+ np.multiply(Ri,np.eye(n,dtype='d'))
-        #elif Ri.shape[0] == 1 and Ri.ndim == 1:
-        #    Psi = np.dot(HZ,HZ.T)+ np.multiply(Ri,np.eye(n,dtype='d'))
-        #else:
-        #    Psi = np.dot(HZ,HZ.T)+ np.diag(Ri)
-        #HQ = np.dot(HZ,Z.T)
-
-        #Create matrix system and solve it
-        # cokriging matrix
-        #A = np.zeros((n+p,n+p),dtype='d')
-        #b = np.zeros((n+p,1),dtype='d')
-
-        #A[0:n,0:n] = np.copy(Psi)
-        #A[0:n,n:n+p] = np.copy(HX)
-        #A[n:n+p,0:n] = np.copy(HX.T)
+        ## Matrix handle for iterative approach without approximation - this should be included as an option
+        #n_pc = self.n_pc
+        #Afun = LinearOperator((n + p, n + p), matvec=mv, rmatvec=mv, dtype='d')
+        #callback = Residual()
+        ## Residual and maximum iterations
+        #itertol = 1.e-10 if not 'iterative_tol' in self.params else self.params['iterative_tol']
+        #solver_maxiter = m if not 'iterative_maxiter' in self.params else self.params['iterative_maxiter']
 
         #start = time()
         v = np.zeros((m, 1), dtype='d')
@@ -1429,23 +1458,17 @@ class PCGA:
             b[0:n] = np.dot(HZ, (np.multiply(np.sqrt(self.priord), self.priorU[i:i + 1, :].T)))
             b[n:n + p] = self.X[i:i + 1, :].T
 
+            #invAb, info = gmres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+            ##invAb, info = minres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+
             v[i] = priorvar - np.dot(b.T,P(b))
-            #if i < 50:
-            #    print(v[i])
+            
             #if i < 15:
             #    tmp = np.dot(b.T, np.linalg.solve(A, b))
             #    callback = Residual()
             #    invAb, info = gmres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
             #    print("-- Number of iterations for gmres %g and info %d" % (callback.itercount(), info))
             #    print("%d: %g %g %g" % (i, v[i], priorvar - np.dot(b.T, invAb.reshape(-1,1)),priorvar - tmp))
-
-            #    b = np.zeros((n + p, 1), dtype='d')
-            #    b[0:n] = np.dot(HZ,(np.multiply(np.sqrt(self.priord),self.priorU[i:i+1,:].T)))
-            #    b[n:n + p] = self.X[i:i+1,:].T
-            #    invAb, info = gmres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
-            #    #invAb, info = minres(Afun, b, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
-
-            #    v[i] = priorvar - np.dot(b.T, invAb.reshape(-1,1))
 
             if i % 10000 == 0 and i > 0 and self.verbose:
                 print("%d-th element evalution done.." % (i))
