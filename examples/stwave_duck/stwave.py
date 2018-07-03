@@ -10,6 +10,9 @@ from shutil import copy2, rmtree
 from subprocess import call, check_output
 from time import time
 
+#requires mpi4py 3.0
+from mpi4py.futures import MPIPoolExecutor
+
 '''
 three operations
 1. write inputs
@@ -37,7 +40,10 @@ class Model:
                 self.inputdir = params['inputdir']
             if 'ncores' in params:
                 self.ncores = params['ncores']
-
+            if 'use_mpi_pool' in params:
+                self.use_mpi_pool = params['use_mpi_pool']
+            else:
+                self.use_mpi_pool = False
         self.nx = params['nx']
         self.ny = params['ny']
         self.Lx = params['Lx']
@@ -123,8 +129,11 @@ class Model:
         method_args = range(bathy.shape[1])
         args_map = [(bathy[:, arg:arg + 1], arg) for arg in method_args]
 
-        if par:
+        if par and not self.use_mpi_pool:
             pool = Pool(processes=ncores)
+            simul_obs = pool.map(self, args_map)
+        elif par and self.use_mpi_pool:
+            pool = MPIPoolExecutor(ncores)
             simul_obs = pool.map(self, args_map)
         else:
             simul_obs =[]

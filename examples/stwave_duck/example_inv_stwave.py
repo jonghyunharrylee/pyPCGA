@@ -74,7 +74,8 @@ params = {'R':(0.1)**2, 'n_pc':50,
           'precond':True, 'LM': True,
           'parallel':True, 'linesearch' : True,
           'forward_model_verbose': False, 'verbose': False,
-          'iter_save': True}
+          'iter_save': True,
+          'use_mpi_pool':True}
 
 #params['objeval'] = False, if true, it will compute accurate objective function
 #params['ncores'] = 36, with parallell True, it will determine maximum physcial core unless specified
