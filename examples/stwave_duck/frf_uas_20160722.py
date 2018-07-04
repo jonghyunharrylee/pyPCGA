@@ -92,7 +92,8 @@ X[:,1] = pts[:,0]/np.linalg.norm(pts[:,0])
 stwave_params = {'nx': nx, 'ny': ny, 'Lx': Lx, 'Ly': Ly, 'x0': x0, 'y0': y0, 't1': t1, 't2': t2,
                  'wave_speed_obs_indices':wave_obs_inds,
                  'topo_obs_indices':topo_obs_inds,
-                 'offline_dataloc':"./input_files/FRF-ocean_waves_8m-array_201607.nc"}
+                 'offline_dataloc':"./input_files/FRF-ocean_waves_8m-array_201607.nc",
+                 'use_mpi_pool':True}
     
 # prepare interface to run as a function
 def forward_model(s,parallelization,ncores = None):

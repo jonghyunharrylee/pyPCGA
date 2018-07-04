@@ -54,7 +54,8 @@ t1 = dt.datetime(2015, 10, 07, 20, 00)
 t2 = dt.datetime(2015, 10, 07, 21, 00)
 
 stwave_params = {'nx': nx, 'ny': ny, 'Lx': Lx, 'Ly': Ly, 'x0': x0, 'y0': y0, 't1': t1, 't2': t2,
-          'offline_dataloc': "./input_files/8m-array_2015100718_2015100722.nc"}
+                 'offline_dataloc': "./input_files/8m-array_2015100718_2015100722.nc",
+                 'use_mpi_pool':False}
 
 # prepare interface to run as a function
 def forward_model(s,parallelization,ncores = None):
@@ -74,8 +75,7 @@ params = {'R':(0.1)**2, 'n_pc':50,
           'precond':True, 'LM': True,
           'parallel':True, 'linesearch' : True,
           'forward_model_verbose': False, 'verbose': False,
-          'iter_save': True,
-          'use_mpi_pool':False}
+          'iter_save': True}
 
 #params['objeval'] = False, if true, it will compute accurate objective function
 #params['ncores'] = 36, with parallell True, it will determine maximum physcial core unless specified

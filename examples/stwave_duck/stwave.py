@@ -67,7 +67,6 @@ class Model:
         self.wave_speed_obs_indices = None if 'wave_speed_obs_indices' not in params else params['wave_speed_obs_indices']
         self.topo_obs_indices = None if 'topo_obs_indices' not in params else params['topo_obs_indices']
         if self.use_mpi_pool: assert HAVE_MPIPOOL
-
         
     def create_dir(self,idx=None):
         
@@ -147,12 +146,17 @@ class Model:
             simul_obs = pool.map(self, args_map)
         elif par and self.use_mpi_pool:
             pool = MPIPoolExecutor(ncores)
-            simul_obs = pool.map(self, args_map)
+            simul_obs = []
+            for run in pool.map(self, args_map):
+                simul_obs.append(run)
         else:
             simul_obs =[]
             for item in args_map:
                 simul_obs.append(self(item))
-
+        #mwf debug
+        print("stwave.run: len(simul_obs)= {0}".format(len(simul_obs)))
+        print("array shape= {0}".format(np.array(simul_obs).shape))
+        #assert False, "array shape= {0}".format(np.array(simul_obs).shape)
         return np.array(simul_obs).T
 
         #pool.close()
