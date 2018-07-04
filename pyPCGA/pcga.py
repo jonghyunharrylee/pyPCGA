@@ -6,7 +6,6 @@ from .covariance.mat import CovarianceMatrix, Residual
 from inspect import getsource
 
 from scipy.sparse.linalg import gmres, minres, svds, eigsh # IterativeSolve
-from scipy.sparse import diags as sparse_diags
 from scipy.sparse.linalg import LinearOperator # Matrix-free IterativeSolve
 from IPython.core.debugger import Tracer; debug_here = Tracer()
 #from pdb import set_trace
@@ -151,14 +150,6 @@ class PCGA:
             self.sqrtR = np.sqrt(self.R)
             self.invsqrtR = 1./np.sqrt(self.R)
             self.invR = 1./self.R
-
-            #mwf getting failures for R diagonal
-            if self.R.ndim == 1:
-                self.R_mat = sparse_diags(self.R,shape=(self.R.shape[0],self.R.shape[0]))
-                self.sqrtR_mat = sparse_diags(self.sqrtR,shape=(self.R.shape[0],self.R.shape[0]))
-                self.invsqrtR_mat = sparse_diags(self.invsqrtR,shape=(self.R.shape[0],self.R.shape[0]))
-                self.invR_mat     = sparse_diags(self.invR,shape=(self.R.shape[0],self.R.shape[0]))
-                
         else:
             raise ValueError('You should provide R')
 
@@ -493,16 +484,13 @@ class PCGA:
 
         smxb = s_cur - np.dot(self.X,beta_cur)
         ymhs = self.obs - simul_obs
-        if self.R.shape[0] == 1:#mwf debug
-            Rinv_ymhs = np.divide(ymhs,self.R)
-        else:
-            Rinv_ymhs = self.invR_mat.dot(ymhs)
+        
         if approx:
             invZs = np.multiply(1./np.sqrt(self.priord),np.dot(self.priorU.T,smxb))
-            obj = 0.5*np.dot(ymhs.T,Rinv_ymhs) + 0.5*np.dot(invZs.T,invZs)
+            obj = 0.5*np.dot(ymhs.T,np.divide(ymhs,self.R)) + 0.5*np.dot(invZs.T,invZs)
         else:
             invQs = self.Q.solve(smxb)
-            obj = 0.5*np.dot(ymhs.T,Rinv_ymhs) + 0.5*np.dot(smxb.T,invQs)
+            obj = 0.5*np.dot(ymhs.T,np.divide(ymhs,self.R)) + 0.5*np.dot(smxb.T,invQs)
         return obj
 
     def ObjectiveFunctionNoBeta(self, s_cur, simul_obs, approx = True):
@@ -519,10 +507,6 @@ class PCGA:
         p = self.p
 
         ymhs = self.obs - simul_obs
-        if self.R.shape[0] == 1:#mwf debug
-            Rinv_ymhs = np.divide(ymhs,self.R)
-        else:
-            Rinv_ymhs = self.invR_mat.dot(ymhs)
         
         if approx:
             invZs = np.multiply(1./np.sqrt(priord),np.dot(priorU.T,s_cur))
@@ -530,7 +514,7 @@ class PCGA:
             XTinvQs = np.dot(invZX.T,invZs)
             XTinvQX = np.dot(invZX.T,invZX)
             tmp = np.linalg.solve(XTinvQX, XTinvQs) # inexpensive solve p by p where p <= 3, usually p = 1 (scalar devision)
-            obj = 0.5*np.dot(ymhs.T,Rinv_ymhs) + 0.5*(np.dot(invZs.T,invZs) - np.dot(XTinvQs.T,tmp))
+            obj = 0.5*np.dot(ymhs.T,np.divide(ymhs,self.R)) + 0.5*(np.dot(invZs.T,invZs) - np.dot(XTinvQs.T,tmp))
         else:
             invQs = self.Q.solve(s_cur) #size (m,)
             invQX = self.Q.solve(X) # size (m,p)
@@ -543,7 +527,7 @@ class PCGA:
             else:
                 tmp = np.linalg.solve(XTinvQX, XTinvQs) # inexpensive solve p by p where p <= 3, usually p = 1 (scalar devision)
             
-            obj = 0.5*np.dot(ymhs.T,Rinv_ymhs) + 0.5*(np.dot(s_cur.T,invQs) - np.dot(XTinvQs.T,tmp))
+            obj = 0.5*np.dot(ymhs.T,np.divide(ymhs,self.R)) + 0.5*(np.dot(s_cur.T,invQs) - np.dot(XTinvQs.T,tmp))
         return obj
 
     def JacMat(self, s_cur, simul_obs, Z):
@@ -818,13 +802,7 @@ class PCGA:
             else:
                 # n by n
                 def pmv(v):
-                    #mwf debug getting errors for diagonal R
-                    #return np.multiply(self.invsqrtR.reshape(v.shape),np.dot(HZ,(np.dot(HZ.T,np.multiply(self.invsqrtR.reshape(v.shape),v)))))
-                    invRv = self.invsqrtR_mat.dot(v)
-                    HZTinvRv = np.dot(HZ.T,invRv)
-                    HZHZTinvRv = np.dot(HZ,HZTinvRv)
-                    out = self.invsqrtR_mat.dot(HZHZTinvRv)
-                    return out
+                    return np.multiply(self.invsqrtR.reshape(v.shape),np.dot(HZ,(np.dot(HZ.T,np.multiply(self.invsqrtR.reshape(v.shape),v)))))
                 def prmv(v):
                     return pmv(v)
 
@@ -850,12 +828,7 @@ class PCGA:
             #print("eig. val. of sqrt data covariance (%8.2e, %8.2e, %8.2e)" % (Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
 #print(Psi_sigma)
 
-            #mwf getting dimension error here
-            #Psi_U = np.multiply(self.invsqrtR,Psi_U)
-            if R.shape[0] == 1:
-                Psi_U = np.multiply(self.invsqrtR,Psi_U)
-            else:
-                Psi_U = self.invsqrtR_mat.dot(Psi_U)
+            Psi_U = np.multiply(self.invsqrtR,Psi_U)
             #if R.shape[0] == 1:
             #    Psi_sigma = Psi_sigma**2 # because we use svd(HZ) instead of svd(HQHT+R)
             index_Psi_sigma = np.argsort(Psi_sigma)
@@ -898,11 +871,8 @@ class PCGA:
                     return np.concatenate(( (np.dot(HZ,np.dot(HZ.T,v[0:n])) + np.multiply(np.multiply(alpha[i],R),v[0:n]) + np.dot(HX,v[n:n+p])) , (np.dot(HX.T,v[0:n])) ),axis = 0)
             else:
                 def mv(v):
-                    #mwf debug
-                    #return np.concatenate(( (np.dot(HZ,np.dot(HZ.T,v[0:n])) + np.multiply(np.multiply(alpha[i],R.reshape(v[0:n].shape)),v[0:n]) + np.dot(HX,v[n:n+p])) , (np.dot(HX.T,v[0:n])) ),axis = 0)
-                    Rv = self.R_mat.dot(v[0:n])
-                    alphaRv = np.multiply(alpha[i],Rv)
-                    return np.concatenate(( (np.dot(HZ,np.dot(HZ.T,v[0:n])) + alphaRv + np.dot(HX,v[n:n+p])) , (np.dot(HX.T,v[0:n])) ),axis = 0)
+                    return np.concatenate(( (np.dot(HZ,np.dot(HZ.T,v[0:n])) + np.multiply(np.multiply(alpha[i],R.reshape(v[0:n].shape)),v[0:n]) + np.dot(HX,v[n:n+p])) , (np.dot(HX.T,v[0:n])) ),axis = 0)
+
             # Matrix handle
             Afun = LinearOperator( (n+p,n+p), matvec=mv, rmatvec = mv, dtype = 'd')
 
@@ -1047,7 +1017,7 @@ class PCGA:
                     sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter = n_pc, return_singular_vectors=False)
                     
                 tmp_cR = np.zeros((n-p,1),'d')
-                tmp_cR[:,0] = np.multiply(alpha[i],R[:-p])
+                tmp_cR[:] = np.multiply(alpha[i],R[:-p])
                 
                 tmp_cR[:sigma_cR.shape[0]] = sigma_cR[:,np.newaxis]
                 
