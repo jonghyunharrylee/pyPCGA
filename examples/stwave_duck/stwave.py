@@ -51,7 +51,7 @@ def run_function(args):
     stwp.setup()
     stwp.bathy_true = bathy
     stwp.run()
-    
+    assert os.path.exists(os.path.join(sim_dir,'stwave_out.Tp.out')),"Did not stwave_out.Tp.out idx={0}".format(idx)
     simul_obs = read_speed(sim_dir, 'stwave_out.sim')
     if wave_speed_obs_indices is not None:
         simul_obs = simul_obs[wave_speed_obs_indices]
@@ -191,7 +191,8 @@ class Model:
                 simuls.append(pool.submit(self,arg))
             for ii,sim in enumerate(simuls):
                 def callback(f,id=ii):
-                    print("!!!!Done with run {0}!!!!\n".format(id))
+                    print("!!!!Run {0} done={1}!!!!\n".format(id,f.done()))
+                    assert f.done(), "!!!!failure id={0}\n".format(id)
                 sim.add_done_callback(callback)
             for sim in simuls:
                 simul_obs.append(sim.result())
@@ -225,11 +226,11 @@ class Model:
             pool = MPIPoolExecutor(max_workers=ncores)
             simuls,simul_obs = [],[]
             for arg in args_map_long:
-                print("Trying to submit arg {0}".format(arg[1]))
                 simuls.append(pool.submit(run_function,arg))
             for ii,sim in enumerate(simuls):
                 def callback(f,id=ii):
-                    print("!!!!Done with run {0}!!!!\n".format(id))
+                    print("!!!!Run {0} done={1}!!!!\n".format(id,f.done()))
+                    assert f.done(), "!!!!failure id={0}\n".format(id)
                 sim.add_done_callback(callback)
             for sim in simuls:
                 simul_obs.append(sim.result())

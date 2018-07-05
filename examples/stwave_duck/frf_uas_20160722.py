@@ -43,7 +43,8 @@ XX, YY = np.meshgrid(x, y)
 pts = np.hstack((XX.ravel()[:,np.newaxis], YY.ravel()[:,np.newaxis]))
 
 #true bathyemtry interpolated to the stwave grid
-uas_dir =  os.path.join('uas','LENKF_uas_c_and_topo_20160722_2030_f_v20180130')
+uas_dir =  os.path.join('.','uas','LENKF_uas_c_and_topo_20160722_2030_f_v20180130')
+uas_dir = os.path.abspath(uas_dir)
 elev_file = os.path.join(uas_dir,'observation_files','true_bathymetry.txt')
 s_true = np.loadtxt(elev_file)
 s_true = z0-s_true
@@ -98,7 +99,7 @@ stwave_params = {'nx': nx, 'ny': ny, 'Lx': Lx, 'Ly': Ly, 'x0': x0, 'y0': y0, 't1
                  'wave_speed_obs_indices':wave_obs_inds,
                  'topo_obs_indices':topo_obs_inds,
                  'offline_dataloc':os.path.abspath("./input_files/FRF-ocean_waves_8m-array_201607.nc"),
-                 'use_mpi_pool':False,'deletedir':True,
+                 'use_mpi_pool':True,'deletedir':False,
                  'homedir':os.path.abspath("./")}
     
 # prepare interface to run as a function
