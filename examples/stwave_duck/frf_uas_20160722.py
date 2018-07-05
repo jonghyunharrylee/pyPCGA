@@ -99,7 +99,7 @@ stwave_params = {'nx': nx, 'ny': ny, 'Lx': Lx, 'Ly': Ly, 'x0': x0, 'y0': y0, 't1
                  'wave_speed_obs_indices':wave_obs_inds,
                  'topo_obs_indices':topo_obs_inds,
                  'offline_dataloc':os.path.abspath("./input_files/FRF-ocean_waves_8m-array_201607.nc"),
-                 'use_mpi_pool':True,'deletedir':False,
+                 'use_mpi_pool':True,'deletedir':True,
                  'homedir':os.path.abspath("./")}
     
 # prepare interface to run as a function
@@ -119,11 +119,11 @@ params = {'R':std_obs**2, 'n_pc':50,
           'kernel':kernel, 'post_cov':"diag",
           'precond':True, 'LM': True,
           'parallel':True, 'linesearch' : True,
-          'forward_model_verbose': False, 'verbose': True,
+          'forward_model_verbose': True, 'verbose': True,
           'iter_save': True}
 
 #params['objeval'] = False, if true, it will compute accurate objective function
-#params['ncores'] = 36, with parallell True, it will determine maximum physcial core unless specified
+params['ncores'] = 35#36, with parallell True, it will determine maximum physcial core unless specified
 
 s_init = np.mean(s_true)*np.ones((m,1))
 #s_init = np.copy(s_true); s_init = s_init[:,np.newaxis] # you can try with s_true! 

@@ -14,7 +14,7 @@ from time import time
 HAVE_MPIPOOL = True
 
 try:
-    from mpi4py.futures import MPIPoolExecutor
+    from mpi4py.futures import MPIPoolExecutor,wait
 except:
     HAVE_MPIPOOL = False
 '''
@@ -46,7 +46,7 @@ def run_function(args):
     stwp = STWaveProblem(nx=nx, ny=ny, Lx=Lx, Ly=Ly,
                          x0=x0, y0=y0, t1=t1, t2=t2,
                          offline_dataloc=offline_dataloc,
-                         outputdir=sim_dir, parallel=parallel,
+                         outputdir=sim_dir, parallel=False,#parallel,
                          testname='stwave_out')
     stwp.setup()
     stwp.bathy_true = bathy
@@ -223,18 +223,27 @@ class Model:
                               self.nx,self.ny,self.Lx,self.Ly,self.x0,self.y0,self.t1,self.t2,
                               self.offline_dataloc,self.outputdir,self.parallel,
                               self.wave_speed_obs_indices,self.topo_obs_indices,self.deletedir) for arg in method_args]
-            pool = MPIPoolExecutor(max_workers=ncores)
-            simuls,simul_obs = [],[]
-            for arg in args_map_long:
-                simuls.append(pool.submit(run_function,arg))
-            for ii,sim in enumerate(simuls):
-                def callback(f,id=ii):
-                    print("!!!!Run {0} done={1}!!!!\n".format(id,f.done()))
-                    assert f.done(), "!!!!failure id={0}\n".format(id)
-                sim.add_done_callback(callback)
-            for sim in simuls:
-                simul_obs.append(sim.result())
-            #for run in pool.map(self, args_map):
+            #pool = MPIPoolExecutor(max_workers=ncores)
+            with MPIPoolExecutor(max_workers=ncores) as pool:
+                simuls,simul_obs = [],[]
+                for arg in args_map_long:
+                    simuls.append(pool.submit(run_function,arg))
+                for ii,sim in enumerate(simuls):
+                    def callback(f,id=ii):
+                        print("!!!!Run {0} done={1}!!!!\n".format(id,f.done())); sys.stdout.flush()
+                        assert f.done(), "!!!!failure id={0}\n".format(id)
+                    sim.add_done_callback(callback)
+                wait(simuls)
+                for ii,sim in enumerate(simuls):
+                    assert sim.done(), "Process {0} not done".format(ii)
+                for ii,sim in enumerate(simuls):
+                    print("Appending sim {0}".format(ii)); sys.stdout.flush(); sys.stderr.flush()
+                    assert sim.done(), "Process {0} not done".format(ii)
+                    simul_obs.append(sim.result())
+            #with MPIPoolExecutor(max_workers=ncores) as pool:
+            #    simuls = pool.map(run_function,args_map_long)
+            #    simul_obs = list(simuls)
+            #for run in pool.map(run_function, args_map_long):
             #    simul_obs.append(run)
         else:
             simul_obs =[]
