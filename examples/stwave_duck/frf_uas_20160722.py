@@ -7,6 +7,11 @@ from pyPCGA import PCGA
 import math,os
 import datetime as dt
 
+#mwf debug
+from mpi4py import MPI
+comm = MPI.COMM_WORLD
+print ("MPI Rank={0}".format(comm.Get_rank()))
+       
 # model domain and discretization
 Lx = 500.0
 Ly = 300.0
@@ -92,8 +97,9 @@ X[:,1] = pts[:,0]/np.linalg.norm(pts[:,0])
 stwave_params = {'nx': nx, 'ny': ny, 'Lx': Lx, 'Ly': Ly, 'x0': x0, 'y0': y0, 't1': t1, 't2': t2,
                  'wave_speed_obs_indices':wave_obs_inds,
                  'topo_obs_indices':topo_obs_inds,
-                 'offline_dataloc':"./input_files/FRF-ocean_waves_8m-array_201607.nc",
-                 'use_mpi_pool':True}
+                 'offline_dataloc':os.path.abspath("./input_files/FRF-ocean_waves_8m-array_201607.nc"),
+                 'use_mpi_pool':False,'deletedir':True,
+                 'homedir':os.path.abspath("./")}
     
 # prepare interface to run as a function
 def forward_model(s,parallelization,ncores = None):

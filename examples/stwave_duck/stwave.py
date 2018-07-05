@@ -23,7 +23,48 @@ three operations
 2. run simul
 3. read input
 '''
-
+def create_dir_tmp(idx,homedir,inputdir):
+    mydirbase = "./simul/simul"
+            
+    mydir = mydirbase + "{0:04d}".format(idx)
+    mydir = os.path.abspath(os.path.join(homedir, mydir))
+        
+    if not os.path.exists(mydir):
+        os.makedirs(mydir)
+    assert os.path.exists(inputdir), "homedir={0} inputdir={1} not found!".format(homedir,inputdir)
+    for filename in os.listdir(inputdir):
+        copy2(os.path.join(inputdir,filename),mydir)
+        
+    return mydir
+    
+def run_function(args):
+    bathy,idx,homedir,inputdir, \
+    nx,ny,Lx,Ly,x0,y0,t1,t2,offline_dataloc,outputdir,parallel, \
+    wave_speed_obs_indices,topo_obs_indices,deletedir = args
+    
+    sim_dir = create_dir_tmp(idx,homedir,inputdir)
+    stwp = STWaveProblem(nx=nx, ny=ny, Lx=Lx, Ly=Ly,
+                         x0=x0, y0=y0, t1=t1, t2=t2,
+                         offline_dataloc=offline_dataloc,
+                         outputdir=sim_dir, parallel=parallel,
+                         testname='stwave_out')
+    stwp.setup()
+    stwp.bathy_true = bathy
+    stwp.run()
+    
+    simul_obs = read_speed(sim_dir, 'stwave_out.sim')
+    if wave_speed_obs_indices is not None:
+        simul_obs = simul_obs[wave_speed_obs_indices]
+    if topo_obs_indices is not None:
+        topo_obs = bathy[topo_obs_indices]
+        simul_obs = np.append(simul_obs,topo_obs)
+            
+    if deletedir:
+        rmtree(sim_dir, ignore_errors=True)
+        # self.cleanup(sim_dir)
+        
+    return simul_obs
+    
 class Model:
     def __init__(self,params = None):
         self.idx = 0
@@ -79,7 +120,7 @@ class Model:
         
         if not os.path.exists(mydir):
             os.makedirs(mydir)
-        
+        assert os.path.exists(self.inputdir), "homedir={0} inputdir={1} not found!".format(self.homedir,self.inputdir)
         for filename in os.listdir(self.inputdir):
             copy2(os.path.join(self.inputdir,filename),mydir)
         
@@ -109,7 +150,6 @@ class Model:
                 os.remove(file)
 
     def run_model(self,bathy,idx=0):
-
         sim_dir = self.create_dir(idx)
         self.stwp = STWaveProblem(nx=self.nx, ny=self.ny, Lx=self.Lx, Ly=self.Ly,
                                   x0=self.x0, y0=self.y0, t1=self.t1, t2=self.t2,
@@ -131,8 +171,40 @@ class Model:
         if self.deletedir:
             rmtree(sim_dir, ignore_errors=True)
             # self.cleanup(sim_dir)
-
         return simul_obs
+
+    def run_orig(self,bathy,par,ncores=None):
+        if ncores is None:
+            ncores = self.ncores
+
+        method_args = range(bathy.shape[1])
+        args_map = [(bathy[:, arg:arg + 1], arg) for arg in method_args]
+
+        if par and not self.use_mpi_pool:
+            pool = Pool(processes=ncores)
+            simul_obs = pool.map(self, args_map)
+        elif par and self.use_mpi_pool:
+            pool = MPIPoolExecutor(max_workers=ncores)
+            simuls,simul_obs = [],[]
+            for arg in args_map:
+                print("Trying to submit arg {0}".format(arg[1]))
+                simuls.append(pool.submit(self,arg))
+            for ii,sim in enumerate(simuls):
+                def callback(f,id=ii):
+                    print("!!!!Done with run {0}!!!!\n".format(id))
+                sim.add_done_callback(callback)
+            for sim in simuls:
+                simul_obs.append(sim.result())
+            #for run in pool.map(self, args_map):
+            #    simul_obs.append(run)
+        else:
+            simul_obs =[]
+            for item in args_map:
+                simul_obs.append(self(item))
+        return np.array(simul_obs).T
+
+        #pool.close()
+        #pool.join()
 
     def run(self,bathy,par,ncores=None):
         if ncores is None:
@@ -145,18 +217,28 @@ class Model:
             pool = Pool(processes=ncores)
             simul_obs = pool.map(self, args_map)
         elif par and self.use_mpi_pool:
-            pool = MPIPoolExecutor(ncores)
-            simul_obs = []
-            for run in pool.map(self, args_map):
-                simul_obs.append(run)
+            args_map_long = [(bathy[:, arg:arg + 1], arg,
+                              self.homedir,self.inputdir,
+                              self.nx,self.ny,self.Lx,self.Ly,self.x0,self.y0,self.t1,self.t2,
+                              self.offline_dataloc,self.outputdir,self.parallel,
+                              self.wave_speed_obs_indices,self.topo_obs_indices,self.deletedir) for arg in method_args]
+            pool = MPIPoolExecutor(max_workers=ncores)
+            simuls,simul_obs = [],[]
+            for arg in args_map_long:
+                print("Trying to submit arg {0}".format(arg[1]))
+                simuls.append(pool.submit(run_function,arg))
+            for ii,sim in enumerate(simuls):
+                def callback(f,id=ii):
+                    print("!!!!Done with run {0}!!!!\n".format(id))
+                sim.add_done_callback(callback)
+            for sim in simuls:
+                simul_obs.append(sim.result())
+            #for run in pool.map(self, args_map):
+            #    simul_obs.append(run)
         else:
             simul_obs =[]
             for item in args_map:
                 simul_obs.append(self(item))
-        #mwf debug
-        print("stwave.run: len(simul_obs)= {0}".format(len(simul_obs)))
-        print("array shape= {0}".format(np.array(simul_obs).shape))
-        #assert False, "array shape= {0}".format(np.array(simul_obs).shape)
         return np.array(simul_obs).T
 
         #pool.close()
