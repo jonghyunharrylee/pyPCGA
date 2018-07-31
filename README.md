@@ -22,6 +22,10 @@ Code contributors include:
 * Jonghyun Harry Lee 
 * Matthew Farthing
 
+* Hojat Ghorbanidehno (TOUGH2 interface comming soon!)
+* Amalia Kokkinaki (TOUGH2 interface comming soon!)
+* Ty Hesser (STWAVE example)
+
 FFT-based matvec code is adapted from Arvind Saibaba's work (https://github.com/arvindks/kle). 
 
 # References
