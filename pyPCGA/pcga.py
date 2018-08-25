@@ -39,7 +39,7 @@ class PCGA:
         # inversion setting
         self.m   = np.size(s_init,0) 
         self.s_init = np.array(s_init)
-        self.s_init = self.s_init.reshape((self.s_init.shape[0],1))
+        self.s_init = self.s_init.reshape((self.s_init.shape[0],1)) #Make sure the array has a second dimension of length 1.
         if s_true is None:
             self.s_true = None
         else:
@@ -1535,12 +1535,12 @@ class PCGA:
         raise NotImplementedError
 
     def forward_model_wrapper(orig_forward_model):
-    	def wrapped_forward_model(s,par,ncores = None):
-    		retVal = orig_forward_model(s,par,ncores = None)
-    		if not isinstance(retVal,np.ndarray):
-    			raise TypeError("Forward model must return a numpy array.")
-    		return retVal
-    	return wrapped_forward_model
+        def wrapped_forward_model(s,par,ncores = None):
+            retVal = orig_forward_model(s,par,ncores = None)
+            retVal = np.array(retVal)
+            retVal = retVal.reshape((retVal.shape[0],1))
+            return retVal
+        return wrapped_forward_model
 
 
     #def __str__(self):
