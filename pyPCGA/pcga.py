@@ -32,7 +32,9 @@ class PCGA:
             raise TypeError("The second dimension of s_init must be of length 1.")
         ##### Forward Model
         # forward solver setting should be done externally as a blackbox
-        self.forward_model = forward_model
+        #Wrap the forward model in a function that checks that it has the proper signature.
+
+        self.forward_model = PCGA.forward_model_wrapper(forward_model)
         
         # Grid points (for Dense, Hmatrix and FMM)
         self.pts = pts # no need for FFT. Will use this later
@@ -1538,6 +1540,15 @@ class PCGA:
         print("Time for uncertainty computation is", time() - start)
 
         raise NotImplementedError
+
+    def forward_model_wrapper(orig_forward_model):
+    	def wrapped_forward_model(s,par,ncores = None):
+    		retVal = orig_forward_model(s,par,ncores = None)
+    		if not isinstance(retVal,np.ndarray):
+    			raise TypeError("Forward model must return a numpy array.")
+    		return retVal
+    	return wrapped_forward_model
+
 
     #def __str__(self):
     #    """simply return the name when the PCGA object is printed"""
