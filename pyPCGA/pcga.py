@@ -22,7 +22,14 @@ class PCGA:
     def __init__(self, forward_model, s_init, pts, params, s_true = None, obs = None, obs_true = None, X = None):
         print('##### PCGA Inversion #####')
         print('##### 1. Initialize forward and inversion parameters')
-
+              
+        #Check that the input variables are of the correct type.
+        if not isinstance(s_init,np.ndarray):
+            raise TypeError("s_init must be a numpy array.")
+        if len(s_init.shape) != 2:
+            raise TypeError("s_init must be 2-dimensional of shape (m,1) where m is the number of initial parameters.")
+        if s_init.shape[-1] != 1:
+            raise TypeError("The second dimension of s_init must be of length 1.")
         ##### Forward Model
         # forward solver setting should be done externally as a blackbox
         self.forward_model = forward_model
