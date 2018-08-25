@@ -11,6 +11,7 @@ import mf
 import math
 import datetime as dt
 import os
+import sys
 
 # model domain and discretization
 Lx = 1000.; Ly = 750.; Lz = 1; nlay = 1; nrow = 75; ncol = 100
@@ -27,6 +28,8 @@ xmax = np.array([Lx - dx[0] / 2., Ly - dx[1] / 2., Lz - dx[2] / 2.])
 # parameters
 if os.name == 'nt':
     mf_exec = 'mf2005.exe'
+elif sys.platform == 'darwin':
+    mf_exec = 'mf2005_mac'
 else:
     mf_exec = 'mf2005'
 
