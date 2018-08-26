@@ -542,7 +542,6 @@ class PCGA:
         precision = self.precision
 
         temp = np.zeros((m,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
-        Htemp = np.zeros((n,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
         
         temp[:,0:p] = np.copy(self.X)
         temp[:,p:p+n_pc] = np.copy(Z) 
