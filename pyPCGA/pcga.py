@@ -25,9 +25,7 @@ class PCGA:
               
         ##### Forward Model
         # forward solver setting should be done externally as a blackbox
-        #Wrap the forward model in a function that checks that it has the proper signature.
-
-        self.forward_model = PCGA.forward_model_wrapper(forward_model)
+        self.forward_model = forward_model
         
         # Grid points (for Dense, Hmatrix and FMM)
         self.pts = pts # no need for FFT. Will use this later
@@ -39,7 +37,8 @@ class PCGA:
         # inversion setting
         self.m   = np.size(s_init,0) 
         self.s_init = np.array(s_init)
-        self.s_init = self.s_init.reshape((self.s_init.shape[0],1)) #Make sure the array has a second dimension of length 1.
+        self.s_init = self.s_init.reshape(-1,1) #Make sure the array has a second dimension of length 1.
+        
         if s_true is None:
             self.s_true = None
         else:
@@ -377,6 +376,9 @@ class PCGA:
         else:
             with HiddenPrints():
                 simul_obs = self.forward_model(s,par)
+        
+        simul_obs = simul_obs.reshape(-1,1)
+
         return simul_obs
 
     def ParallelForwardSolve(self,s):
@@ -453,7 +455,7 @@ class PCGA:
         when obs is not provided (and s_true is), create synthetic observations
         '''
         s_true = self.s_true
-        R = self.R
+        
         #Generate measurements
         if s is None:
             if s_true is None:
@@ -1576,15 +1578,6 @@ class PCGA:
         print("Time for uncertainty computation is", time() - start)
 
         raise NotImplementedError
-
-    def forward_model_wrapper(orig_forward_model):
-        def wrapped_forward_model(s,par,ncores = None):
-            retVal = orig_forward_model(s,par,ncores = None)
-            retVal = np.array(retVal)
-            retVal = retVal.reshape((retVal.shape[0],1))
-            return retVal
-        return wrapped_forward_model
-
 
     #def __str__(self):
     #    """simply return the name when the PCGA object is printed"""
