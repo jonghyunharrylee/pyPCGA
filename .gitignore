@@ -3,3 +3,6 @@
 *.pyc
 
 *~
+build
+dist
+pyPCGA.egg-info

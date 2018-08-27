@@ -22,10 +22,12 @@ class PCGA:
     def __init__(self, forward_model, s_init, pts, params, s_true = None, obs = None, obs_true = None, X = None):
         print('##### PCGA Inversion #####')
         print('##### 1. Initialize forward and inversion parameters')
-
+              
         ##### Forward Model
         # forward solver setting should be done externally as a blackbox
-        self.forward_model = forward_model
+        #Wrap the forward model in a function that checks that it has the proper signature.
+
+        self.forward_model = PCGA.forward_model_wrapper(forward_model)
         
         # Grid points (for Dense, Hmatrix and FMM)
         self.pts = pts # no need for FFT. Will use this later
@@ -37,7 +39,7 @@ class PCGA:
         # inversion setting
         self.m   = np.size(s_init,0) 
         self.s_init = np.array(s_init)
-        
+        self.s_init = self.s_init.reshape((self.s_init.shape[0],1)) #Make sure the array has a second dimension of length 1.
         if s_true is None:
             self.s_true = None
         else:
@@ -542,7 +544,6 @@ class PCGA:
         precision = self.precision
 
         temp = np.zeros((m,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
-        Htemp = np.zeros((n,p+n_pc+1), dtype='d') # [HX, HZ, Hs]
         
         temp[:,0:p] = np.copy(self.X)
         temp[:,p:p+n_pc] = np.copy(Z) 
@@ -1575,6 +1576,15 @@ class PCGA:
         print("Time for uncertainty computation is", time() - start)
 
         raise NotImplementedError
+
+    def forward_model_wrapper(orig_forward_model):
+        def wrapped_forward_model(s,par,ncores = None):
+            retVal = orig_forward_model(s,par,ncores = None)
+            retVal = np.array(retVal)
+            retVal = retVal.reshape((retVal.shape[0],1))
+            return retVal
+        return wrapped_forward_model
+
 
     #def __str__(self):
     #    """simply return the name when the PCGA object is printed"""
