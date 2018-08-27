@@ -1322,36 +1322,29 @@ class PCGA:
 
     def ComputeModelValidationDirect(self,PSI,HX):
         """
-        Q2/cR criteria (Kitanids, ..)
+        evaluate Q2/cR criteria directly [Kitanids, MG 1991]
+        
         """
         
-        #T=null(PHI')'; % null space of HX
-        from scipy.io import savemat
         from scipy.linalg import orth
-        #savemat('Q2cR.mat','PSI','HX')
+        
         u, s, vh = np.linalg.svd(A)
         tol = 1e-14
         nnz = (s >= tol).sum()
         T = vh[nnz:].conj().T
         Pyy = np.dot(np.dot(T.T,np.linalg.solve(np.dot(T,np.dot(PSI,T.T)))),T) # projector space of null(HX)  
-        #Pyy = T'*inv(T*PSI*T')*T; % projector space of null(HX)  
         P = orth(Pyy) # ornormalize Pyy 
         y = self.obs[:] - simul_obs + Hs[:]
         delta = P*y
         var_delta = np.diag(np.dot(P,np.dot(PSI,P.T))) # always diagonal
-        #epsilon = np.divide(delta,sqrt(var_delta)) # orthonomal residual
+        epsilon = np.divide(delta,sqrt(var_delta)) # orthonomal residual
         Pyy1 = np.dot(T.T,np.dot(np.linalg.solve(np.dot(T,np.dot(PSI,T.T)),T),PSI)) # generalized inverse
         P2 = orth(Pyy1).T
-        Q2 = 0
-        cR = 0
-        #Q2 = mean((e_r).^2);
-        #cR = mean(Q2*exp(sum(log(se^.2))));
-        #Q2 = (norm(epsilon))^2/length(epsilon);
-        #cR = Q2*exp(sum(log(var_delta))/length(epsilon));
+        Q2 = 0.
+        cR = 0.
 
-
-        return Q2,cR
-
+        #return Q2,cR
+        raise NotImplementedError
 
 
     def ComputePosteriorDiagonalEntriesDirect(self,HZ,HX,i_best,R):
@@ -1418,9 +1411,6 @@ class PCGA:
             if i % 1000 == 0:
                 print("%d-th element evaluated" % (i))
         
-        #debug_here()
-        #v[v > priorvar] = priorvar
-
         #print("compute variance: %f sec" % (time() - start))
         return v
 
