@@ -87,7 +87,7 @@ params = {'R': (0.5) ** 2, 'n_pc': 50,
           'matvec': 'FFT', 'xmin': xmin, 'xmax': xmax, 'N': N,
           'prior_std': prior_std, 'prior_cov_scale': prior_cov_scale,
           'kernel': kernel, 'post_cov': "diag",
-          'precond': True, 'LM': True,
+          'precond': True, 'LM': True, #'LM_smin' : 1.0, 'LM_smax' : 4.0,
           'parallel': True, 'linesearch': True,
           'forward_model_verbose': False, 'verbose': False,
           'iter_save': True}
@@ -105,6 +105,7 @@ prob = PCGA(forward_model, s_init, pts, params, s_true, obs)
 # run inversion
 s_hat, simul_obs, post_diagv, iter_best = prob.Run()
 
+# plotting results
 s_hat3d = s_hat.reshape(nlay, nrow, ncol)
 s_hat2d = s_hat3d[0,:,:]
 s_true3d = s_true.reshape(nlay, nrow, ncol)
@@ -118,6 +119,7 @@ post_std2d = post_std3d[0,:,:]
 minv = s_true.min()
 maxv = s_true.max()
 
+# best result
 fig, axes = plt.subplots(1, 2, figsize=(15, 5))
 plt.suptitle('prior var.: (%g)^2, n_pc : %d' % (prior_std, params['n_pc']))
 im = axes[0].pcolormesh(XX,YY,s_true2d, vmin=minv, vmax=maxv, cmap=plt.get_cmap('jet'))
@@ -138,6 +140,7 @@ fig.colorbar(im, cax=cbar_ax)
 fig.savefig('best.png')
 plt.close(fig)
 
+# uncertainty
 fig = plt.figure()
 im = plt.pcolormesh(XX,YY,post_std2d, cmap=plt.get_cmap('jet'))
 plt.axis([XX.min(), XX.max(), YY.min(), YY.max()])
@@ -149,6 +152,7 @@ fig.colorbar(im)
 fig.savefig('std.png')
 plt.close(fig)
 
+# observation mismatch
 nobs = prob.obs.shape[0]
 fig = plt.figure()
 plt.title('obs. vs simul.')
@@ -166,6 +170,7 @@ fig.savefig('obs.png', dpi=fig.dpi)
 # plt.show()
 plt.close(fig)
 
+# objective values
 fig = plt.figure()
 plt.semilogy(range(len(prob.objvals)), prob.objvals, 'r-')
 plt.title('obj values over iterations')
