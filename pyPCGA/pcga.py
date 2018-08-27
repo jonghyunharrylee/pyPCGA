@@ -278,6 +278,8 @@ class PCGA:
         print("   Prior model                                      : %s" % (getsource(self.kernel)))
         print("   Prior variance                                   : %e" % (self.prior_std ** 2))
         print("   Prior scale (correlation) parameter              : %s" % (self.prior_cov_scale))
+        #print("   Measurement/model error variance                 : %s" % (self.R))
+        #print("   Ratio of prior variance to error variance        : %s" % ((self.prior_std ** 2)/self.R))
         print("   Posterior cov computation                        : %s" % (self.post_cov))
         if self.post_cov:
             if self.post_diag_direct:
@@ -823,7 +825,7 @@ class PCGA:
             elif n_pc == n:
                 [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc-1, which='LM', maxiter=n)
             else:
-                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n, which='LM', maxiter=n_pc)
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n-1, which='LM', maxiter=n_pc)
             
             #print("eig. val. of sqrt data covariance (%8.2e, %8.2e, %8.2e)" % (Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
 #print(Psi_sigma)
@@ -1084,8 +1086,6 @@ class PCGA:
                     obj = self.ObjectiveFunction(s_hat_all[:,i:i+1], beta_all[:,i:i+1], simul_obs_all[:,i:i+1],approx = True) 
 
             if obj < obj_best: 
-                if self.verbose:
-                    print("%d-th solution obj %e (alpha %f)" % (i,obj,alpha[i]))
                 s_hat = s_hat_all[:,i:i+1]
                 beta = beta_all[:,i:i+1]
                 simul_obs_new = simul_obs_all[:,i:i+1]
@@ -1093,7 +1093,9 @@ class PCGA:
                 self.Q2_cur = Q2_all[:,i:i+1]
                 self.cR_cur = cR_all[:,i:i+1]
                 i_best = i
-
+                if self.verbose:
+                    print('{:d}-th solution obj {} (alpha {}, beta {})'.format(i,obj.reshape(-1),alpha[i],beta.reshape(-1).tolist()))
+                
         if i_best == -1:
             print("no better solution found ..")
             s_hat = s_cur
@@ -1105,6 +1107,9 @@ class PCGA:
             self.HX = HX
             self.R_LM = np.multiply(alpha[i_best],self.R)
 
+        #from scipy.io import savemat
+        #savemat('Q2cR.mat',{'X':self.X,'HZ':HZ,'HX':HX,'b':b,'alpha':alpha,'i_best':i_best,'R':self.R,'pts':self.pts,'Z':Z})
+        
         self.i_best = i_best # keep track of best LM solution
         return s_hat, beta, simul_obs_new
 
@@ -1315,6 +1320,40 @@ class PCGA:
         else:
             return s_hat, simul_obs, iter_best
 
+    def ComputeModelValidationDirect(self,PSI,HX):
+        """
+        Q2/cR criteria (Kitanids, ..)
+        """
+        
+        #T=null(PHI')'; % null space of HX
+        from scipy.io import savemat
+        from scipy.linalg import orth
+        #savemat('Q2cR.mat','PSI','HX')
+        u, s, vh = np.linalg.svd(A)
+        tol = 1e-14
+        nnz = (s >= tol).sum()
+        T = vh[nnz:].conj().T
+        Pyy = np.dot(np.dot(T.T,np.linalg.solve(np.dot(T,np.dot(PSI,T.T)))),T) # projector space of null(HX)  
+        #Pyy = T'*inv(T*PSI*T')*T; % projector space of null(HX)  
+        P = orth(Pyy) # ornormalize Pyy 
+        y = self.obs[:] - simul_obs + Hs[:]
+        delta = P*y
+        var_delta = np.diag(np.dot(P,np.dot(PSI,P.T))) # always diagonal
+        #epsilon = np.divide(delta,sqrt(var_delta)) # orthonomal residual
+        Pyy1 = np.dot(T.T,np.dot(np.linalg.solve(np.dot(T,np.dot(PSI,T.T)),T),PSI)) # generalized inverse
+        P2 = orth(Pyy1).T
+        Q2 = 0
+        cR = 0
+        #Q2 = mean((e_r).^2);
+        #cR = mean(Q2*exp(sum(log(se^.2))));
+        #Q2 = (norm(epsilon))^2/length(epsilon);
+        #cR = Q2*exp(sum(log(var_delta))/length(epsilon));
+
+
+        return Q2,cR
+
+
+
     def ComputePosteriorDiagonalEntriesDirect(self,HZ,HX,i_best,R):
         """
         Computing posterior diagonal entries
@@ -1355,6 +1394,18 @@ class PCGA:
         A[0:n,0:n] = np.copy(Psi)   
         A[0:n,n:n+p] = np.copy(HX)   
         A[n:n+p,0:n] = np.copy(HX.T)
+        
+        #HQX = np.vstack((HQ,self.X.T))
+        #diagred = np.diag(np.dot(HQX.T, np.linalg.solve(A, HQX)))
+        # diagred1 = np.diag(np.dot(HQ.T, np.linalg.solve(Psi, HQ)))
+        # HQX1 = np.vstack((HQ,self.X[:,0].T))
+        # A1 = np.zeros((n+1,n+1),dtype='d')
+        #A1[0:n,0:n] = np.copy(Psi)   
+        #A1[0:n,n:n+1] = np.copy(HX[:,0:1])   
+        #A1[n:n+1,0:n] = np.copy(HX[:,0:1].T)
+        
+        # diagred2 = np.diag(np.dot(HQX1.T, np.linalg.solve(A1, HQX1)))
+        #v1 = priorvar - diagred
 
         for i in range(m):
             b = np.zeros((n+p,1),dtype='d')
@@ -1362,10 +1413,13 @@ class PCGA:
             b[n:n+p] = self.X[i:i+1,:].T
             tmp = np.dot(b.T, np.linalg.solve(A, b))
             v[i] = priorvar - tmp
+            #if v[i] <= 0:
+            #    print("%d-th element negative" % (i))
             if i % 1000 == 0:
                 print("%d-th element evaluated" % (i))
-
-        v[v > priorvar] = priorvar
+        
+        #debug_here()
+        #v[v > priorvar] = priorvar
 
         #print("compute variance: %f sec" % (time() - start))
         return v
