@@ -2,6 +2,7 @@
     toeplitz matrix-vector mutliplication adapted from Arvind Saibaba's code
 '''
 import numpy as np
+from IPython.core.debugger import Tracer; debug_here = Tracer()
 
 __all__ = ['CreateRow', 'ToeplitzProduct', 'Realizations']
 
@@ -27,8 +28,8 @@ def CreateRow(xmin, xmax, N, kernel, theta):
 
     if dim == 1:
         x = np.linspace(xmin[0], xmax[0], N[0])
-        R = DistanceVector(x, x[0], theta)
         x = x.reshape(-1,1) # make it 2D for consistency
+        R = DistanceVector(x, x[0], theta)
     elif dim == 2:
         x1 = np.linspace(xmin[0], xmax[0], N[0])
         x2 = np.linspace(xmin[1], xmax[1], N[1])
@@ -68,10 +69,8 @@ def ToeplitzProduct(x, row, N):
     dim = N.size
 
     if dim == 1:
-        circ = np.concatenate((row, row[-2:0:-1]))
+        circ = np.concatenate((row, row[-2:0:-1])).reshape(-1)
         padded = np.concatenate((x, np.zeros(N[0] - 2)))
-        print(row)
-        print(circ)
         result = np.fft.ifft(np.fft.fft(circ) * np.fft.fft(padded))
         result = np.real(result[0:N[0]])
 
