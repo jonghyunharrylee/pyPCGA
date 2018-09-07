@@ -343,6 +343,7 @@ class PCGA:
         start = time()
         if method == 'arpack':
             #from scipy.sparse.linalg import eigsh
+            #debug_here()
             self.priord, self.priorU = eigsh(self.Q, k = n_pc)
             self.priord = self.priord[::-1]
             self.priord = self.priord.reshape(-1,1) # make a column vector
@@ -401,7 +402,7 @@ class PCGA:
         '''
         nruns = np.size(x,1)
         deltas = np.zeros((nruns,1),'d') 
-
+        
         if delta is None or isnan(delta) or delta == 0:
             for i in range(nruns):
                 mag = np.dot(s.T,x[:,i:i+1])
