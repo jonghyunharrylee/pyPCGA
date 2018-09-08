@@ -32,6 +32,9 @@ class Model:
         self.homedir = os.path.abspath('./')
         self.inputdir = os.path.abspath(os.path.join(self.homedir,"./input_files"))
         self.deletedir = True
+        self.outputdir = None
+        self.parallel = False
+        self.log = False # log-transformed estimation
 
         from psutil import cpu_count  # physcial cpu counts
         self.ncores = cpu_count(logical=False)
@@ -46,14 +49,18 @@ class Model:
                 self.inputdir = params['inputdir']
             if 'ncores' in params:
                 self.ncores = params['ncores']
-
+            if 'outputdir' in params:
+                # note that outputdir is not used for simulation
+                # force outputdir in ./simul/simul0000
+                self.outputdir = params['outputdir']
+            if 'parallel' in params:
+                self.outputdir = params['parallel']
+            if 'log' in params:
+                self.log = params['log']
         # load forward model operator
         tmp = loadmat('H.mat')
         self.H = tmp['H'] # forward operator for simul_obs = np.dot(H,s) 
 
-        # note that outputdir is not used for simulation; force outputdir in ./simul/simul0000
-        self.outputdir = None if 'outputdir' not in params else params['outputdir']
-        self.parallel = False if 'parallel' not in params else params['parallel']
  
     def create_dir(self,idx=None):
         """
@@ -107,8 +114,12 @@ class Model:
         # create directory
         #sim_dir = self.create_dir(idx)
         
-        simul_obs = np.dot(self.H,s)
-        simul_obs = simul_obs.reshape(-1)
+        if self.log:
+            simul_obs = np.dot(self.H,np.exp(s))
+            simul_obs = simul_obs.reshape(-1)
+        else:
+            simul_obs = np.dot(self.H,s)
+            simul_obs = simul_obs.reshape(-1)
 
         #if self.deletedir:
         # rmtree(sim_dir, ignore_errors=True)
@@ -152,9 +163,10 @@ if __name__ == '__main__':
     
     par = False # parallelization false
 
-    params = {}
+    #params = {}
 
-    mymodel = dd.Model(params)
+    #mymodel = dd.Model(params)
+    mymodel = dd.Model()
     print('(1) single run')
 
     simul_obs = mymodel.run(s_true,par)
