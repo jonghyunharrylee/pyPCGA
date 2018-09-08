@@ -1300,7 +1300,7 @@ class PCGA:
         #return s_cur, beta_cur, simul_obs, iter_cur
         print("------------ Inversion Summary ---------------------------")
         print("** Found solution at iteration %d" %(self.iter_best))
-        print("** Solution RMSE %g , initial RMSE %g, where RMSE = (norm(obs. diff.)/sqrt(nobs)), Solution nRMSE %g, init. nRMSE %g" %(np.linalg.norm(self.simul_obs_best-self.obs)/np.sqrt(self.n),RMSE_init, np.linalg.norm( np.divide(self.simul_obs_best-self.obs,self.sqrtR) )/np.sqrt(n)
+        print("** Solution obs. RMSE %g , initial obs. RMSE %g, where RMSE = (norm(obs. diff.)/sqrt(nobs)), Solution obs. nRMSE %g, init. obs. nRMSE %g" %(np.linalg.norm(self.simul_obs_best-self.obs)/np.sqrt(self.n),RMSE_init, np.linalg.norm( np.divide(self.simul_obs_best-self.obs,self.sqrtR) )/np.sqrt(n)
         , nRMSE_init))
         print("** Final objective function value is %e" %(self.obj_best))
         print("** Final predictive model checking Q2, cR is %e, %e" %(self.Q2_best, self.cR_best))
