@@ -23,7 +23,7 @@ version 0.2 will include
 
 * [Bathymetry estimation example using STWAVE](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/stwave_duck/inversion_stwave.ipynb)
 
-* TOUGH2/Crunch/E4D examples coming soon! 
+* TOUGH2/Crunch/E4D/adh examples coming soon! 
 
 # Credits
 
