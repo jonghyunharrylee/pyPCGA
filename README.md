@@ -13,6 +13,18 @@ version 0.2 will include
 - automatic covariance model parameter calibration
 - link with FMM (pyFMM3D) and HMatrix (pyHmatrix) to support unstructured grids 
 
+# Example Notebooks
+
+* [1D linear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/linear_inverse_problem_pumping_history_identification.ipynb)
+
+* [1D nonlinear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/nonlinear_inverse_problem_pumping_history_identification.ipynb)
+
+* [Hydraulic conductivity estimation example using USGS-FloPy (MODFLOW) \[Lee and Kitanidis, 2014\] ](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/modflow_flopy/inversion_modflow.ipynb)
+
+* [Bathymetry estimation example using STWAVE] (https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/stwave_duck/inversion_stwave.ipynb)
+
+* TOUGH2/Crunch/E4D examples coming soon! 
+
 # Credits
 
 pyPCGA is based on Lee et al. [2016] and currently used for Stanford-USACE ERDC project led by EF Darve and PK Kitanidis and NSF EPSCoR `Ike Wai project. 
