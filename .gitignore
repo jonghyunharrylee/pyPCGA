@@ -6,3 +6,4 @@
 build
 dist
 pyPCGA.egg-info
+.ipynb_checkpoints
