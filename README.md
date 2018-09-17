@@ -15,15 +15,17 @@ version 0.2 will include
 
 # Example Notebooks
 
-* [1D linear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/linear_inverse_problem_pumping_history_identification.ipynb)
+* [1D linear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/linear_inverse_problem_pumping_history_identification.ipynb) (from Stanford 362G course)
 
-* [1D nonlinear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/nonlinear_inverse_problem_pumping_history_identification.ipynb)
+* [1D nonlinear inversion example (Stanford 362G course)](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/nonlinear_inverse_problem_pumping_history_identification.ipynb) (from Stanford 362G course)
 
 * [Hydraulic conductivity estimation example using USGS-FloPy (MODFLOW)](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/modflow_flopy/inversion_modflow.ipynb) [Lee and Kitanidis, 2014]
 
-* [Bathymetry estimation example using STWAVE](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/stwave_duck/inversion_stwave.ipynb)
+* [Tracer tomography exampe using Cruch](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/tracer_tomography_ade_crunch/inversion_example_advection_diffusion_crunchtope.ipynb) (with Mahta Ansari from UIUC Drunhan Lab)
 
-* TOUGH2/Crunch/E4D/adh examples coming soon! 
+* [Bathymetry estimation example using STWAVE](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/stwave_duck/inversion_stwave.ipynb) (with USACE-ERDC-CHL)
+
+* TOUGH2/E4D/adh examples coming soon! 
 
 # Credits
 
