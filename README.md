@@ -25,7 +25,7 @@ version 0.2 will include
 
 * [Bathymetry estimation example using STWAVE](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/stwave_duck/inversion_stwave.ipynb) (with USACE-ERDC-CHL)
 
-* TOUGH2/E4D/adh examples coming soon! 
+* TOUGH2/MODFLOW-USG/MODFLOW6/E4D/ADH examples coming soon! 
 
 # Credits
 
