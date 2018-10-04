@@ -202,18 +202,19 @@ if __name__ == '__main__':
     stime = time()
     simul_obs = mymodel.run(s,par)
     print('simulation run: %f sec' % (time() - stime))
-    obs = simul_obs + 0.01*np.random.randn(m,1)
-    obs[obs < 0] = 0
-    np.savetxt('obs.txt',obs)
-    np.savetxt('cobs.txt',mymodel.simul_cobs)
+    
+    #obs = simul_obs + 0.01*np.random.randn(m,1)
+    #obs[obs < 0] = 0
+    #np.savetxt('obs.txt',obs)
+    #np.savetxt('cobs.txt',mymodel.simul_cobs)
     #mymodel.simul_cobs = mymodel.simul_cobs
     #for it in range(nx*ny):        
     #    simul_obs[it] = np.trapz(t*mymodel.simul_cobs[it,:],x=t)/np.trapz(mymodel.simul_cobs[it,:],x=t)
 
     #savemat('simul.mat',{'simul_obs':simul_obs})    
     
-    import sys
-    sys.exit(0)
+    #import sys
+    #sys.exit(0)
 
     ncores = 2
     nrelzs = 2
