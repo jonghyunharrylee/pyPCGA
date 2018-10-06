@@ -436,9 +436,9 @@ class PCGA:
         else:
             for i in range(nruns):
                 if i == 0:
-                    simul_obs_purturbation = self.ForwardSolve(x)
+                    simul_obs_purturbation = self.ForwardSolve(x[:,i:i+1])
                 else:
-                    simul_obs_purturbation = np.concatenate((simul_obs_purturbation, self.ForwardSolve(x)), axis=1)
+                    simul_obs_purturbation = np.concatenate((simul_obs_purturbation, self.ForwardSolve(x[:,i:i+1])), axis=1)
         
         if np.size(simul_obs_purturbation,1) != nruns:
             raise ValueError("size of simul_obs_purturbation (%d,%d) is not nruns %d" % (simul_obs_purturbation.shape[0], simul_obs_purturbation.shape[1], nruns))
