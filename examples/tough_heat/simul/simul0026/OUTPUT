@@ -1,0 +1,2286 @@
+
+       @@@@@   @@   @  @   @@@  @  @   @@       @@@  @  @   @  @  @  @      @@   @@@@@  @   @@   @   @     @@@   @  @  @   @
+         @    @  @  @  @  @     @  @  @  @     @     @  @@ @@  @  @  @     @  @    @    @  @  @  @@  @     @  @  @  @  @@  @
+         @    @  @  @  @  @ @@  @@@@    @       @@   @  @ @ @  @  @  @     @@@@    @    @  @  @  @ @ @     @@@   @  @  @ @ @
+         @    @  @  @  @  @  @  @  @   @          @  @  @   @  @  @  @     @  @    @    @  @  @  @  @@     @ @   @  @  @  @@
+         @     @@    @@    @@@  @  @  @@@@     @@@   @  @   @   @@   @@@@  @  @    @    @   @@   @   @     @  @   @@   @   @
+
+
+                    TOUGH2 IS A PROGRAM FOR MULTIPHASE MULTICOMPONENT FLOW IN PERMEABLE MEDIA, INCLUDING HEAT FLOW.
+              IT IS A MEMBER OF THE MULKOM FAMILY OF CODES, DEVELOPED  AT LAWRENCE BERKELEY LABORATORY BY KARSTEN PRUESS ET AL.
+                                    PARALLELIZATION OF THE TOUGH FAMILY CODES WAS DONE BY KENI ZHANG ET AL.
+
+                          ********************************************************************************
+                          ********************   TOUGH2-MP VER. 2.0 (October 2005)  ********************
+                          **************   using iterative solvers from AZTEC   *************
+                          ********************************************************************************
+
+
+ SUMMARY OF DISK FILES
+
+ FILE *VERS*  EXISTS --- OPEN AS AN OLD FILE
+ FILE *MESH* DOES NOT EXIST --- OPEN AS A NEW FILE
+ FILE *INCON* EXISTS --- OPEN AS AN OLD FILE
+ FILE *GENER* EXISTS --- OPEN AS AN OLD FILE
+ FILE *SAVE*  EXISTS --- OPEN AS AN OLD FILE
+ FILE *TABLE* EXISTS --- OPEN AS AN OLD FILE
+
+ ===================================================================================================================================
+
+     PROBLEM TITLE:  3D synthetic Ex1                                                                
+
+
+
+ DOMAIN NO.  1     MATERIAL NAME -- dfalt
+
+ DOMAIN NO.  2     MATERIAL NAME -- HOMO1
+
+ DOMAIN NO.  3     MATERIAL NAME -- OUTB1
+
+ DOMAIN NO.  4     MATERIAL NAME -- SEED 
+ HAVE READ UNKNOWN BLOCK LABEL "SOLVR" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL "5   1" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+     
+ WRITE FILE *MESH* FROM INPUT DATA
+     
+ WRITE FILE *GENER* FROM INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 13" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 15" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 17" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 19" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 65" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 67" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 69" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 71" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 73" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 75" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 77" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i 79" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i125" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i127" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i129" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i131" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i133" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i135" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i137" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i139" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i185" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i187" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i189" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i191" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i193" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i195" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i197" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL " i199" --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+ HAVE READ UNKNOWN BLOCK LABEL "     " --- IGNORE THIS, AND CONTINUE READING INPUT DATA
+
+                        ************************************************************************************
+                        *                       EVALUATE FLOATING POINT ARITHMETIC                         *
+                        ************************************************************************************
+                        *                                                                                  *
+                        * FLOATING POINT PROCESSOR HAS APPROXIMATELY 15 SIGNIFICANT DIGITS                 *
+                        *                                                                                  *
+                        * DEFAULT VALUE OF INCREMENT FACTOR FOR NUMERICAL DERIVATIVES IS DFAC = 0.1051E-07 *
+                        * DEFAULT VALUE FOR DFAC WILL BE USED                                              *
+                        * USER-SPECIFIED VALUE DFAC = 0.1051E-07 WILL BE USED                              *
+                        *                                                                                  *
+                        ************************************************************************************
+
+ 
+
+
+ PARAMETERS FOR FLEXIBLE DIMENSIONING OF MAJOR ARRAYS (MAIN PROGRAM) ARE AS FOLLOWS
+
+ MNEL =   3001  MNCON =    8600  MNEQ =  2  MNK =  1   MNPH =  2   MNB =  6   MNOGN =    8   MGTAB =    1
+ ===================================================================================================================================
+
+ MAXIMUM NUMBER OF VOLUME ELEMENTS (GRID BLOCKS):            MNEL  =    3001
+ MAXIMUM NUMBER OF CONNECTIONS (INTERFACES):                 MNCON =    8600
+ MAXIMUM LENGTH OF PRIMARY VARIABLE ARRAYS:                  MPRIM =    6002
+ MAXIMUM NUMBER OF GENERATION ITEMS (SINKS/SOURCES):         MNOGN =      8
+ MAXIMUM NUMBER OF TABULAR (TIME-DEPENDENT) GENERATION DATA: MGTAB =      1
+ LENGTH OF SECONDARY PARAMETER ARRAY:                        MNSEC  =      144048
+
+ MESH HAS     3001 ELEMENTS AND     8600 CONNECTIONS (INTERFACES) BETWEEN THEM
+ GENER HAS     8 SINKS/SOURCES
+ Runing Module: EOS1       Including components:
+ WATER     WATER(2)  HEAT                                    
+
+     TOUGH2 INPUT DATA
+
+     PROBLEM TITLE: 3D synthetic Ex1                                                                
+
+     *********************************************************************************************************************
+
+     PROBLEM SPECIFICATIONS
+
+     NOITE     KDATA      MCYC      MSEC     MCYPR MOP                   DIFF0          TEXP            BE
+        8         1      9000         0      9000       100030100022001400001000     0.0000E+00     0.0000E+00     0.0000E+00
+
+       TSTART         TIMAX          DELTEN         DELTMX            ELST        GF             REDLT         SCALE 
+     0.0000E+00     0.3234E+08     0.6000E+01     0.8640E+05          RICKA     0.9810E+01     0.3000E+01     0.1000E+01
+
+      A CONSTANT TIME STEP OF DELTEN IS PRESCRIBED
+
+            RE1            RE2            U              WUP            WNR            DFAC           FOR
+          0.5000E-05     0.1000E+01     0.1000E+00     0.1000E+01     0.1000E+01     0.1051E-07     0.1000E+01
+
+             DEP(1)              DEP(2)              DEP(3)              DEP(4)
+           0.10000000E+07      0.10000000E+02      0.00000000E+00      0.00000000E+00
+     *********************************************************************************************************************
+
+     ROCK PROPERTIES
+
+     DOMAIN     MAT        DENSITY        POROSITY     CONDUCTIVITY     HEAT CAP       COMPR          EXPAN
+        1      dfalt     0.2600E+04     0.1000E+00     0.1500E+01     0.9000E+03     0.0000E+00     0.0000E+00
+
+            PERM1          PERM2          PERM3
+          0.1000E-14     0.1000E-14     0.1000E-14
+
+     DOMAIN     MAT        DENSITY        POROSITY     CONDUCTIVITY     HEAT CAP       COMPR          EXPAN
+        2      HOMO1     0.2600E+04     0.2500E+00     0.2510E+01     0.9200E+03     0.0000E+00     0.0000E+00
+
+            PERM1          PERM2          PERM3
+          0.9000E-12     0.3000E-13     0.3000E-13
+
+     DOMAIN     MAT        DENSITY        POROSITY     CONDUCTIVITY     HEAT CAP       COMPR          EXPAN
+        3      OUTB1     0.2600E+04     0.2500E+00     0.2510E+01     0.2000E+05     0.0000E+00     0.0000E+00
+
+            PERM1          PERM2          PERM3
+          0.1000E-12     0.1000E-12     0.1000E-12
+
+     DOMAIN     MAT        DENSITY        POROSITY     CONDUCTIVITY     HEAT CAP       COMPR          EXPAN
+        4      SEED      0.0000E+00     0.0000E+00     0.0000E+00     0.0000E+00     0.0000E+00     0.0000E+00
+
+            PERM1          PERM2          PERM3
+          0.0000E+00     0.0000E+00     0.0000E+00
+
+     *********************************************************************************************************************
+
+     ELEMENTS
+
+              ELEMENT         MATERIAL         VOLUME
+     *********************************************************************************************************************
+
+     CONNECTIONS
+
+                ELEM1            ELEM2             ISO             DEL1           DEL2            AREA           BETA
+
+     *********************************************************************************************************************
+     *********************************************************************************************************************
+
+     INITIAL CONDITIONS
+
+               ELEMENT       POROSITY         X1             X2             X3             X4
+
+               at  0        0.1000E+00     0.1000E+07     0.1000E+02
+                a  1        0.2500E+00     0.1000E+07     0.1000E+02
+                a  2        0.2500E+00     0.1000E+07     0.1000E+02
+                a  3        0.2500E+00     0.1000E+07     0.1000E+02
+                a  4        0.2500E+00     0.1000E+07     0.1000E+02
+     *********************************************************************************************************************
+
+     END OF INPUT DATA
+
+     *********************************************************************************************************************
+     *********************************************************************************************************************
+
+
+END OF PART 1 INPUT JOB --- ELAPSED TIME =   0.1915 SEC ONDS
+
+
+ ***********************************************************************************************************************************
+ *          ARRAY *MOP* ALLOWS TO GENERATE MORE PRINTOUT IN VARIOUS SUBROUTINES, AND TO MAKE SOME CALCULATIONAL CHOICES.           *
+ ***********************************************************************************************************************************
+
+   MOP(1)  = 1 *** ALLOWS TO GENERATE A SHORT PRINTOUT FOR EACH NEWTON-RAPHSON ITERATION
+           = 0, 1, OR 2: GENERATE 0, 1, OR 2 LINES OF PRINTOUT
+
+            MORE PRINTOUT IS GENERATED FOR MOP(I) > 0 IN THE FOLLOWING SUBROUTINES (THE LARGER MOP IS, THE MORE WILL BE PRINTED).
+
+   MOP(2)  = 0 *** CYCIT       MOP(3) = 0 *** MULTI       MOP(4) = 0 *** QU       MOP(5) = 3 *** EOS       MOP(6) = 0 *** LINEQ    
+
+   MOP(7)  = 1 *** IF UNEQUAL ZERO, WILL GENERATE A PRINTOUT OF INPUT DATA
+
+            CALCULATIONAL CHOICES OFFERED BY MOP ARE AS FOLLOWS:
+
+   MOP(9)  = 0 *** CHOOSES FLUID COMPOSITION ON WITHDRAWAL (PRODUCTION).
+           = 0: ACCORDING TO RELATIVE MOBILITIES.
+           = 1: ACCORDING TO COMPOSITION IN PRODUCING ELEMENT.
+
+   MOP(10) = 0 *** CHOOSES INTERPOLATION FORMULA FOR DEPENDENCE OF THERMAL CONDUCTIVITY ON LIQUID SATURATION (SL).
+           = 0: K = KDRY + SQRT(SL)*(KWET-KDRY)
+           = 1: K = KDRY + SL*(KWET-KDRY)
+           = 2: K = C0+C1*T+C2*Sw+C3*POR.
+
+   MOP(11) = 2 *** CHOOSES EVALUATION OF MOBILITY AND ABSOLUTE PERMEABILITY AT INTERFACES.
+           = 0: MOBILITIES ARE UPSTREAM WEIGHTED WITH WUP. (DEFAULT IS WUP = 1.0). PERMEABILITY IS UPSTREAM WEIGHTED.
+           = 1: MOBILITIES ARE AVERAGED BETWEEN ADJACENT ELEMENTS. PERMEABILITY IS UPSTREAM WEIGHTED.
+           = 2: MOBILITIES ARE UPSTREAM WEIGHTED WITH WUP. (DEFAULT IS WUP = 1.0). PERMEABILITY IS HARMONIC WEIGHTED.
+           = 3: MOBILITIES ARE AVERAGED BETWEEN ADJACENT ELEMENTS. PERMEABILITY IS HARMONIC WEIGHTED.
+           = 4: MOBILITY * PERMEABILITY PRODUCT IS HARMONIC WEIGHTED.
+
+   MOP(12) = 2 *** CHOOSES PROCEDURE FOR INTERPOLATING GENERATION RATES FROM A TIME TABLE.
+           = 0: TRIPLE LINEAR INTERPOLATION.
+           = 1: "STEP FUNCTION" OPTION.
+
+   MOP(14) = 0 *** SPECIFIES IF A 5- OR 8-CHARACTER ELEMENT NAME IS USED
+           = 0: 5-CHARACTER ELEMENT NAME,
+           = 1: 8-CHARACTER ELEMENT NAME.
+
+   MOP(15) = 1 *** ALLOWS TO SELECT A SEMI-ANALYTICAL HEAT EXCHANGE CALCULATION WITH CONFINING BEDS.
+           = 0: NO SEMI-ANALYTICAL HEAT EXCHANGE
+           > 0: SEMI-ANALYTICAL HEAT EXCHANGE ENGAGED (WHEN A SPECIAL SUBROUTINE MODULE *QLOSS* IS PRESENT)
+
+   MOP(16) = 4 *** PERMITS TO CHOOSE TIME STEP SELECTION OPTION
+           = 0: USE TIME STEPS EXPLICITLY PROVIDED AS INPUT.
+           > 0: INCREASE TIME STEP BY AT LEAST A FACTOR 2, IF CONVERGENCE OCCURS IN .LE. MOP(16) ITERATIONS.
+
+   MOP(17) = 0 *** HANDLES SCALING OPTIONS.
+           = 0: NO SCALING.
+           = 7: SCALING.
+
+   MOP(18) = 0 *** ALLOWS TO SELECT HANDLING OF INTERFACE DENSITY.
+           = 0: PERFORM UPSTREAM WEIGHTING FOR INTERFACE DENSITY. 
+           > 0: COMPUTE INTERFACE DENSITY AS AVERAGE OF THE TWO GRID BLOCK DENSITIES.
+                HOWEVER, WHEN ONE OF THE TWO PHASE SATURATIONS IS ZERO, DO UPSTREAM WEIGHTING.
+
+   MOP(20) = 0 *** ALLOWS DIFFERENT FORMAT FOR CONNE AND GENER INDEXES.
+           = 0: USING FORMAT(16I5),
+           = 1: USING FORMAT(10I8).
+
+   MOP(21) = 1 *** ALLOWS ONE MORE ITERATION AFTER SOLUTION CONVERGES WITH ONLY 1 N/R ITERATION.
+           = 0: NO NEED FOR ONE MORE ITERATION,
+           = 1: PERFORM ONE MORE ITERATION AFTER CONVEGENCE.
+
+   MOP(23) = 0 *** Not be used in this version
+           = 0: 
+           = 1: 
+           = 2:    
+
+   MOP(24) = 0 *** PERMITS TO SELECT HANDLING OF MULTIPHASE DIFFUSIVE FLUXES AT INTERFACES
+           = 0: HARMONIC WEIGHTING OF FULLY-COUPLED EFFECTIVE MULTIPHASE DIFFUSIVITY
+           = 1: SEPARATE HARMONIC WEIGHTING OF GAS AND LIQUID PHASE DIFFUSIVITIES.
+
+ ***********************************************************************************************************************************
+
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   Summary of capabilities for random permeability modification   &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+ Modification of absolute permeability on a grid block-by-grid block basis will be made when a domain "SEED " is present in data
+ block "ROCKS", as follows.
+                                    k    --->    k' = k*m
+
+ Here, k is the absolute permeability specified for the reservoir domain to which the grid block belongs. Parameter m is a
+ "permeability modifier" which can be internally generated or externally prescribed by the user on a block-by-block basis.
+
+ When permeability modification is in effect, the strength of capillary pressure will, following Leverett (1941), automatically be
+ scaled as   Pcap ---> Pcap' = Pcap/SQRT(m).
+
+ User-supplied permeability modifiers have to be entered as parameter "PMX" in columns 41-50 of an ELEMEnt record.
+ Permeability modification options are selected through parameters in data block "ROCKS".
+
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+ Summary of available permeability modification options
+          (with s - random number between 0 and 1; PMX - user-supplied modifiers in data block "ELEME"):
+      (1) externally supplied:        m = PMX - PER(2)
+      (2) "linear"      (DROK.ne.0):  m = PER(1) * s - PER(2)
+      (3) "logarithmic" (DROK.eq.0):  m = exp(- PER(1) * s) - PER(2)
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+            &&&& if a domain "SEED " is present, permeability modification will be made
+            &&&& if no domain "SEED " is present, no permeability modification will be made
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  domain = "SEED " is present, permeability modification will be made  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+ Data provided in domain "SEED " are used to select the following options.
+
+ DROK   = 0.000000E+00 *** random number seed for internal generation of "linear" permeability modifiers.
+        = 0: (default) no internal generation of "linear" permeability modifiers.
+        > 0: perform "linear" permeability modification; random modifiers are generated internally with DROK as seed.
+
+ POR    = 0.000000E+00 *** random number seed for internal generation of "logarithmic" permeability modifiers,
+        = 0: (default) no internal generation of "logarithmic" permeability modifiers.
+        > 0: perform "logarithmic" permeability modification; random modifiers are generated internally with POR as seed.
+
+            &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+            &&&&& note: if both DROK and POR are specified as non-zero, DROK takes precedence                                  &&&&&
+            &&&&&       if both DROK and POR are zero, permeability modifiers as supplied through "ELEME" data will be used    &&&&&
+            &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+ PER(1) = 0.000000E+00 *** scale factor (optional) for internally generated  permeability modifiers.
+        = 0: (defaults to PER(1) = 1): permeability modifiers are generated as random numbers in the interval (0, 1).
+        > 0: permeability modifiers are generated as random numbers in the interval (0, PER(1)).
+
+ PER(2) = 0.000000E+00 *** shift (optional) for internal or external permeability modifiers.
+        = 0: (default) no shift is applied to permeability modifiers.
+        > 0: permeability modifiers are shifted according to m' = m - PER(2). All m' < 0 are set equal to zero.
+
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+ &&&                            Option 1: Externally supplied permeability modification is in effect                             &&&
+ &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
+ ***********************************************************************************************************************************
+ *                    EOS1: EQUATION OF STATE FOR WATER (OPTIONAL: TWO-WATER MIXTURES)                                             *
+ ***********************************************************************************************************************************
+
+
+    OPTIONS SELECTED ARE: (NK,NEQ,NPH,NB) = (1,2,2,6)
+
+                           NK  =  1   - NUMBER OF FLUID COMPONENTS
+                           NEQ =  2   - NUMBER OF EQUATIONS PER GRID BLOCK
+                           NPH =  2   - NUMBER OF PHASES THAT CAN BE PRESENT
+                           NB  =  6   - NUMBER OF SECONDARY PARAMETERS (OTHER THAN COMPONENT MASS FRACTIONS)
+
+                   For NK = 1 or NB = 6, diffusion is "off", for NK = 2 and NB = 8, diffusion is "on"
+
+
+    AVAILABLE OPTIONS ARE: (NK,NEQ,NPH,NB) = (1,2,2,6 or 8) - ONE WATER COMPONENT, NON-ISOTHERMAL
+                                             (1,1,2,6 or 8) - ONLY LIQUID, OR ONLY VAPOR, ISOTHERMAL
+                                             (2,3,2,6 or 8) - TWO WATERS, NON-ISOTHERMAL
+
+    Default options are (1,2,2,6) - "one" water, diffusion "off"
+
+ ***********************************************************************************************************************************
+
+
+ THE PRIMARY VARIABLES ARE
+  P - PRESSURE         T - TEMPERATURE         X2 - MASS FRACTION OF WATER "2"         S - GAS PHASE SATURATION
+
+ _______________________________________________________
+
+     PHASE CONDITION               PRIMARY VARIABLES
+ _______________________________________________________
+
+     SINGLE-PHASE GAS                P, T, [X2]
+
+     SINGLE-PHASE LIQUID             P, T, [X2]
+
+     TWO-PHASE                       P, S, [X2]
+
+ _______________________________________________________
+
+
+ ..... NEGLECT VAPOR PRESSURE LOWERING .....
+
+ ***********************************************************************************************************************************
+
+ ********** VOLUME- AND MASS-BALANCES ********************************************************************************************
+
+ ********** [KCYC,ITER] = [   0,  0] *****                                  THE TIME IS  0.00000E+00 SECONDS, OR  0.00000E+00 DAYS
+
+
+ PHASE VOLUMES IN PLACE
+ GAS 0.00000E+00 M**3;  AQUEOUS 0.10500E+06 M**3
+
+ MASS IN PLACE
+ GAS 0.00000E+00 KG;    AQUEOUS 0.10502E+09 KG;  TOTAL H2O 0.10502E+09 KG;  H2O(2) 0.00000E+00 KG;  INT. ENERGY 0.11943E+14 J
+
+ *********************************************************************************************************************************
+
+
+
+
+ ===================================================================================================================================
+ PERFORM SEMI-ANALYTICAL HEAT EXCHANGE CALCULATION
+      THERMAL PARAMETERS ARE:
+      TEMPERATURE =  0.10000E+02   HEAT CONDUCTIVITY =  0.25100E+01   DENSITY =  0.26000E+04   SPECIFIC HEAT =  0.20000E+05
+      DIFFUSIVITY =  0.48269E-07
+ ===================================================================================================================================
+
+
+ ...ITERATING... AT [    1, 1] --- DELTEX = 0.600000E+01  MAX. RES. = 0.189778E-03 AT ELEMENT  d125     EQUATION   2
+  g125   (    1, 2) ST = 0.600000E+01 DT = 0.600000E+01 DX 1=-.212958E+05 DX2= -.447792E-04 T =  10.000 P =   978704. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    5.0000000000000000     
+ ...ITERATING... AT [    2, 1] --- DELTEX = 0.900000E+01  MAX. RES. = 0.270681E-03 AT ELEMENT  e125     EQUATION   2
+  e125   (    2, 2) ST = 0.150000E+02 DT = 0.900000E+01 DX 1=-.336341E+05 DX2= -.705939E-04 T =  10.000 P =   945070. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    5.5000000000000000     
+ ...ITERATING... AT [    3, 1] --- DELTEX = 0.135000E+02  MAX. RES. = 0.390299E-03 AT ELEMENT  e125     EQUATION   2
+  f125   (    3, 2) ST = 0.285000E+02 DT = 0.135000E+02 DX 1=-.376948E+05 DX2= -.788352E-04 T =  10.000 P =   907375. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    6.0000000000000000     
+ ...ITERATING... AT [    4, 1] --- DELTEX = 0.202500E+02  MAX. RES. = 0.569717E-03 AT ELEMENT  e125     EQUATION   2
+  e125   (    4, 2) ST = 0.487500E+02 DT = 0.202500E+02 DX 1=-.266994E+05 DX2= -.559646E-04 T =  10.000 P =   932705. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    6.7500000000000000     
+ ...ITERATING... AT [    5, 1] --- DELTEX = 0.303750E+02  MAX. RES. = 0.839990E-03 AT ELEMENT  e125     EQUATION   2
+  f125   (    5, 2) ST = 0.791250E+02 DT = 0.303750E+02 DX 1=-.302300E+05 DX2= -.631846E-04 T =  10.000 P =   899967. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    7.4000000000000004     
+ ...ITERATING... AT [    6, 1] --- DELTEX = 0.455625E+02  MAX. RES. = 0.124657E-02 AT ELEMENT  e125     EQUATION   2
+  d125   (    6, 2) ST = 0.124688E+03 DT = 0.455625E+02 DX 1=-.277212E+05 DX2= -.580408E-04 T =  10.000 P =   913570. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    8.0000000000000000     
+ ...ITERATING... AT [    7, 1] --- DELTEX = 0.683438E+02  MAX. RES. = 0.185667E-02 AT ELEMENT  e125     EQUATION   2
+  e125   (    7, 2) ST = 0.193031E+03 DT = 0.683438E+02 DX 1=-.365351E+05 DX2= -.763720E-04 T =  10.000 P =   870196. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    8.5714285714285712     
+ ...ITERATING... AT [    8, 1] --- DELTEX = 0.102516E+03  MAX. RES. = 0.277012E-02 AT ELEMENT  g125     EQUATION   2
+  f125   (    8, 2) ST = 0.295547E+03 DT = 0.102516E+03 DX 1=-.352248E+05 DX2= -.727457E-04 T =  10.000 P =   806797. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    9.3750000000000000     
+ ...ITERATING... AT [    9, 1] --- DELTEX = 0.153773E+03  MAX. RES. = 0.413562E-02 AT ELEMENT  g125     EQUATION   2
+  e125   (    9, 2) ST = 0.449320E+03 DT = 0.153773E+03 DX 1=-.374751E+05 DX2= -.774884E-04 T =  10.000 P =   783528. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    10.444444444444445     
+ ...ITERATING... AT [   10, 1] --- DELTEX = 0.230660E+03  MAX. RES. = 0.616697E-02 AT ELEMENT  g125     EQUATION   2
+  e125   (   10, 2) ST = 0.679980E+03 DT = 0.230660E+03 DX 1=-.407764E+05 DX2= -.850761E-04 T =  10.000 P =   792688. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    11.500000000000000     
+ ...ITERATING... AT [   11, 1] --- DELTEX = 0.345990E+03  MAX. RES. = 0.917691E-02 AT ELEMENT  g125     EQUATION   2
+  f125   (   11, 2) ST = 0.102597E+04 DT = 0.345990E+03 DX 1=-.358121E+05 DX2= -.742043E-04 T =  10.000 P =   838214. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    12.636363636363637     
+ ...ITERATING... AT [   12, 1] --- DELTEX = 0.518985E+03  MAX. RES. = 0.136106E-01 AT ELEMENT  g125     EQUATION   2
+  d125   (   12, 2) ST = 0.154496E+04 DT = 0.518985E+03 DX 1=-.330483E+05 DX2= -.529964E-04 T =   9.999 P =   672070. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    13.833333333333334     
+ ...ITERATING... AT [   13, 1] --- DELTEX = 0.778478E+03  MAX. RES. = 0.200847E-01 AT ELEMENT  g125     EQUATION   2
+  e125   (   13, 2) ST = 0.232343E+04 DT = 0.778478E+03 DX 1=-.356143E+05 DX2= -.732870E-04 T =   9.999 P =   710825. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    15.153846153846153     
+ ...ITERATING... AT [   14, 1] --- DELTEX = 0.116772E+04  MAX. RES. = 0.294186E-01 AT ELEMENT  f125     EQUATION   2
+  e125   (   14, 2) ST = 0.349115E+04 DT = 0.116772E+04 DX 1=-.339394E+05 DX2= -.702567E-04 T =   9.999 P =   704216. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    16.642857142857142     
+ ...ITERATING... AT [   15, 1] --- DELTEX = 0.175158E+04  MAX. RES. = 0.426391E-01 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   15, 2] --- DELTEX = 0.175158E+04  MAX. RES. = 0.507561E-05 AT ELEMENT  g125     EQUATION   2
+  g125   (   15, 3) ST = 0.524273E+04 DT = 0.175158E+04 DX 1=-.283387E+05 DX2= -.588869E-04 T =  10.000 P =   783005. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    19.750000000000000     
+ ...ITERATING... AT [   16, 1] --- DELTEX = 0.262736E+04  MAX. RES. = 0.608719E-01 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   16, 2] --- DELTEX = 0.262736E+04  MAX. RES. = 0.198411E-04 AT ELEMENT  f125     EQUATION   2
+  f125   (   16, 3) ST = 0.787009E+04 DT = 0.262736E+04 DX 1=-.165980E+05 DX2= -.416736E-05 T =   9.999 P =   623411. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    22.277777777777779     
+ ...ITERATING... AT [   17, 1] --- DELTEX = 0.769910E+03  MAX. RES. = 0.166276E-01 AT ELEMENT  f125     EQUATION   2
+  g125   (   17, 2) ST = 0.864000E+04 DT = 0.769910E+03 DX 1=-.432335E+04 DX2= -.883539E-05 T =   9.999 P =   728705. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    22.842105263157894     
+ EEE  
+ EEE Time perform model computaion  =   0.77131891250610352     
+ EEE   of which spent in lin. solv. =   0.20654702186584473     
+ EEE   and spent on other           =   0.56477189064025879     
+ EEE  
+ EEE Total number of time steps =           17
+
+ ********** VOLUME- AND MASS-BALANCES ********************************************************************************************
+
+ ********** [KCYC,ITER] = [  17,  2] *****                                  THE TIME IS  0.86400E+04 SECONDS, OR  0.10000E+00 DAYS
+
+
+ PHASE VOLUMES IN PLACE
+ GAS 0.00000E+00 M**3;  AQUEOUS 0.10500E+06 M**3
+
+ MASS IN PLACE
+ GAS 0.00000E+00 KG;    AQUEOUS 0.10502E+09 KG;  TOTAL H2O 0.10502E+09 KG;  H2O(2) 0.00000E+00 KG;  INT. ENERGY 0.11948E+14 J
+
+ *********************************************************************************************************************************
+
+
+ ...ITERATING... AT [   18, 1] --- DELTEX = 0.115486E+04  MAX. RES. = 0.244498E-01 AT ELEMENT  f125     EQUATION   2
+  f125   (   18, 2) ST = 0.979486E+04 DT = 0.115486E+04 DX 1=-.358449E+04 DX2= -.505484E-05 T =   9.999 P =   570413. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    23.449999999999999     
+ ...ITERATING... AT [   19, 1] --- DELTEX = 0.173230E+04  MAX. RES. = 0.356191E-01 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   19, 2] --- DELTEX = 0.173230E+04  MAX. RES. = 0.619796E-05 AT ELEMENT  d125     EQUATION   2
+  f125   (   19, 3) ST = 0.115272E+05 DT = 0.173230E+04 DX 1=-.336281E+04 DX2= -.600971E-05 T =   9.999 P =   687752. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    25.000000000000000     
+ ...ITERATING... AT [   20, 1] --- DELTEX = 0.259845E+04  MAX. RES. = 0.512053E-01 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   20, 2] --- DELTEX = 0.259845E+04  MAX. RES. = 0.101871E-04 AT ELEMENT  f125     EQUATION   1
+  e125   (   20, 3) ST = 0.141256E+05 DT = 0.259845E+04 DX 1=-.953598E+03 DX2= -.181386E-05 T =  10.000 P =   878170. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    26.333333333333332     
+ ...ITERATING... AT [   21, 1] --- DELTEX = 0.389767E+04  MAX. RES. = 0.722658E-01 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   21, 2] --- DELTEX = 0.389767E+04  MAX. RES. = 0.297685E-04 AT ELEMENT  f125     EQUATION   1
+  d125   (   21, 3) ST = 0.180233E+05 DT = 0.389767E+04 DX 1=-.142594E+04 DX2= -.254726E-05 T =  10.000 P =   785946. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    27.653846153846153     
+ ...ITERATING... AT [   22, 1] --- DELTEX = 0.584650E+04  MAX. RES. = 0.994734E-01 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   22, 2] --- DELTEX = 0.584650E+04  MAX. RES. = 0.872994E-04 AT ELEMENT  f125     EQUATION   1
+  d125   (   22, 3) ST = 0.238698E+05 DT = 0.584650E+04 DX 1=0.322631E+03 DX2= 0.132644E-05 T =  10.000 P =   874564. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    29.035714285714285     
+ ...ITERATING... AT [   23, 1] --- DELTEX = 0.876976E+04  MAX. RES. = 0.132554E+00 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   23, 2] --- DELTEX = 0.876976E+04  MAX. RES. = 0.252121E-03 AT ELEMENT  f125     EQUATION   1
+  g125   (   23, 3) ST = 0.326395E+05 DT = 0.876976E+04 DX 1=0.102329E+04 DX2= 0.278285E-05 T =  10.000 P =   879329. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    29.933333333333334     
+ ...ITERATING... AT [   24, 1] --- DELTEX = 0.131546E+05  MAX. RES. = 0.169674E+00 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   24, 2] --- DELTEX = 0.131546E+05  MAX. RES. = 0.702905E-03 AT ELEMENT  f125     EQUATION   1
+  g125   (   24, 3) ST = 0.457942E+05 DT = 0.131546E+05 DX 1=0.184061E+04 DX2= 0.481781E-05 T =  10.000 P =   881170. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    31.031250000000000     
+ ...ITERATING... AT [   25, 1] --- DELTEX = 0.197320E+05  MAX. RES. = 0.207151E+00 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   25, 2] --- DELTEX = 0.197320E+05  MAX. RES. = 0.184003E-02 AT ELEMENT  f125     EQUATION   1
+  d125   (   25, 3) ST = 0.655261E+05 DT = 0.197320E+05 DX 1=0.310747E+04 DX2= 0.795844E-05 T =  10.000 P =   884277. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    31.882352941176471     
+ ...ITERATING... AT [   26, 1] --- DELTEX = 0.295979E+05  MAX. RES. = 0.239826E+00 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   26, 2] --- DELTEX = 0.295979E+05  MAX. RES. = 0.437797E-02 AT ELEMENT  f125     EQUATION   1
+  g125   (   26, 3) ST = 0.951240E+05 DT = 0.295979E+05 DX 1=0.506676E+04 DX2= 0.124662E-04 T =  10.000 P =   812535. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    32.722222222222221     
+ ...ITERATING... AT [   27, 1] --- DELTEX = 0.443969E+05  MAX. RES. = 0.262076E+00 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   27, 2] --- DELTEX = 0.443969E+05  MAX. RES. = 0.908623E-02 AT ELEMENT  f125     EQUATION   1
+  f124   (   27, 3) ST = 0.139521E+06 DT = 0.443969E+05 DX 1=0.817742E+04 DX2= 0.204347E-04 T =  10.000 P =   897571. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    33.657894736842103     
+ ...ITERATING... AT [   28, 1] --- DELTEX = 0.665953E+05  MAX. RES. = 0.268990E+00 AT ELEMENT  f125     EQUATION   2
+ ...ITERATING... AT [   28, 2] --- DELTEX = 0.665953E+05  MAX. RES. = 0.156910E-01 AT ELEMENT  f125     EQUATION   1
+  f124   (   28, 3) ST = 0.206116E+06 DT = 0.665953E+05 DX 1=0.125950E+05 DX2= 0.673878E-04 T =  10.000 P =   716016. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    34.549999999999997     
+ ...ITERATING... AT [   29, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.292256E+00 AT ELEMENT  h125     EQUATION   2
+ ...ITERATING... AT [   29, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.150815E-01 AT ELEMENT  f125     EQUATION   1
+  g124   (   29, 3) ST = 0.292516E+06 DT = 0.864000E+05 DX 1=0.165019E+05 DX2= 0.444666E-04 T =  10.000 P =   833731. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    35.357142857142854     
+ ...ITERATING... AT [   30, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.231793E+00 AT ELEMENT  h125     EQUATION   2
+ ...ITERATING... AT [   30, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.674469E-02 AT ELEMENT  f125     EQUATION   1
+  h124   (   30, 3) ST = 0.378916E+06 DT = 0.864000E+05 DX 1=0.167079E+05 DX2= 0.416802E-04 T =  10.000 P =   943471. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    36.250000000000000     
+ ...ITERATING... AT [   31, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.181064E+00 AT ELEMENT  h125     EQUATION   2
+ ...ITERATING... AT [   31, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.470825E-02 AT ELEMENT  h125     EQUATION   1
+  h124   (   31, 3) ST = 0.465316E+06 DT = 0.864000E+05 DX 1=0.167320E+05 DX2= 0.442203E-04 T =  10.000 P =   983704. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    36.978260869565219     
+ ...ITERATING... AT [   32, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.151671E+00 AT ELEMENT  h126     EQUATION   2
+ ...ITERATING... AT [   32, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.377104E-02 AT ELEMENT  h125     EQUATION   1
+  h124   (   32, 3) ST = 0.551716E+06 DT = 0.864000E+05 DX 1=0.167053E+05 DX2= 0.418356E-04 T =  10.000 P =   976909. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    37.708333333333336     
+ ...ITERATING... AT [   33, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.141373E+00 AT ELEMENT  h126     EQUATION   2
+ ...ITERATING... AT [   33, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.279857E-02 AT ELEMENT  h125     EQUATION   1
+  h125   (   33, 3) ST = 0.638116E+06 DT = 0.864000E+05 DX 1=0.166516E+05 DX2= 0.417980E-04 T =  10.000 P =   993560. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    38.399999999999999     
+ ...ITERATING... AT [   34, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.128145E+00 AT ELEMENT  h126     EQUATION   2
+ ...ITERATING... AT [   34, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.199941E-02 AT ELEMENT  h125     EQUATION   1
+  h125   (   34, 3) ST = 0.724516E+06 DT = 0.864000E+05 DX 1=0.166102E+05 DX2= 0.210553E-03 T =  10.001 P =   708146. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    39.038461538461540     
+ ...ITERATING... AT [   35, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.114245E+00 AT ELEMENT  h126     EQUATION   2
+ ...ITERATING... AT [   35, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.140209E-02 AT ELEMENT  h125     EQUATION   1
+  h125   (   35, 3) ST = 0.810916E+06 DT = 0.864000E+05 DX 1=0.164884E+05 DX2= 0.415932E-04 T =  10.000 P =  1026627. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    39.648148148148145     
+ ...ITERATING... AT [   36, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.102307E+00 AT ELEMENT  g127     EQUATION   2
+ ...ITERATING... AT [   36, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.973583E-03 AT ELEMENT  h125     EQUATION   1
+  h125   (   36, 3) ST = 0.897316E+06 DT = 0.864000E+05 DX 1=0.163836E+05 DX2= 0.414365E-04 T =  10.000 P =  1043011. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    40.196428571428569     
+ ...ITERATING... AT [   37, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.979974E-01 AT ELEMENT  h127     EQUATION   2
+ ...ITERATING... AT [   37, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.799761E-03 AT ELEMENT  h126     EQUATION   1
+  h 97   (   37, 3) ST = 0.983716E+06 DT = 0.864000E+05 DX 1=0.162830E+05 DX2= 0.489463E-04 T =  10.000 P =  1082914. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    40.775862068965516     
+ ...ITERATING... AT [   38, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.939739E-01 AT ELEMENT  h127     EQUATION   2
+ ...ITERATING... AT [   38, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.726818E-03 AT ELEMENT  h126     EQUATION   1
+  h125   (   38, 3) ST = 0.107012E+07 DT = 0.864000E+05 DX 1=0.161386E+05 DX2= 0.430675E-04 T =  10.000 P =  1098910. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    41.316666666666670     
+ ...ITERATING... AT [   39, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.887800E-01 AT ELEMENT  h127     EQUATION   2
+ ...ITERATING... AT [   39, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.630368E-03 AT ELEMENT  h126     EQUATION   1
+  h125   (   39, 3) ST = 0.115652E+07 DT = 0.864000E+05 DX 1=0.160118E+05 DX2= 0.464229E-04 T =  10.000 P =  1103357. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    41.951612903225808     
+ ...ITERATING... AT [   40, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.829377E-01 AT ELEMENT  h127     EQUATION   2
+ ...ITERATING... AT [   40, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.529612E-03 AT ELEMENT  h126     EQUATION   1
+  h123   (   40, 3) ST = 0.124292E+07 DT = 0.864000E+05 DX 1=0.158746E+05 DX2= 0.461557E-04 T =  10.000 P =  1119232. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    42.484375000000000     
+ ...ITERATING... AT [   41, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.768224E-01 AT ELEMENT  h127     EQUATION   2
+ ...ITERATING... AT [   41, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.434812E-03 AT ELEMENT  h126     EQUATION   1
+  h124   (   41, 3) ST = 0.132932E+07 DT = 0.864000E+05 DX 1=0.157286E+05 DX2= 0.422485E-04 T =  10.000 P =  1146512. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    42.984848484848484     
+ ...ITERATING... AT [   42, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.728027E-01 AT ELEMENT  g128     EQUATION   2
+ ...ITERATING... AT [   42, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.366831E-03 AT ELEMENT  g127     EQUATION   1
+  h123   (   42, 3) ST = 0.141572E+07 DT = 0.864000E+05 DX 1=0.155985E+05 DX2= 0.386582E-04 T =  10.000 P =  1143008. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    43.455882352941174     
+ ...ITERATING... AT [   43, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.712274E-01 AT ELEMENT  h128     EQUATION   2
+ ...ITERATING... AT [   43, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.326623E-03 AT ELEMENT  g127     EQUATION   1
+  e 93   (   43, 3) ST = 0.150212E+07 DT = 0.864000E+05 DX 1=0.154606E+05 DX2= 0.376789E-04 T =  10.000 P =  1136313. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    43.899999999999999     
+ ...ITERATING... AT [   44, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.693233E-01 AT ELEMENT  h128     EQUATION   2
+ ...ITERATING... AT [   44, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.285765E-03 AT ELEMENT  g127     EQUATION   1
+  h130   (   44, 3) ST = 0.158852E+07 DT = 0.864000E+05 DX 1=0.153163E+05 DX2= 0.355037E-04 T =  10.000 P =  1185928. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    44.277777777777779     
+ ...ITERATING... AT [   45, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.668303E-01 AT ELEMENT  h128     EQUATION   2
+ ...ITERATING... AT [   45, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.252108E-03 AT ELEMENT  h127     EQUATION   1
+  h130   (   45, 3) ST = 0.167492E+07 DT = 0.864000E+05 DX 1=0.151780E+05 DX2= 0.411476E-04 T =  10.001 P =  1208041. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    44.702702702702702     
+ ...ITERATING... AT [   46, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.639221E-01 AT ELEMENT  h128     EQUATION   2
+ ...ITERATING... AT [   46, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.233325E-03 AT ELEMENT  h127     EQUATION   1
+  h130   (   46, 3) ST = 0.176132E+07 DT = 0.864000E+05 DX 1=0.150685E+05 DX2= 0.560421E-04 T =  10.001 P =  1186208. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    45.144736842105260     
+ ...ITERATING... AT [   47, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.607432E-01 AT ELEMENT  h128     EQUATION   2
+ ...ITERATING... AT [   47, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.455789E-03 AT ELEMENT  h124     EQUATION   1
+  h124   (   47, 3) ST = 0.184772E+07 DT = 0.864000E+05 DX 1=0.149206E+05 DX2= 0.376801E-04 T =  10.001 P =  1191401. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    45.525641025641029     
+ ...ITERATING... AT [   48, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.574088E-01 AT ELEMENT  h128     EQUATION   2
+ ...ITERATING... AT [   48, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.187207E-03 AT ELEMENT  h127     EQUATION   1
+  g130   (   48, 3) ST = 0.193412E+07 DT = 0.864000E+05 DX 1=0.148336E+05 DX2= 0.663394E-04 T =  10.001 P =  1140680. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    45.899999999999999     
+ ...ITERATING... AT [   49, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.561091E-01 AT ELEMENT  g129     EQUATION   2
+ ...ITERATING... AT [   49, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.163402E-03 AT ELEMENT  h127     EQUATION   1
+  h130   (   49, 3) ST = 0.202052E+07 DT = 0.864000E+05 DX 1=0.147124E+05 DX2= 0.746100E-04 T =  10.001 P =  1160111. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    46.256097560975611     
+ ...ITERATING... AT [   50, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.550517E-01 AT ELEMENT  g129     EQUATION   2
+ ...ITERATING... AT [   50, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.145710E-03 AT ELEMENT  g128     EQUATION   1
+  g130   (   50, 3) ST = 0.210692E+07 DT = 0.864000E+05 DX 1=0.145936E+05 DX2= 0.657998E-04 T =  10.001 P =  1149524. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    46.535714285714285     
+ ...ITERATING... AT [   51, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.537246E-01 AT ELEMENT  g129     EQUATION   2
+ ...ITERATING... AT [   51, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.140600E-03 AT ELEMENT  g128     EQUATION   1
+  h130   (   51, 3) ST = 0.219332E+07 DT = 0.864000E+05 DX 1=0.145059E+05 DX2= 0.102253E-03 T =  10.002 P =  1079706. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    46.837209302325583     
+ ...ITERATING... AT [   52, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.523477E-01 AT ELEMENT  h129     EQUATION   2
+ ...ITERATING... AT [   52, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.133301E-03 AT ELEMENT  g128     EQUATION   1
+  g130   (   52, 3) ST = 0.227972E+07 DT = 0.864000E+05 DX 1=0.143215E+05 DX2= 0.394309E-04 T =  10.001 P =  1310768. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    47.102272727272727     
+ ...ITERATING... AT [   53, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.507898E-01 AT ELEMENT  h129     EQUATION   2
+ ...ITERATING... AT [   53, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.124577E-03 AT ELEMENT  g128     EQUATION   1
+  f130   (   53, 3) ST = 0.236612E+07 DT = 0.864000E+05 DX 1=0.142143E+05 DX2= 0.373889E-04 T =  10.001 P =  1301517. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    47.377777777777780     
+ ...ITERATING... AT [   54, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.490329E-01 AT ELEMENT  h129     EQUATION   2
+ ...ITERATING... AT [   54, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.115034E-03 AT ELEMENT  g128     EQUATION   1
+  g130   (   54, 3) ST = 0.245252E+07 DT = 0.864000E+05 DX 1=0.141057E+05 DX2= 0.389960E-04 T =  10.001 P =  1339086. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    47.630434782608695     
+ ...ITERATING... AT [   55, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.471319E-01 AT ELEMENT  h129     EQUATION   2
+ ...ITERATING... AT [   55, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.105100E-03 AT ELEMENT  g128     EQUATION   1
+  h131   (   55, 3) ST = 0.253892E+07 DT = 0.864000E+05 DX 1=0.140154E+05 DX2= 0.285774E-04 T =  10.001 P =  1271210. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    47.861702127659576     
+ ...ITERATING... AT [   56, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.451583E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   56, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.952131E-04 AT ELEMENT  g128     EQUATION   1
+  f130   (   56, 3) ST = 0.262532E+07 DT = 0.864000E+05 DX 1=0.139011E+05 DX2= 0.385817E-04 T =  10.001 P =  1366989. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    48.125000000000000     
+ ...ITERATING... AT [   57, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.450774E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   57, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.855701E-04 AT ELEMENT  g128     EQUATION   1
+  h131   (   57, 3) ST = 0.271172E+07 DT = 0.864000E+05 DX 1=0.138827E+05 DX2= 0.228799E-03 T =  10.010 P =  1124201. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    48.346938775510203     
+ ...ITERATING... AT [   58, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.447732E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   58, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.763813E-04 AT ELEMENT  g128     EQUATION   1
+  g131   (   58, 3) ST = 0.279812E+07 DT = 0.864000E+05 DX 1=0.137799E+05 DX2= 0.145196E-03 T =  10.004 P =  1224432. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    48.640000000000001     
+ ...ITERATING... AT [   59, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.442720E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   59, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.677789E-04 AT ELEMENT  g128     EQUATION   1
+  g131   (   59, 3) ST = 0.288452E+07 DT = 0.864000E+05 DX 1=0.136132E+05 DX2= 0.379941E-04 T =  10.001 P =  1408112. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    48.911764705882355     
+ ...ITERATING... AT [   60, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.436002E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   60, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.657721E-04 AT ELEMENT  g129     EQUATION   1
+  g130   (   60, 3) ST = 0.297092E+07 DT = 0.864000E+05 DX 1=0.135234E+05 DX2= 0.298188E-04 T =  10.001 P =  1459350. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    49.115384615384613     
+ ...ITERATING... AT [   61, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.427831E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   61, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.656190E-04 AT ELEMENT  g129     EQUATION   1
+  h131   (   61, 3) ST = 0.305732E+07 DT = 0.864000E+05 DX 1=0.134352E+05 DX2= 0.356836E-04 T =  10.001 P =  1411621. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    49.320754716981135     
+ ...ITERATING... AT [   62, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.418444E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   62, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.645062E-04 AT ELEMENT  g129     EQUATION   1
+  g131   (   62, 3) ST = 0.314372E+07 DT = 0.864000E+05 DX 1=0.134220E+05 DX2= 0.134455E-03 T =  10.004 P =  1260275. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    49.500000000000000     
+ ...ITERATING... AT [   63, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.408060E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   63, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.626108E-04 AT ELEMENT  g129     EQUATION   1
+  h131   (   63, 3) ST = 0.323012E+07 DT = 0.864000E+05 DX 1=0.132678E+05 DX2= 0.217708E-05 T =  10.000 P =  1530724. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    49.718181818181819     
+ ...ITERATING... AT [   64, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.396881E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   64, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.601094E-04 AT ELEMENT  g129     EQUATION   1
+  g131   (   64, 3) ST = 0.331652E+07 DT = 0.864000E+05 DX 1=0.131896E+05 DX2= 0.335445E-04 T =  10.001 P =  1478419. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    49.910714285714285     
+ ...ITERATING... AT [   65, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.385085E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   65, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.571794E-04 AT ELEMENT  g129     EQUATION   1
+  h132   (   65, 3) ST = 0.340292E+07 DT = 0.864000E+05 DX 1=0.130968E+05 DX2= 0.369197E-04 T =  10.001 P =  1487948. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    50.087719298245617     
+ ...ITERATING... AT [   66, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.372834E-01 AT ELEMENT  g130     EQUATION   2
+ ...ITERATING... AT [   66, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.539497E-04 AT ELEMENT  g129     EQUATION   1
+  h133   (   66, 3) ST = 0.348932E+07 DT = 0.864000E+05 DX 1=0.130306E+05 DX2= 0.339601E-04 T =  10.001 P =  1442391. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    50.250000000000000     
+ ...ITERATING... AT [   67, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.372174E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   67, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.505221E-04 AT ELEMENT  g129     EQUATION   1
+  g131   (   67, 3) ST = 0.357572E+07 DT = 0.864000E+05 DX 1=0.129444E+05 DX2= 0.310242E-04 T =  10.001 P =  1467389. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    50.415254237288138     
+ ...ITERATING... AT [   68, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.370836E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   68, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.470379E-04 AT ELEMENT  g129     EQUATION   1
+  f152   (   68, 3) ST = 0.366212E+07 DT = 0.864000E+05 DX 1=0.128940E+05 DX2= 0.303282E-04 T =  10.001 P =  1420649. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    50.566666666666670     
+ ...ITERATING... AT [   69, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.368244E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   69, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.435308E-04 AT ELEMENT  g129     EQUATION   1
+  g133   (   69, 3) ST = 0.374852E+07 DT = 0.864000E+05 DX 1=0.128820E+05 DX2= 0.857821E-04 T =  10.005 P =  1204678. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    50.721311475409834     
+ ...ITERATING... AT [   70, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.364523E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   70, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.400806E-04 AT ELEMENT  g129     EQUATION   1
+  g132   (   70, 3) ST = 0.383492E+07 DT = 0.864000E+05 DX 1=0.128175E+05 DX2= 0.284350E-03 T =  10.037 P =  1164687. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    50.862903225806448     
+ ...ITERATING... AT [   71, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.359800E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   71, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.367374E-04 AT ELEMENT  g129     EQUATION   1
+  g132   (   71, 3) ST = 0.392132E+07 DT = 0.864000E+05 DX 1=0.126492E+05 DX2= 0.213696E-04 T =  10.001 P =  1497862. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    51.055555555555557     
+ ...ITERATING... AT [   72, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.354197E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   72, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.339784E-04 AT ELEMENT  g130     EQUATION   1
+  g133   (   72, 3) ST = 0.400772E+07 DT = 0.864000E+05 DX 1=0.126774E+05 DX2= 0.250077E-03 T =  10.033 P =  1173095. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    51.187500000000000     
+ ...ITERATING... AT [   73, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.347832E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   73, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.341568E-04 AT ELEMENT  g130     EQUATION   1
+  h133   (   73, 3) ST = 0.409412E+07 DT = 0.864000E+05 DX 1=0.125832E+05 DX2= 0.684734E-04 T =  10.003 P =  1456028. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    51.330769230769228     
+ ...ITERATING... AT [   74, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.340817E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   74, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.339680E-04 AT ELEMENT  g130     EQUATION   1
+  g133   (   74, 3) ST = 0.418052E+07 DT = 0.864000E+05 DX 1=0.125418E+05 DX2= 0.251252E-03 T =  10.038 P =  1215261. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    51.401515151515149     
+ ...ITERATING... AT [   75, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.333258E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   75, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.334636E-04 AT ELEMENT  g130     EQUATION   1
+  h133   (   75, 3) ST = 0.426692E+07 DT = 0.864000E+05 DX 1=0.123820E+05 DX2= 0.362233E-04 T =  10.002 P =  1579773. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    51.507462686567166     
+ ...ITERATING... AT [   76, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.325253E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   76, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.326603E-04 AT ELEMENT  g130     EQUATION   1
+  g132   (   76, 3) ST = 0.435332E+07 DT = 0.864000E+05 DX 1=0.123608E+05 DX2= 0.355377E-04 T =  10.002 P =  1471453. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    51.669117647058826     
+ ...ITERATING... AT [   77, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.316890E-01 AT ELEMENT  g131     EQUATION   2
+ ...ITERATING... AT [   77, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.316640E-04 AT ELEMENT  g130     EQUATION   1
+  h133   (   77, 3) ST = 0.443972E+07 DT = 0.864000E+05 DX 1=0.123485E+05 DX2= 0.230378E-03 T =  10.039 P =  1252497. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    51.811594202898547     
+ ...ITERATING... AT [   78, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.314513E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   78, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.304758E-04 AT ELEMENT  g130     EQUATION   1
+  h133   (   78, 3) ST = 0.452612E+07 DT = 0.864000E+05 DX 1=0.121811E+05 DX2= 0.284362E-04 T =  10.002 P =  1666886. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    51.957142857142856     
+ ...ITERATING... AT [   79, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.313932E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   79, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.291637E-04 AT ELEMENT  g130     EQUATION   1
+  h133   (   79, 3) ST = 0.461252E+07 DT = 0.864000E+05 DX 1=0.121300E+05 DX2= 0.294131E-05 T =  10.000 P =  1725092. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.077464788732392     
+ ...ITERATING... AT [   80, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.312521E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   80, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.277641E-04 AT ELEMENT  g130     EQUATION   1
+  h134   (   80, 3) ST = 0.469892E+07 DT = 0.864000E+05 DX 1=0.120575E+05 DX2= 0.321365E-04 T =  10.002 P =  1652299. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.187500000000000     
+ ...ITERATING... AT [   81, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.310347E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   81, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.670785E-04 AT ELEMENT  d130     EQUATION   2
+  d130   (   81, 3) ST = 0.478532E+07 DT = 0.864000E+05 DX 1=0.119948E+05 DX2= 0.344642E-04 T =  10.002 P =  1687691. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.301369863013697     
+ ...ITERATING... AT [   82, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.307476E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   82, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.248073E-04 AT ELEMENT  g130     EQUATION   1
+  f133   (   82, 3) ST = 0.487172E+07 DT = 0.864000E+05 DX 1=0.119658E+05 DX2= 0.498171E-04 T =  10.003 P =  1663717. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.418918918918919     
+ ...ITERATING... AT [   83, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.303976E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   83, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.232947E-04 AT ELEMENT  g130     EQUATION   1
+  g133   (   83, 3) ST = 0.495812E+07 DT = 0.864000E+05 DX 1=0.119907E+05 DX2= 0.190539E-03 T =  10.036 P =  1308307. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.506666666666668     
+ ...ITERATING... AT [   84, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.299914E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   84, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.218083E-04 AT ELEMENT  g130     EQUATION   1
+  h134   (   84, 3) ST = 0.504452E+07 DT = 0.864000E+05 DX 1=0.118213E+05 DX2= 0.310764E-04 T =  10.002 P =  1742542. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.638157894736842     
+ ...ITERATING... AT [   85, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.295353E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   85, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.203491E-04 AT ELEMENT  g130     EQUATION   1
+  g133   (   85, 3) ST = 0.513092E+07 DT = 0.864000E+05 DX 1=0.118784E+05 DX2= 0.187052E-03 T =  10.041 P =  1349129. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.733766233766232     
+ ...ITERATING... AT [   86, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.290357E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   86, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.195254E-04 AT ELEMENT  g131     EQUATION   1
+  f132   (   86, 3) ST = 0.521732E+07 DT = 0.864000E+05 DX 1=0.117121E+05 DX2= 0.311153E-04 T =  10.002 P =  1723418. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.839743589743591     
+ ...ITERATING... AT [   87, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.284984E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   87, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.195568E-04 AT ELEMENT  g131     EQUATION   1
+  g135   (   87, 3) ST = 0.530372E+07 DT = 0.864000E+05 DX 1=0.116718E+05 DX2= 0.269671E-04 T =  10.002 P =  1716094. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    52.930379746835442     
+ ...ITERATING... AT [   88, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.279289E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   88, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.269782E-04 AT ELEMENT  c128     EQUATION   2
+  g134   (   88, 3) ST = 0.539012E+07 DT = 0.864000E+05 DX 1=0.117081E+05 DX2= 0.147880E-03 T =  10.016 P =  1481644. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.012500000000003     
+ ...ITERATING... AT [   89, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.273324E-01 AT ELEMENT  g132     EQUATION   2
+ ...ITERATING... AT [   89, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.309682E-04 AT ELEMENT  e131     EQUATION   2
+  e131   (   89, 3) ST = 0.547652E+07 DT = 0.864000E+05 DX 1=0.116085E+05 DX2= 0.349775E-04 T =  10.003 P =  1629923. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.104938271604937     
+ ...ITERATING... AT [   90, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.269912E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   90, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.187975E-04 AT ELEMENT  g131     EQUATION   1
+  g134   (   90, 3) ST = 0.556292E+07 DT = 0.864000E+05 DX 1=0.115049E+05 DX2= 0.173041E-04 T =  10.001 P =  1821152. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.231707317073173     
+ ...ITERATING... AT [   91, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.269624E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   91, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.183391E-04 AT ELEMENT  g131     EQUATION   1
+  h133   (   91, 3) ST = 0.564932E+07 DT = 0.864000E+05 DX 1=0.114550E+05 DX2= 0.369823E-04 T =  10.003 P =  1793451. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.343373493975903     
+ ...ITERATING... AT [   92, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.268771E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   92, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.177988E-04 AT ELEMENT  g131     EQUATION   1
+  g136   (   92, 3) ST = 0.573572E+07 DT = 0.864000E+05 DX 1=0.114096E+05 DX2= 0.182418E-04 T =  10.002 P =  1737050. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.470238095238095     
+ ...ITERATING... AT [   93, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.267389E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   93, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.171983E-04 AT ELEMENT  g131     EQUATION   1
+  g134   (   93, 3) ST = 0.582212E+07 DT = 0.864000E+05 DX 1=0.114563E+05 DX2= 0.114535E-03 T =  10.024 P =  1540744. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.576470588235296     
+ ...ITERATING... AT [   94, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.265517E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   94, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.165440E-04 AT ELEMENT  g131     EQUATION   1
+  g133   (   94, 3) ST = 0.590852E+07 DT = 0.864000E+05 DX 1=0.113572E+05 DX2= 0.659854E-04 T =  10.004 P =  1753512. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.662790697674417     
+ ...ITERATING... AT [   95, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.263192E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   95, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.158629E-04 AT ELEMENT  g131     EQUATION   1
+  g135   (   95, 3) ST = 0.599492E+07 DT = 0.864000E+05 DX 1=0.113548E+05 DX2= 0.586133E-04 T =  10.004 P =  1691057. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.758620689655174     
+ ...ITERATING... AT [   96, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.260455E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   96, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.151567E-04 AT ELEMENT  g131     EQUATION   1
+  h134   (   96, 3) ST = 0.608132E+07 DT = 0.864000E+05 DX 1=0.112140E+05 DX2= 0.314990E-05 T =  10.000 P =  1922725. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.846590909090907     
+ ...ITERATING... AT [   97, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.257343E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   97, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.144295E-04 AT ELEMENT  g131     EQUATION   1
+  h134   (   97, 3) ST = 0.616772E+07 DT = 0.864000E+05 DX 1=0.111547E+05 DX2= 0.288768E-04 T =  10.002 P =  1868497. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.910112359550560     
+ ...ITERATING... AT [   98, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.253894E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   98, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.428898E-04 AT ELEMENT  c129     EQUATION   2
+  g135   (   98, 3) ST = 0.625412E+07 DT = 0.864000E+05 DX 1=0.111081E+05 DX2= 0.291898E-04 T =  10.002 P =  1859934. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    53.994444444444447     
+ ...ITERATING... AT [   99, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.250144E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [   99, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.129729E-04 AT ELEMENT  g131     EQUATION   1
+  g134   (   99, 3) ST = 0.634052E+07 DT = 0.864000E+05 DX 1=0.111220E+05 DX2= 0.383951E-04 T =  10.003 P =  1758889. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.065934065934066     
+ ...ITERATING... AT [  100, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.246128E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [  100, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.122625E-04 AT ELEMENT  g131     EQUATION   1
+  d187   (  100, 3) ST = 0.642692E+07 DT = 0.864000E+05 DX 1=0.111075E+05 DX2= 0.237109E-04 T =  10.002 P =  1710821. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.135869565217391     
+ ...ITERATING... AT [  101, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.241879E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [  101, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.121623E-04 AT ELEMENT  g132     EQUATION   1
+  g135   (  101, 3) ST = 0.651332E+07 DT = 0.864000E+05 DX 1=0.109723E+05 DX2= 0.283753E-04 T =  10.002 P =  1912657. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.209677419354840     
+ ...ITERATING... AT [  102, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.237431E-01 AT ELEMENT  g133     EQUATION   2
+ ...ITERATING... AT [  102, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.121156E-04 AT ELEMENT  g132     EQUATION   1
+  g134   (  102, 3) ST = 0.659972E+07 DT = 0.864000E+05 DX 1=0.109282E+05 DX2= 0.285812E-04 T =  10.002 P =  1903913. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.281914893617021     
+ ...ITERATING... AT [  103, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.234726E-01 AT ELEMENT  f133     EQUATION   2
+ ...ITERATING... AT [  103, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.120101E-04 AT ELEMENT  g132     EQUATION   1
+  f133   (  103, 3) ST = 0.668612E+07 DT = 0.864000E+05 DX 1=0.108949E+05 DX2= 0.312692E-04 T =  10.003 P =  1923148. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.373684210526314     
+ ...ITERATING... AT [  104, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.233885E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  104, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.118379E-04 AT ELEMENT  g132     EQUATION   1
+  g134   (  104, 3) ST = 0.677252E+07 DT = 0.864000E+05 DX 1=0.109106E+05 DX2= 0.159934E-04 T =  10.001 P =  1896664. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.463541666666664     
+ ...ITERATING... AT [  105, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.233286E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  105, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.110552E-04 AT ELEMENT  f132     EQUATION   1
+  g135   (  105, 3) ST = 0.685892E+07 DT = 0.864000E+05 DX 1=0.108165E+05 DX2= 0.274666E-05 T =  10.000 P =  2013379. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.494845360824741     
+ ...ITERATING... AT [  106, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.232313E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  106, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.115104E-04 AT ELEMENT  g132     EQUATION   1
+  e135   (  106, 3) ST = 0.694532E+07 DT = 0.864000E+05 DX 1=0.107918E+05 DX2= 0.296847E-04 T =  10.003 P =  1901949. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.566326530612244     
+ ...ITERATING... AT [  107, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.230987E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  107, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.112128E-04 AT ELEMENT  g132     EQUATION   1
+  f136   (  107, 3) ST = 0.703172E+07 DT = 0.864000E+05 DX 1=0.107286E+05 DX2= 0.279369E-04 T =  10.003 P =  1943415. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.636363636363633     
+ ...ITERATING... AT [  108, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.229332E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  108, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.118739E-04 AT ELEMENT  h153     EQUATION   1
+  h153   (  108, 3) ST = 0.711812E+07 DT = 0.864000E+05 DX 1=0.106891E+05 DX2= 0.126546E-04 T =  10.001 P =  2031685. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.685000000000002     
+ ...ITERATING... AT [  109, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.227373E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  109, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.105336E-04 AT ELEMENT  g132     EQUATION   1
+  g134   (  109, 3) ST = 0.720452E+07 DT = 0.864000E+05 DX 1=0.106427E+05 DX2= 0.347566E-04 T =  10.003 P =  1991633. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.742574257425744     
+ ...ITERATING... AT [  110, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.225134E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  110, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.101693E-04 AT ELEMENT  g132     EQUATION   1
+  d 99   (  110, 3) ST = 0.729092E+07 DT = 0.864000E+05 DX 1=0.105928E+05 DX2= 0.277953E-04 T =  10.003 P =  2032363. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.808823529411768     
+ ...ITERATING... AT [  111, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.222637E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  111, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.979141E-05 AT ELEMENT  g132     EQUATION   1
+  g135   (  111, 3) ST = 0.737732E+07 DT = 0.864000E+05 DX 1=0.105602E+05 DX2= 0.223859E-04 T =  10.002 P =  2014770. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.873786407766993     
+ ...ITERATING... AT [  112, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.219907E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  112, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.940156E-05 AT ELEMENT  g132     EQUATION   1
+  f136   (  112, 3) ST = 0.746372E+07 DT = 0.864000E+05 DX 1=0.105245E+05 DX2= 0.237630E-05 T =  10.000 P =  2100263. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.932692307692307     
+ ...ITERATING... AT [  113, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.216966E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  113, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.901548E-05 AT ELEMENT  g132     EQUATION   1
+  h134   (  113, 3) ST = 0.755012E+07 DT = 0.864000E+05 DX 1=0.104789E+05 DX2= 0.125992E-04 T =  10.002 P =  2100271. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    54.995238095238093     
+ ...ITERATING... AT [  114, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.213836E-01 AT ELEMENT  g134     EQUATION   2
+ ...ITERATING... AT [  114, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.861028E-05 AT ELEMENT  g132     EQUATION   1
+  h135   (  114, 3) ST = 0.763652E+07 DT = 0.864000E+05 DX 1=0.104426E+05 DX2= 0.285577E-05 T =  10.000 P =  2128647. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.051886792452834     
+ ...ITERATING... AT [  115, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.211306E-01 AT ELEMENT  f134     EQUATION   2
+ ...ITERATING... AT [  115, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.170839E-04 AT ELEMENT  d131     EQUATION   2
+  g136   (  115, 3) ST = 0.772292E+07 DT = 0.864000E+05 DX 1=0.104181E+05 DX2= 0.302260E-05 T =  10.000 P =  2122996. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.112149532710283     
+ ...ITERATING... AT [  116, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.210351E-01 AT ELEMENT  f134     EQUATION   2
+ ...ITERATING... AT [  116, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.395732E-04 AT ELEMENT  h157     EQUATION   1
+  h157   (  116, 3) ST = 0.780932E+07 DT = 0.864000E+05 DX 1=0.103765E+05 DX2= 0.144344E-04 T =  10.002 P =  2120210. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.138888888888886     
+ ...ITERATING... AT [  117, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.209156E-01 AT ELEMENT  f134     EQUATION   2
+ ...ITERATING... AT [  117, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.776360E-05 AT ELEMENT  g133     EQUATION   1
+  g136   (  117, 3) ST = 0.789572E+07 DT = 0.864000E+05 DX 1=0.103641E+05 DX2= 0.470221E-05 T =  10.000 P =  2117349. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.192660550458719     
+ ...ITERATING... AT [  118, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.207737E-01 AT ELEMENT  f134     EQUATION   2
+ ...ITERATING... AT [  118, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.770933E-05 AT ELEMENT  g133     EQUATION   1
+  g137   (  118, 3) ST = 0.798212E+07 DT = 0.864000E+05 DX 1=0.103109E+05 DX2= 0.267323E-05 T =  10.000 P =  2147540. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.250000000000000     
+ ...ITERATING... AT [  119, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.206111E-01 AT ELEMENT  f134     EQUATION   2
+ ...ITERATING... AT [  119, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.762803E-05 AT ELEMENT  g133     EQUATION   1
+  g138   (  119, 3) ST = 0.806852E+07 DT = 0.864000E+05 DX 1=0.102688E+05 DX2= 0.230533E-04 T =  10.003 P =  2107656. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.283783783783782     
+ ...ITERATING... AT [  120, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.204292E-01 AT ELEMENT  f134     EQUATION   2
+ ...ITERATING... AT [  120, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.752402E-05 AT ELEMENT  g133     EQUATION   1
+  g138   (  120, 3) ST = 0.815492E+07 DT = 0.864000E+05 DX 1=0.102247E+05 DX2= 0.187380E-04 T =  10.002 P =  2127041. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.334821428571431     
+ ...ITERATING... AT [  121, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.202295E-01 AT ELEMENT  f134     EQUATION   2
+ ...ITERATING... AT [  121, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.739554E-05 AT ELEMENT  g133     EQUATION   1
+  g138   (  121, 3) ST = 0.824132E+07 DT = 0.864000E+05 DX 1=0.102145E+05 DX2= 0.414568E-04 T =  10.004 P =  2111602. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.384955752212392     
+ ...ITERATING... AT [  122, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.200424E-01 AT ELEMENT  g135     EQUATION   2
+ ...ITERATING... AT [  122, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.300284E-04 AT ELEMENT  c130     EQUATION   2
+  d130   (  122, 3) ST = 0.832772E+07 DT = 0.864000E+05 DX 1=0.101535E+05 DX2= 0.155487E-04 T =  10.002 P =  2168079. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.403508771929822     
+ ...ITERATING... AT [  123, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.198932E-01 AT ELEMENT  g135     EQUATION   2
+ ...ITERATING... AT [  123, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.707743E-05 AT ELEMENT  g133     EQUATION   1
+  f163   (  123, 3) ST = 0.841412E+07 DT = 0.864000E+05 DX 1=0.101473E+05 DX2= 0.204025E-04 T =  10.003 P =  2167070. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.447826086956525     
+ ...ITERATING... AT [  124, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.197233E-01 AT ELEMENT  g135     EQUATION   2
+ ...ITERATING... AT [  124, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.689912E-05 AT ELEMENT  g133     EQUATION   1
+  h135   (  124, 3) ST = 0.850052E+07 DT = 0.864000E+05 DX 1=0.100878E+05 DX2= 0.242726E-05 T =  10.000 P =  2223665. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.487068965517238     
+ ...ITERATING... AT [  125, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.195343E-01 AT ELEMENT  g135     EQUATION   2
+ ...ITERATING... AT [  125, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.670435E-05 AT ELEMENT  g133     EQUATION   1
+  f136   (  125, 3) ST = 0.858692E+07 DT = 0.864000E+05 DX 1=0.100804E+05 DX2= 0.295315E-04 T =  10.003 P =  2143115. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.521367521367523     
+ ...ITERATING... AT [  126, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.193278E-01 AT ELEMENT  g135     EQUATION   2
+ ...ITERATING... AT [  126, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.673120E-05 AT ELEMENT  c151     EQUATION   2
+  c151   (  126, 3) ST = 0.867332E+07 DT = 0.864000E+05 DX 1=0.100470E+05 DX2= 0.533340E-05 T =  10.000 P =  2214393. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.563559322033896     
+ ...ITERATING... AT [  127, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.191738E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  127, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.629623E-05 AT ELEMENT  g133     EQUATION   1
+  f135   (  127, 3) ST = 0.875972E+07 DT = 0.864000E+05 DX 1=0.997927E+04 DX2= 0.251183E-04 T =  10.003 P =  2164240. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.605042016806721     
+ ...ITERATING... AT [  128, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.191310E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  128, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.608691E-05 AT ELEMENT  g133     EQUATION   1
+  e136   (  128, 3) ST = 0.884612E+07 DT = 0.864000E+05 DX 1=0.996417E+04 DX2= 0.286193E-05 T =  10.000 P =  2251529. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.670833333333334     
+ ...ITERATING... AT [  129, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.190678E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  129, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.587096E-05 AT ELEMENT  g133     EQUATION   1
+  e136   (  129, 3) ST = 0.893252E+07 DT = 0.864000E+05 DX 1=0.992836E+04 DX2= 0.224472E-04 T =  10.003 P =  2186969. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.743801652892564     
+ ...ITERATING... AT [  130, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.189850E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  130, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.565363E-05 AT ELEMENT  g133     EQUATION   1
+  h1 3   (  130, 3) ST = 0.901892E+07 DT = 0.864000E+05 DX 1=0.988150E+04 DX2= 0.247393E-04 T =  10.003 P =  2193982. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.803278688524593     
+ ...ITERATING... AT [  131, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.188839E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  131, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.543780E-05 AT ELEMENT  g133     EQUATION   1
+  h136   (  131, 3) ST = 0.910532E+07 DT = 0.864000E+05 DX 1=0.986519E+04 DX2= 0.312997E-05 T =  10.000 P =  2284862. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.837398373983739     
+ ...ITERATING... AT [  132, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.187653E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  132, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.521965E-05 AT ELEMENT  g133     EQUATION   1
+  g137   (  132, 3) ST = 0.919172E+07 DT = 0.864000E+05 DX 1=0.982903E+04 DX2= 0.225536E-05 T =  10.000 P =  2298818. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.887096774193552     
+ ...ITERATING... AT [  133, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.186305E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  133, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.500783E-05 AT ELEMENT  g133     EQUATION   1
+  f137   (  133, 3) ST = 0.927812E+07 DT = 0.864000E+05 DX 1=0.979441E+04 DX2= 0.246201E-05 T =  10.000 P =  2312969. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.927999999999997     
+ ...ITERATING... AT [  134, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.184805E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  134, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.535166E-05 AT ELEMENT  g137     EQUATION   2
+  f136   (  134, 3) ST = 0.936452E+07 DT = 0.864000E+05 DX 1=0.976317E+04 DX2= 0.318961E-04 T =  10.004 P =  2245791. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    55.976190476190474     
+ ...ITERATING... AT [  135, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.183164E-01 AT ELEMENT  f135     EQUATION   2
+  g134   (  135, 2) ST = 0.945092E+07 DT = 0.864000E+05 DX 1=0.983673E+04 DX2= 0.818774E-04 T =  10.028 P =  1925443. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.003952569169961     
+ ...ITERATING... AT [  136, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.181384E-01 AT ELEMENT  f135     EQUATION   2
+  g134   (  136, 2) ST = 0.953732E+07 DT = 0.864000E+05 DX 1=0.981522E+04 DX2= 0.838458E-04 T =  10.047 P =  1896591. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.031496062992126     
+ ...ITERATING... AT [  137, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.179493E-01 AT ELEMENT  f135     EQUATION   2
+  g134   (  137, 2) ST = 0.962372E+07 DT = 0.864000E+05 DX 1=0.976378E+04 DX2= 0.948507E-04 T =  10.010 P =  2078013. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.062745098039215     
+ ...ITERATING... AT [  138, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.177492E-01 AT ELEMENT  f135     EQUATION   2
+  g134   (  138, 2) ST = 0.971012E+07 DT = 0.864000E+05 DX 1=0.961888E+04 DX2= 0.239179E-04 T =  10.003 P =  2277294. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.089843750000000     
+ ...ITERATING... AT [  139, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.175392E-01 AT ELEMENT  f135     EQUATION   2
+ ...ITERATING... AT [  139, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.637171E-05 AT ELEMENT  c159     EQUATION   2
+  g138   (  139, 3) ST = 0.979652E+07 DT = 0.864000E+05 DX 1=0.960913E+04 DX2= 0.271250E-05 T =  10.000 P =  2374272. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.116279069767444     
+ ...ITERATING... AT [  140, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.174512E-01 AT ELEMENT  f136     EQUATION   2
+  g134   (  140, 2) ST = 0.988292E+07 DT = 0.864000E+05 DX 1=0.958549E+04 DX2= 0.491109E-05 T =  10.000 P =  2346227. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.131274131274132     
+ ...ITERATING... AT [  141, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.174293E-01 AT ELEMENT  f136     EQUATION   2
+  g134   (  141, 2) ST = 0.996932E+07 DT = 0.864000E+05 DX 1=0.953460E+04 DX2= 0.318590E-05 T =  10.000 P =  2381653. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.146153846153844     
+ ...ITERATING... AT [  142, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.173911E-01 AT ELEMENT  f136     EQUATION   2
+  g134   (  142, 2) ST = 0.100557E+08 DT = 0.864000E+05 DX 1=0.961998E+04 DX2= 0.827008E-04 T =  10.010 P =  2183626. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.180076628352488     
+ ...ITERATING... AT [  143, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.173367E-01 AT ELEMENT  f136     EQUATION   2
+  g134   (  143, 2) ST = 0.101421E+08 DT = 0.864000E+05 DX 1=0.947474E+04 DX2= 0.231507E-04 T =  10.003 P =  2305375. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.190839694656489     
+ ...ITERATING... AT [  144, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.172667E-01 AT ELEMENT  f136     EQUATION   2
+  g134   (  144, 2) ST = 0.102285E+08 DT = 0.864000E+05 DX 1=0.959266E+04 DX2= 0.817161E-04 T =  10.043 P =  1957143. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.205323193916350     
+ ...ITERATING... AT [  145, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.171819E-01 AT ELEMENT  f136     EQUATION   2
+  h165   (  145, 2) ST = 0.103149E+08 DT = 0.864000E+05 DX 1=0.951895E+04 DX2= 0.116334E-03 T =  10.015 P =  2219059. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.227272727272727     
+ ...ITERATING... AT [  146, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.170831E-01 AT ELEMENT  f136     EQUATION   2
+  g134   (  146, 2) ST = 0.104013E+08 DT = 0.864000E+05 DX 1=0.948666E+04 DX2= 0.579477E-04 T =  10.008 P =  2185728. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.230188679245281     
+ ...ITERATING... AT [  147, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.169711E-01 AT ELEMENT  f136     EQUATION   2
+  f134   (  147, 2) ST = 0.104877E+08 DT = 0.864000E+05 DX 1=0.941920E+04 DX2= 0.477597E-04 T =  10.007 P =  2293807. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.244360902255636     
+ ...ITERATING... AT [  148, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.168464E-01 AT ELEMENT  f136     EQUATION   2
+ ...ITERATING... AT [  148, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.721063E-05 AT ELEMENT  h 97     EQUATION   1
+  f139   (  148, 3) ST = 0.105741E+08 DT = 0.864000E+05 DX 1=0.934826E+04 DX2= 0.226116E-04 T =  10.004 P =  2366335. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.261194029850749     
+ ...ITERATING... AT [  149, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.167105E-01 AT ELEMENT  f136     EQUATION   2
+  f134   (  149, 2) ST = 0.106605E+08 DT = 0.864000E+05 DX 1=0.941184E+04 DX2= 0.118930E-03 T =  10.016 P =  2237725. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.282527881040892     
+ ...ITERATING... AT [  150, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.165625E-01 AT ELEMENT  f136     EQUATION   2
+ ...ITERATING... AT [  150, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.219490E-04 AT ELEMENT  h133     EQUATION   1
+  h133   (  150, 3) ST = 0.107469E+08 DT = 0.864000E+05 DX 1=0.930761E+04 DX2= 0.118142E-04 T =  10.002 P =  2330181. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.317343173431738     
+ ...ITERATING... AT [  151, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.164055E-01 AT ELEMENT  f136     EQUATION   2
+  f134   (  151, 2) ST = 0.108333E+08 DT = 0.864000E+05 DX 1=0.925738E+04 DX2= 0.116940E-04 T =  10.003 P =  2339438. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.334558823529413     
+ ...ITERATING... AT [  152, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.162383E-01 AT ELEMENT  f136     EQUATION   2
+  d160   (  152, 2) ST = 0.109197E+08 DT = 0.864000E+05 DX 1=0.938644E+04 DX2= 0.765564E-04 T =  10.048 P =  2049984. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.351648351648350     
+ ...ITERATING... AT [  153, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.160627E-01 AT ELEMENT  f136     EQUATION   2
+  f134   (  153, 2) ST = 0.110061E+08 DT = 0.864000E+05 DX 1=0.932487E+04 DX2= 0.100315E-03 T =  10.013 P =  2267977. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.368613138686129     
+ ...ITERATING... AT [  154, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.159101E-01 AT ELEMENT  f137     EQUATION   2
+  f134   (  154, 2) ST = 0.110925E+08 DT = 0.864000E+05 DX 1=0.916085E+04 DX2= 0.233574E-04 T =  10.004 P =  2464170. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.381818181818183     
+ ...ITERATING... AT [  155, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.158920E-01 AT ELEMENT  f137     EQUATION   2
+  g139   (  155, 2) ST = 0.111789E+08 DT = 0.864000E+05 DX 1=0.925390E+04 DX2= 0.941495E-04 T =  10.014 P =  2332528. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.387681159420289     
+ ...ITERATING... AT [  156, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.158599E-01 AT ELEMENT  f137     EQUATION   2
+ ...ITERATING... AT [  156, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.636498E-05 AT ELEMENT  f165     EQUATION   2
+  f165   (  156, 3) ST = 0.112653E+08 DT = 0.864000E+05 DX 1=0.913156E+04 DX2= 0.232309E-04 T =  10.004 P =  2482437. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.420863309352519     
+ ...ITERATING... AT [  157, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.158150E-01 AT ELEMENT  f137     EQUATION   2
+  f134   (  157, 2) ST = 0.113517E+08 DT = 0.864000E+05 DX 1=0.911721E+04 DX2= 0.378271E-04 T =  10.006 P =  2457942. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.437275985663085     
+ ...ITERATING... AT [  158, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.157556E-01 AT ELEMENT  f137     EQUATION   2
+  f134   (  158, 2) ST = 0.114381E+08 DT = 0.864000E+05 DX 1=0.917895E+04 DX2= 0.117419E-03 T =  10.017 P =  2321301. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.450000000000003     
+ ...ITERATING... AT [  159, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.156847E-01 AT ELEMENT  f137     EQUATION   2
+ ...ITERATING... AT [  159, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.506399E-05 AT ELEMENT  b158     EQUATION   2
+  c 91   (  159, 3) ST = 0.115245E+08 DT = 0.864000E+05 DX 1=0.906339E+04 DX2= 0.115439E-04 T =  10.002 P =  2519069. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.468085106382979     
+ ...ITERATING... AT [  160, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.156025E-01 AT ELEMENT  f137     EQUATION   2
+ ...ITERATING... AT [  160, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.102876E-04 AT ELEMENT  c131     EQUATION   2
+  g138   (  160, 3) ST = 0.116109E+08 DT = 0.864000E+05 DX 1=0.904471E+04 DX2= 0.372925E-05 T =  10.000 P =  2562111. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.503521126760560     
+ ...ITERATING... AT [  161, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.155085E-01 AT ELEMENT  f137     EQUATION   2
+  f138   (  161, 2) ST = 0.116973E+08 DT = 0.864000E+05 DX 1=0.910417E+04 DX2= 0.938095E-04 T =  10.015 P =  2387591. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.508771929824562     
+ ...ITERATING... AT [  162, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.154037E-01 AT ELEMENT  f137     EQUATION   2
+ ...ITERATING... AT [  162, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.163798E-04 AT ELEMENT  h155     EQUATION   2
+  e137   (  162, 3) ST = 0.117837E+08 DT = 0.864000E+05 DX 1=0.904998E+04 DX2= 0.540966E-04 T =  10.009 P =  2417086. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.536585365853661     
+ ...ITERATING... AT [  163, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.152896E-01 AT ELEMENT  f137     EQUATION   2
+  f137   (  163, 2) ST = 0.118701E+08 DT = 0.864000E+05 DX 1=0.912480E+04 DX2= 0.784155E-04 T =  10.049 P =  2151730. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.552083333333336     
+ ...ITERATING... AT [  164, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.151657E-01 AT ELEMENT  f137     EQUATION   2
+  h154   (  164, 2) ST = 0.119565E+08 DT = 0.864000E+05 DX 1=0.902894E+04 DX2= 0.781187E-04 T =  10.013 P =  2372468. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.567474048442904     
+ ...ITERATING... AT [  165, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.150330E-01 AT ELEMENT  f137     EQUATION   2
+  f135   (  165, 2) ST = 0.120429E+08 DT = 0.864000E+05 DX 1=0.907919E+04 DX2= 0.796083E-04 T =  10.049 P =  2169911. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.568965517241381     
+ ...ITERATING... AT [  166, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.148920E-01 AT ELEMENT  f137     EQUATION   2
+  f135   (  166, 2) ST = 0.121293E+08 DT = 0.864000E+05 DX 1=0.898076E+04 DX2= 0.735381E-04 T =  10.012 P =  2409657. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.584192439862541     
+ ...ITERATING... AT [  167, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.147434E-01 AT ELEMENT  f137     EQUATION   2
+  f135   (  167, 2) ST = 0.122157E+08 DT = 0.864000E+05 DX 1=0.895912E+04 DX2= 0.117804E-03 T =  10.018 P =  2402871. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.592465753424655     
+ ...ITERATING... AT [  168, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.145879E-01 AT ELEMENT  f137     EQUATION   2
+  f141   (  168, 2) ST = 0.123021E+08 DT = 0.864000E+05 DX 1=0.895286E+04 DX2= 0.102355E-03 T =  10.015 P =  2404924. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.593856655290104     
+ ...ITERATING... AT [  169, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.145016E-01 AT ELEMENT  f138     EQUATION   2
+  g138   (  169, 2) ST = 0.123885E+08 DT = 0.864000E+05 DX 1=0.892914E+04 DX2= 0.102760E-03 T =  10.015 P =  2413853. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.602040816326529     
+ ...ITERATING... AT [  170, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.144739E-01 AT ELEMENT  f138     EQUATION   2
+  f138   (  170, 2) ST = 0.124749E+08 DT = 0.864000E+05 DX 1=0.877115E+04 DX2= 0.280857E-04 T =  10.005 P =  2577872. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.613559322033900     
+ ...ITERATING... AT [  171, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.144350E-01 AT ELEMENT  f138     EQUATION   2
+  e138   (  171, 2) ST = 0.125613E+08 DT = 0.864000E+05 DX 1=0.873990E+04 DX2= 0.201437E-04 T =  10.004 P =  2573741. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.621621621621621     
+ ...ITERATING... AT [  172, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.143849E-01 AT ELEMENT  f138     EQUATION   2
+  f138   (  172, 2) ST = 0.126477E+08 DT = 0.864000E+05 DX 1=0.884145E+04 DX2= 0.119363E-03 T =  10.019 P =  2447312. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.622895622895626     
+ ...ITERATING... AT [  173, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.143251E-01 AT ELEMENT  f138     EQUATION   2
+  f141   (  173, 2) ST = 0.127341E+08 DT = 0.864000E+05 DX 1=0.869430E+04 DX2= 0.323422E-05 T =  10.000 P =  2688106. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.630872483221474     
+ ...ITERATING... AT [  174, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.142551E-01 AT ELEMENT  f138     EQUATION   2
+  g140   (  174, 2) ST = 0.128205E+08 DT = 0.864000E+05 DX 1=0.879414E+04 DX2= 0.103769E-03 T =  10.017 P =  2446497. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.638795986622071     
+ ...ITERATING... AT [  175, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.141755E-01 AT ELEMENT  f138     EQUATION   2
+  f139   (  175, 2) ST = 0.129069E+08 DT = 0.864000E+05 DX 1=0.864526E+04 DX2= 0.205306E-04 T =  10.004 P =  2628140. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.640000000000001     
+ ...ITERATING... AT [  176, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.140866E-01 AT ELEMENT  f138     EQUATION   2
+  e140   (  176, 2) ST = 0.129933E+08 DT = 0.864000E+05 DX 1=0.876593E+04 DX2= 0.108173E-03 T =  10.016 P =  2456558. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.641196013289040     
+ ...ITERATING... AT [  177, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.139895E-01 AT ELEMENT  f138     EQUATION   2
+ ...ITERATING... AT [  177, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.549133E-05 AT ELEMENT  g164     EQUATION   2
+  e138   (  177, 3) ST = 0.130797E+08 DT = 0.864000E+05 DX 1=0.879845E+04 DX2= 0.349989E-04 T =  10.017 P =  2321531. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.669966996699671     
+ ...ITERATING... AT [  178, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.138844E-01 AT ELEMENT  f138     EQUATION   2
+  g140   (  178, 2) ST = 0.131661E+08 DT = 0.864000E+05 DX 1=0.870289E+04 DX2= 0.104519E-03 T =  10.018 P =  2481463. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.687500000000000     
+ ...ITERATING... AT [  179, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.137709E-01 AT ELEMENT  f138     EQUATION   2
+ ...ITERATING... AT [  179, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.137671E-04 AT ELEMENT  g156     EQUATION   1
+  h156   (  179, 3) ST = 0.132525E+08 DT = 0.864000E+05 DX 1=0.857351E+04 DX2= 0.157519E-04 T =  10.003 P =  2678774. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.712418300653596     
+ ...ITERATING... AT [  180, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.136510E-01 AT ELEMENT  f138     EQUATION   2
+ ...ITERATING... AT [  180, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.656870E-05 AT ELEMENT  h164     EQUATION   2
+  h165   (  180, 3) ST = 0.133389E+08 DT = 0.864000E+05 DX 1=0.874335E+04 DX2= 0.373691E-04 T =  10.029 P =  2400686. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.724025974025977     
+ ...ITERATING... AT [  181, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.135241E-01 AT ELEMENT  f138     EQUATION   2
+ ...ITERATING... AT [  181, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.695101E-05 AT ELEMENT  h166     EQUATION   2
+  f141   (  181, 3) ST = 0.134253E+08 DT = 0.864000E+05 DX 1=0.866877E+04 DX2= 0.939616E-04 T =  10.015 P =  2481765. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.735483870967741     
+ ...ITERATING... AT [  182, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.133910E-01 AT ELEMENT  f138     EQUATION   2
+  g140   (  182, 2) ST = 0.135117E+08 DT = 0.864000E+05 DX 1=0.862966E+04 DX2= 0.113190E-03 T =  10.016 P =  2527893. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.742765273311896     
+ ...ITERATING... AT [  183, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.132518E-01 AT ELEMENT  f138     EQUATION   2
+ ...ITERATING... AT [  183, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.713551E-05 AT ELEMENT  h132     EQUATION   1
+  d140   (  183, 3) ST = 0.135981E+08 DT = 0.864000E+05 DX 1=0.848452E+04 DX2= 0.268226E-04 T =  10.005 P =  2689846. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.750798722044728     
+ ...ITERATING... AT [  184, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.131548E-01 AT ELEMENT  f139     EQUATION   2
+  f140   (  184, 2) ST = 0.136845E+08 DT = 0.864000E+05 DX 1=0.856876E+04 DX2= 0.130985E-03 T =  10.020 P =  2570886. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.761146496815286     
+ ...ITERATING... AT [  185, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.131195E-01 AT ELEMENT  f139     EQUATION   2
+ ...ITERATING... AT [  185, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.323757E-04 AT ELEMENT  i136     EQUATION   1
+  h136   (  185, 3) ST = 0.137709E+08 DT = 0.864000E+05 DX 1=0.846098E+04 DX2= 0.377394E-04 T =  10.007 P =  2684282. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.778481012658226     
+ ...ITERATING... AT [  186, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.130758E-01 AT ELEMENT  f139     EQUATION   2
+ ...ITERATING... AT [  186, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.950278E-05 AT ELEMENT  h152     EQUATION   1
+  f141   (  186, 3) ST = 0.138573E+08 DT = 0.864000E+05 DX 1=0.841542E+04 DX2= 0.265254E-04 T =  10.006 P =  2715144. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.789308176100626     
+ ...ITERATING... AT [  187, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.130229E-01 AT ELEMENT  f139     EQUATION   2
+  d139   (  187, 2) ST = 0.139437E+08 DT = 0.864000E+05 DX 1=0.861575E+04 DX2= 0.103017E-03 T =  10.046 P =  2347318. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.789968652037615     
+ ...ITERATING... AT [  188, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.129615E-01 AT ELEMENT  f139     EQUATION   2
+  c160   (  188, 2) ST = 0.140301E+08 DT = 0.864000E+05 DX 1=0.849331E+04 DX2= 0.121097E-03 T =  10.017 P =  2560099. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.790624999999999     
+ ...ITERATING... AT [  189, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.128925E-01 AT ELEMENT  f139     EQUATION   2
+  d164   (  189, 2) ST = 0.141165E+08 DT = 0.864000E+05 DX 1=0.847056E+04 DX2= 0.963584E-04 T =  10.014 P =  2607415. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.794392523364486     
+ ...ITERATING... AT [  190, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.128153E-01 AT ELEMENT  f139     EQUATION   2
+  f141   (  190, 2) ST = 0.142029E+08 DT = 0.864000E+05 DX 1=0.844864E+04 DX2= 0.126471E-03 T =  10.017 P =  2596167. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.785714285714285     
+ ...ITERATING... AT [  191, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.127311E-01 AT ELEMENT  f139     EQUATION   2
+  e138   (  191, 2) ST = 0.142893E+08 DT = 0.864000E+05 DX 1=0.853586E+04 DX2= 0.112733E-03 T =  10.047 P =  2381581. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.789473684210527     
+ ...ITERATING... AT [  192, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.126400E-01 AT ELEMENT  f139     EQUATION   2
+ ...ITERATING... AT [  192, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.990858E-05 AT ELEMENT  h158     EQUATION   1
+  f141   (  192, 3) ST = 0.143757E+08 DT = 0.864000E+05 DX 1=0.827209E+04 DX2= 0.159671E-04 T =  10.004 P =  2749344. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.799999999999997     
+ ...ITERATING... AT [  193, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.125426E-01 AT ELEMENT  f139     EQUATION   2
+  f140   (  193, 2) ST = 0.144621E+08 DT = 0.864000E+05 DX 1=0.836491E+04 DX2= 0.114951E-03 T =  10.019 P =  2609417. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.800613496932513     
+ ...ITERATING... AT [  194, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.124386E-01 AT ELEMENT  f139     EQUATION   2
+  f142   (  194, 2) ST = 0.145485E+08 DT = 0.864000E+05 DX 1=0.847648E+04 DX2= 0.121382E-03 T =  10.047 P =  2407086. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.801223241590215     
+ ...ITERATING... AT [  195, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.123291E-01 AT ELEMENT  f139     EQUATION   2
+  e141   (  195, 2) ST = 0.146349E+08 DT = 0.864000E+05 DX 1=0.833564E+04 DX2= 0.105820E-03 T =  10.015 P =  2657782. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.804878048780488     
+ ...ITERATING... AT [  196, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.122145E-01 AT ELEMENT  f139     EQUATION   2
+  f141   (  196, 2) ST = 0.147213E+08 DT = 0.864000E+05 DX 1=0.843698E+04 DX2= 0.127714E-03 T =  10.047 P =  2423980. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.805471124620063     
+ ...ITERATING... AT [  197, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.120943E-01 AT ELEMENT  f139     EQUATION   2
+  f140   (  197, 2) ST = 0.148077E+08 DT = 0.864000E+05 DX 1=0.827688E+04 DX2= 0.164266E-03 T =  10.022 P =  2680284. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.809090909090912     
+ ...ITERATING... AT [  198, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.119696E-01 AT ELEMENT  f139     EQUATION   2
+  f140   (  198, 2) ST = 0.148941E+08 DT = 0.864000E+05 DX 1=0.811642E+04 DX2= 0.175912E-04 T =  10.005 P =  2801078. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.809667673716014     
+ ...ITERATING... AT [  199, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.118403E-01 AT ELEMENT  f139     EQUATION   2
+  f142   (  199, 2) ST = 0.149805E+08 DT = 0.864000E+05 DX 1=0.837793E+04 DX2= 0.138298E-03 T =  10.048 P =  2449173. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.810240963855421     
+ ...ITERATING... AT [  200, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.117931E-01 AT ELEMENT  f140     EQUATION   2
+  e140   (  200, 2) ST = 0.150669E+08 DT = 0.864000E+05 DX 1=0.820891E+04 DX2= 0.135363E-03 T =  10.019 P =  2724640. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.813813813813816     
+
+ WRITE FILE *SAVE* AFTER  200 TIME STEPS  ---  THE TIME IS 0.150669E+08 SECONDS
+
+ ...ITERATING... AT [  201, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.117440E-01 AT ELEMENT  f140     EQUATION   2
+  f142   (  201, 2) ST = 0.151533E+08 DT = 0.864000E+05 DX 1=0.819953E+04 DX2= 0.113914E-03 T =  10.017 P =  2650102. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.817365269461078     
+ ...ITERATING... AT [  202, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.116878E-01 AT ELEMENT  f140     EQUATION   2
+  g141   (  202, 2) ST = 0.152397E+08 DT = 0.864000E+05 DX 1=0.831884E+04 DX2= 0.150124E-03 T =  10.048 P =  2474188. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.820895522388057     
+ ...ITERATING... AT [  203, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.116247E-01 AT ELEMENT  f140     EQUATION   2
+  f144   (  203, 2) ST = 0.153261E+08 DT = 0.864000E+05 DX 1=0.829908E+04 DX2= 0.154340E-03 T =  10.048 P =  2482487. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.824404761904759     
+ ...ITERATING... AT [  204, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.115553E-01 AT ELEMENT  f140     EQUATION   2
+  f165   (  204, 2) ST = 0.154125E+08 DT = 0.864000E+05 DX 1=0.813417E+04 DX2= 0.170221E-03 T =  10.019 P =  2712105. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.827893175074180     
+ ...ITERATING... AT [  205, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.114800E-01 AT ELEMENT  f140     EQUATION   2
+  f143   (  205, 2) ST = 0.154989E+08 DT = 0.864000E+05 DX 1=0.809773E+04 DX2= 0.199870E-03 T =  10.023 P =  2745693. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.831360946745562     
+ ...ITERATING... AT [  206, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.113986E-01 AT ELEMENT  f140     EQUATION   2
+  h162   (  206, 2) ST = 0.155853E+08 DT = 0.864000E+05 DX 1=0.808859E+04 DX2= 0.171276E-03 T =  10.020 P =  2709150. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.837758112094399     
+ ...ITERATING... AT [  207, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.113117E-01 AT ELEMENT  f140     EQUATION   2
+  e140   (  207, 2) ST = 0.156717E+08 DT = 0.864000E+05 DX 1=0.805277E+04 DX2= 0.211045E-03 T =  10.024 P =  2761821. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.844117647058823     
+ ...ITERATING... AT [  208, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.112194E-01 AT ELEMENT  f140     EQUATION   2
+  f141   (  208, 2) ST = 0.157581E+08 DT = 0.864000E+05 DX 1=0.817630E+04 DX2= 0.123003E-03 T =  10.045 P =  2587157. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.850439882697948     
+ ...ITERATING... AT [  209, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.111223E-01 AT ELEMENT  f140     EQUATION   2
+  e142   (  209, 2) ST = 0.158445E+08 DT = 0.864000E+05 DX 1=0.802068E+04 DX2= 0.184981E-03 T =  10.020 P =  2733280. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.856725146198833     
+ ...ITERATING... AT [  210, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.110249E-01 AT ELEMENT  e140     EQUATION   2
+  e140   (  210, 2) ST = 0.159309E+08 DT = 0.864000E+05 DX 1=0.815964E+04 DX2= 0.187830E-03 T =  10.050 P =  2540025. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.860058309037903     
+ ...ITERATING... AT [  211, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.109837E-01 AT ELEMENT  e140     EQUATION   2
+  f145   (  211, 2) ST = 0.160173E+08 DT = 0.864000E+05 DX 1=0.797526E+04 DX2= 0.195128E-03 T =  10.021 P =  2749253. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.863372093023258     
+ ...ITERATING... AT [  212, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.109366E-01 AT ELEMENT  e140     EQUATION   2
+  e142   (  212, 2) ST = 0.161037E+08 DT = 0.864000E+05 DX 1=0.793928E+04 DX2= 0.227829E-03 T =  10.025 P =  2782565. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.866666666666667     
+ ...ITERATING... AT [  213, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.108841E-01 AT ELEMENT  e140     EQUATION   2
+ ...ITERATING... AT [  213, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.344947E-04 AT ELEMENT  h135     EQUATION   1
+  h135   (  213, 3) ST = 0.161901E+08 DT = 0.864000E+05 DX 1=0.783788E+04 DX2= 0.155170E-04 T =  10.005 P =  2852283. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.876080691642649     
+ ...ITERATING... AT [  214, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.108265E-01 AT ELEMENT  e140     EQUATION   2
+  e143   (  214, 2) ST = 0.162765E+08 DT = 0.864000E+05 DX 1=0.808591E+04 DX2= 0.245709E-03 T =  10.056 P =  2589736. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.879310344827587     
+ ...ITERATING... AT [  215, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.107638E-01 AT ELEMENT  e140     EQUATION   2
+  e143   (  215, 2) ST = 0.163629E+08 DT = 0.864000E+05 DX 1=0.786855E+04 DX2= 0.171219E-03 T =  10.023 P =  2787771. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.882521489971346     
+ ...ITERATING... AT [  216, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.106963E-01 AT ELEMENT  e140     EQUATION   2
+  e143   (  216, 2) ST = 0.164493E+08 DT = 0.864000E+05 DX 1=0.786075E+04 DX2= 0.237558E-03 T =  10.022 P =  2807960. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.885714285714286     
+ ...ITERATING... AT [  217, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.106244E-01 AT ELEMENT  e140     EQUATION   2
+  e144   (  217, 2) ST = 0.165357E+08 DT = 0.864000E+05 DX 1=0.802328E+04 DX2= 0.265947E-03 T =  10.057 P =  2613869. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.891737891737890     
+ ...ITERATING... AT [  218, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.105481E-01 AT ELEMENT  e140     EQUATION   2
+  f144   (  218, 2) ST = 0.166221E+08 DT = 0.864000E+05 DX 1=0.781348E+04 DX2= 0.183599E-03 T =  10.018 P =  2843288. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.894886363636367     
+ ...ITERATING... AT [  219, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.104678E-01 AT ELEMENT  e140     EQUATION   2
+  e145   (  219, 2) ST = 0.167085E+08 DT = 0.864000E+05 DX 1=0.779105E+04 DX2= 0.259883E-03 T =  10.022 P =  2831403. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.900849858356942     
+ ...ITERATING... AT [  220, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.103837E-01 AT ELEMENT  e140     EQUATION   2
+  e145   (  220, 2) ST = 0.167949E+08 DT = 0.864000E+05 DX 1=0.791226E+04 DX2= 0.123618E-03 T =  10.040 P =  2626937. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.898305084745765     
+ ...ITERATING... AT [  221, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.102961E-01 AT ELEMENT  e140     EQUATION   2
+ ...ITERATING... AT [  221, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.114740E-04 AT ELEMENT  g157     EQUATION   1
+  h157   (  221, 3) ST = 0.168813E+08 DT = 0.864000E+05 DX 1=0.774168E+04 DX2= 0.200753E-03 T =  10.024 P =  2834508. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.918539325842694     
+ ...ITERATING... AT [  222, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.102051E-01 AT ELEMENT  e140     EQUATION   2
+ ...ITERATING... AT [  222, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.508760E-05 AT ELEMENT  f163     EQUATION   2
+  h167   (  222, 3) ST = 0.169677E+08 DT = 0.864000E+05 DX 1=0.768195E+04 DX2= 0.106534E-04 T =  10.004 P =  2826342. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.935754189944134     
+ ...ITERATING... AT [  223, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.101110E-01 AT ELEMENT  e140     EQUATION   2
+  f145   (  223, 2) ST = 0.170541E+08 DT = 0.864000E+05 DX 1=0.788787E+04 DX2= 0.267626E-03 T =  10.053 P =  2644257. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.938718662952645     
+ ...ITERATING... AT [  224, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.100239E-01 AT ELEMENT  e141     EQUATION   2
+  f145   (  224, 2) ST = 0.171405E+08 DT = 0.864000E+05 DX 1=0.766117E+04 DX2= 0.352054E-03 T =  10.029 P =  2895259. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.933333333333330     
+ ...ITERATING... AT [  225, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.997453E-02 AT ELEMENT  e141     EQUATION   2
+  h140   (  225, 2) ST = 0.172269E+08 DT = 0.864000E+05 DX 1=0.785095E+04 DX2= 0.324037E-03 T =  10.059 P =  2677311. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.947368421052630     
+ ...ITERATING... AT [  226, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.992095E-02 AT ELEMENT  e141     EQUATION   2
+  f144   (  226, 2) ST = 0.173133E+08 DT = 0.864000E+05 DX 1=0.782175E+04 DX2= 0.288876E-03 T =  10.053 P =  2667788. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.941988950276240     
+ ...ITERATING... AT [  227, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.986306E-02 AT ELEMENT  e141     EQUATION   2
+  f142   (  227, 2) ST = 0.173997E+08 DT = 0.864000E+05 DX 1=0.758873E+04 DX2= 0.285919E-03 T =  10.024 P =  2937730. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.955922865013775     
+ ...ITERATING... AT [  228, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.980109E-02 AT ELEMENT  e141     EQUATION   2
+  f145   (  228, 2) ST = 0.174861E+08 DT = 0.864000E+05 DX 1=0.756628E+04 DX2= 0.399171E-03 T =  10.030 P =  2925667. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.969780219780219     
+ ...ITERATING... AT [  229, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.973494E-02 AT ELEMENT  e141     EQUATION   2
+  f141   (  229, 2) ST = 0.175725E+08 DT = 0.864000E+05 DX 1=0.775462E+04 DX2= 0.310960E-03 T =  10.054 P =  2691119. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.980821917808221     
+ ...ITERATING... AT [  230, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.966509E-02 AT ELEMENT  e141     EQUATION   2
+  e144   (  230, 2) ST = 0.176589E+08 DT = 0.864000E+05 DX 1=0.751698E+04 DX2= 0.313268E-03 T =  10.025 P =  2960353. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.975409836065573     
+ ...ITERATING... AT [  231, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.959151E-02 AT ELEMENT  e141     EQUATION   2
+  g163   (  231, 2) ST = 0.177453E+08 DT = 0.864000E+05 DX 1=0.750626E+04 DX2= 0.373696E-03 T =  10.026 P =  2923079. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.972752043596728     
+ ...ITERATING... AT [  232, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.951475E-02 AT ELEMENT  e141     EQUATION   2
+  e142   (  232, 2) ST = 0.178317E+08 DT = 0.864000E+05 DX 1=0.747008E+04 DX2= 0.419962E-03 T =  10.031 P =  2936504. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.975543478260867     
+ ...ITERATING... AT [  233, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.943507E-02 AT ELEMENT  e141     EQUATION   2
+  b152   (  233, 2) ST = 0.179181E+08 DT = 0.864000E+05 DX 1=0.744593E+04 DX2= 0.433247E-03 T =  10.032 P =  2943949. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.978319783197833     
+ ...ITERATING... AT [  234, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.935202E-02 AT ELEMENT  e141     EQUATION   2
+  e145   (  234, 2) ST = 0.180045E+08 DT = 0.864000E+05 DX 1=0.742199E+04 DX2= 0.480522E-03 T =  10.033 P =  2970561. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.978378378378380     
+ ...ITERATING... AT [  235, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.926609E-02 AT ELEMENT  e141     EQUATION   2
+  e141   (  235, 2) ST = 0.180909E+08 DT = 0.864000E+05 DX 1=0.739748E+04 DX2= 0.461175E-03 T =  10.033 P =  2958769. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.981132075471699     
+ ...ITERATING... AT [  236, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.917821E-02 AT ELEMENT  e141     EQUATION   2
+  f145   (  236, 2) ST = 0.181773E+08 DT = 0.864000E+05 DX 1=0.759270E+04 DX2= 0.364976E-03 T =  10.057 P =  2744758. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.983870967741936     
+ ...ITERATING... AT [  237, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.908765E-02 AT ELEMENT  e141     EQUATION   2
+  d143   (  237, 2) ST = 0.182637E+08 DT = 0.864000E+05 DX 1=0.756903E+04 DX2= 0.372921E-03 T =  10.057 P =  2752327. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.986595174262732     
+ ...ITERATING... AT [  238, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.899475E-02 AT ELEMENT  e141     EQUATION   2
+  e1 7   (  238, 2) ST = 0.183501E+08 DT = 0.864000E+05 DX 1=0.750360E+04 DX2= 0.236083E-03 T =  10.050 P =  2822349. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.989304812834227     
+ ...ITERATING... AT [  239, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.890008E-02 AT ELEMENT  e141     EQUATION   2
+  b152   (  239, 2) ST = 0.184365E+08 DT = 0.864000E+05 DX 1=0.729843E+04 DX2= 0.411503E-03 T =  10.028 P =  3026917. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.991999999999997     
+ ...ITERATING... AT [  240, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.880381E-02 AT ELEMENT  e141     EQUATION   2
+ ...ITERATING... AT [  240, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.590920E-05 AT ELEMENT  f1 7     EQUATION   2
+  e145   (  240, 3) ST = 0.185229E+08 DT = 0.864000E+05 DX 1=0.725059E+04 DX2= 0.688511E-05 T =  10.003 P =  2956463. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.013262599469499     
+ ...ITERATING... AT [  241, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.872680E-02 AT ELEMENT  e142     EQUATION   2
+  e142   (  241, 2) ST = 0.186093E+08 DT = 0.864000E+05 DX 1=0.726208E+04 DX2= 0.475380E-03 T =  10.030 P =  2977642. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.015873015873019     
+ ...ITERATING... AT [  242, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.866061E-02 AT ELEMENT  e142     EQUATION   2
+  e145   (  242, 2) ST = 0.186957E+08 DT = 0.864000E+05 DX 1=0.722397E+04 DX2= 0.375392E-03 T =  10.030 P =  2991336. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.018469656992082     
+ ...ITERATING... AT [  243, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.859151E-02 AT ELEMENT  e142     EQUATION   2
+  f145   (  243, 2) ST = 0.187821E+08 DT = 0.864000E+05 DX 1=0.742742E+04 DX2= 0.462793E-03 T =  10.066 P =  2814690. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.021052631578947     
+ ...ITERATING... AT [  244, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.851978E-02 AT ELEMENT  e142     EQUATION   2
+  f144   (  244, 2) ST = 0.188685E+08 DT = 0.864000E+05 DX 1=0.717494E+04 DX2= 0.476462E-03 T =  10.031 P =  3063049. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.020997375328086     
+ ...ITERATING... AT [  245, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.844560E-02 AT ELEMENT  e142     EQUATION   2
+ ...ITERATING... AT [  245, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.826540E-05 AT ELEMENT  h161     EQUATION   2
+  d145   (  245, 3) ST = 0.189549E+08 DT = 0.864000E+05 DX 1=0.703520E+04 DX2= 0.157902E-04 T =  10.005 P =  3185468. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.041775456919062     
+ ...ITERATING... AT [  246, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.836889E-02 AT ELEMENT  e142     EQUATION   2
+  e144   (  246, 2) ST = 0.190413E+08 DT = 0.864000E+05 DX 1=0.735248E+04 DX2= 0.485080E-03 T =  10.068 P =  2836831. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.044270833333336     
+ ...ITERATING... AT [  247, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.829001E-02 AT ELEMENT  e142     EQUATION   2
+  f145   (  247, 2) ST = 0.191277E+08 DT = 0.864000E+05 DX 1=0.732695E+04 DX2= 0.492409E-03 T =  10.068 P =  2844158. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.049350649350650     
+ ...ITERATING... AT [  248, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.820932E-02 AT ELEMENT  e142     EQUATION   2
+  e143   (  248, 2) ST = 0.192141E+08 DT = 0.864000E+05 DX 1=0.708812E+04 DX2= 0.609152E-03 T =  10.035 P =  3046964. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.051813471502591     
+ ...ITERATING... AT [  249, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.812666E-02 AT ELEMENT  e142     EQUATION   2
+  f143   (  249, 2) ST = 0.193005E+08 DT = 0.864000E+05 DX 1=0.727611E+04 DX2= 0.506715E-03 T =  10.069 P =  2858736. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.051679586563310     
+ ...ITERATING... AT [  250, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.804220E-02 AT ELEMENT  e142     EQUATION   2
+  e145   (  250, 2) ST = 0.193869E+08 DT = 0.864000E+05 DX 1=0.702737E+04 DX2= 0.720641E-03 T =  10.042 P =  3066802. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.054123711340203     
+ ...ITERATING... AT [  251, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.795612E-02 AT ELEMENT  e142     EQUATION   2
+  f145   (  251, 2) ST = 0.194733E+08 DT = 0.864000E+05 DX 1=0.701323E+04 DX2= 0.659773E-03 T =  10.036 P =  3068078. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.056555269922882     
+ ...ITERATING... AT [  252, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.786874E-02 AT ELEMENT  e142     EQUATION   2
+  e145   (  252, 2) ST = 0.195597E+08 DT = 0.864000E+05 DX 1=0.698816E+04 DX2= 0.647922E-03 T =  10.036 P =  3055893. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.058974358974361     
+ ...ITERATING... AT [  253, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.778007E-02 AT ELEMENT  e142     EQUATION   2
+  f144   (  253, 2) ST = 0.196461E+08 DT = 0.864000E+05 DX 1=0.695254E+04 DX2= 0.831702E-03 T =  10.045 P =  3106927. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.061381074168800     
+ ...ITERATING... AT [  254, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.769030E-02 AT ELEMENT  e142     EQUATION   2
+  e145   (  254, 2) ST = 0.197325E+08 DT = 0.864000E+05 DX 1=0.693818E+04 DX2= 0.683536E-03 T =  10.038 P =  3069794. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.063775510204081     
+ ...ITERATING... AT [  255, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.759989E-02 AT ELEMENT  e142     EQUATION   2
+  e145   (  255, 2) ST = 0.198189E+08 DT = 0.864000E+05 DX 1=0.712138E+04 DX2= 0.547661E-03 T =  10.072 P =  2901852. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.066157760814249     
+ ...ITERATING... AT [  256, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.750835E-02 AT ELEMENT  e142     EQUATION   2
+  d144   (  256, 2) ST = 0.199053E+08 DT = 0.864000E+05 DX 1=0.687585E+04 DX2= 0.664145E-03 T =  10.038 P =  3147216. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.068527918781726     
+ ...ITERATING... AT [  257, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.741630E-02 AT ELEMENT  e142     EQUATION   2
+  f145   (  257, 2) ST = 0.199917E+08 DT = 0.864000E+05 DX 1=0.685295E+04 DX2= 0.873625E-03 T =  10.047 P =  3115296. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.065822784810123     
+ ...ITERATING... AT [  258, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.732377E-02 AT ELEMENT  e142     EQUATION   2
+  f145   (  258, 2) ST = 0.200781E+08 DT = 0.864000E+05 DX 1=0.683827E+04 DX2= 0.758432E-03 T =  10.041 P =  3097297. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.065656565656568     
+ ...ITERATING... AT [  259, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.723065E-02 AT ELEMENT  e142     EQUATION   2
+  e145   (  259, 2) ST = 0.201645E+08 DT = 0.864000E+05 DX 1=0.680308E+04 DX2= 0.971870E-03 T =  10.051 P =  3148119. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.055415617128460     
+ ...ITERATING... AT [  260, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.713785E-02 AT ELEMENT  e143     EQUATION   2
+  f143   (  260, 2) ST = 0.202509E+08 DT = 0.864000E+05 DX 1=0.677823E+04 DX2= 0.997099E-03 T =  10.052 P =  3154897. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.057788944723619     
+ ...ITERATING... AT [  261, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.706485E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  261, 2) ST = 0.203373E+08 DT = 0.864000E+05 DX 1=0.676360E+04 DX2= 0.817863E-03 T =  10.043 P =  3117663. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.060150375939848     
+ ...ITERATING... AT [  262, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.699064E-02 AT ELEMENT  e143     EQUATION   2
+  f145   (  262, 2) ST = 0.204237E+08 DT = 0.864000E+05 DX 1=0.672882E+04 DX2= 0.995278E-03 T =  10.052 P =  3149188. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.052500000000002     
+ ...ITERATING... AT [  263, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.691540E-02 AT ELEMENT  e143     EQUATION   2
+  f145   (  263, 2) ST = 0.205101E+08 DT = 0.864000E+05 DX 1=0.670392E+04 DX2= 0.107366E-02 T =  10.055 P =  3175083. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.052369077306736     
+ ...ITERATING... AT [  264, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.683946E-02 AT ELEMENT  e143     EQUATION   2
+  f145   (  264, 2) ST = 0.205965E+08 DT = 0.864000E+05 DX 1=0.668767E+04 DX2= 0.602019E-03 T =  10.035 P =  3119313. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.052238805970148     
+ ...ITERATING... AT [  265, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.676257E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  265, 2) ST = 0.206829E+08 DT = 0.864000E+05 DX 1=0.666455E+04 DX2= 0.901299E-03 T =  10.046 P =  3144469. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.044665012406945     
+ ...ITERATING... AT [  266, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.668510E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  266, 2) ST = 0.207693E+08 DT = 0.864000E+05 DX 1=0.683620E+04 DX2= 0.598520E-03 T =  10.071 P =  2961005. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.047029702970299     
+ ...ITERATING... AT [  267, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.660703E-02 AT ELEMENT  e143     EQUATION   2
+ ...ITERATING... AT [  267, 2] --- DELTEX = 0.864000E+05  MAX. RES. = 0.784110E-05 AT ELEMENT  g158     EQUATION   1
+  d143   (  267, 3) ST = 0.208557E+08 DT = 0.864000E+05 DX 1=0.662097E+04 DX2= 0.703600E-03 T =  10.038 P =  3196515. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.068965517241381     
+ ...ITERATING... AT [  268, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.652840E-02 AT ELEMENT  e143     EQUATION   2
+  f145   (  268, 2) ST = 0.209421E+08 DT = 0.864000E+05 DX 1=0.658102E+04 DX2= 0.120909E-02 T =  10.061 P =  3208241. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.061425061425062     
+ ...ITERATING... AT [  269, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.644939E-02 AT ELEMENT  e143     EQUATION   2
+  h134   (  269, 2) ST = 0.210285E+08 DT = 0.864000E+05 DX 1=0.656619E+04 DX2= 0.989349E-03 T =  10.050 P =  3170889. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.051470588235297     
+ ...ITERATING... AT [  270, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.637017E-02 AT ELEMENT  e143     EQUATION   2
+  f145   (  270, 2) ST = 0.211149E+08 DT = 0.864000E+05 DX 1=0.672959E+04 DX2= 0.633683E-03 T =  10.081 P =  3005548. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.046454767726161     
+ ...ITERATING... AT [  271, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.629066E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  271, 2) ST = 0.212013E+08 DT = 0.864000E+05 DX 1=0.651581E+04 DX2= 0.718577E-03 T =  10.039 P =  3165446. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.039024390243902     
+ ...ITERATING... AT [  272, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.621132E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  272, 2) ST = 0.212877E+08 DT = 0.864000E+05 DX 1=0.648123E+04 DX2= 0.983710E-03 T =  10.051 P =  3253870. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.031630170316305     
+ ...ITERATING... AT [  273, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.613166E-02 AT ELEMENT  e143     EQUATION   2
+  h160   (  273, 2) ST = 0.213741E+08 DT = 0.864000E+05 DX 1=0.646653E+04 DX2= 0.803481E-03 T =  10.042 P =  3235681. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.024271844660191     
+ ...ITERATING... AT [  274, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.605220E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  274, 2) ST = 0.214605E+08 DT = 0.864000E+05 DX 1=0.643481E+04 DX2= 0.138283E-02 T =  10.068 P =  3247214. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.021791767554483     
+ ...ITERATING... AT [  275, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.597259E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  275, 2) ST = 0.215469E+08 DT = 0.864000E+05 DX 1=0.640873E+04 DX2= 0.105187E-02 T =  10.054 P =  3273169. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.014492753623188     
+ ...ITERATING... AT [  276, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.589339E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  276, 2) ST = 0.216333E+08 DT = 0.864000E+05 DX 1=0.657849E+04 DX2= 0.665770E-03 T =  10.078 P =  3027954. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.012048192771083     
+ ...ITERATING... AT [  277, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.581458E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  277, 2) ST = 0.217197E+08 DT = 0.864000E+05 DX 1=0.636324E+04 DX2= 0.142049E-02 T =  10.070 P =  3247187. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.016826923076920     
+ ...ITERATING... AT [  278, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.573601E-02 AT ELEMENT  e143     EQUATION   2
+  e145   (  278, 2) ST = 0.218061E+08 DT = 0.864000E+05 DX 1=0.633947E+04 DX2= 0.145220E-02 T =  10.072 P =  3253526. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.016786570743406     
+ ...ITERATING... AT [  279, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.567283E-02 AT ELEMENT  d142     EQUATION   2
+  e145   (  279, 2) ST = 0.218925E+08 DT = 0.864000E+05 DX 1=0.631542E+04 DX2= 0.153805E-02 T =  10.076 P =  3279029. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.014354066985646     
+ ...ITERATING... AT [  280, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.561706E-02 AT ELEMENT  d142     EQUATION   2
+  e145   (  280, 2) ST = 0.219789E+08 DT = 0.864000E+05 DX 1=0.630071E+04 DX2= 0.127492E-02 T =  10.064 P =  3260685. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.011933174224346     
+ ...ITERATING... AT [  281, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.556122E-02 AT ELEMENT  d142     EQUATION   2
+  e145   (  281, 2) ST = 0.220653E+08 DT = 0.864000E+05 DX 1=0.626831E+04 DX2= 0.160271E-02 T =  10.079 P =  3291589. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.009523809523813     
+ ...ITERATING... AT [  282, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.550533E-02 AT ELEMENT  d142     EQUATION   2
+  e145   (  282, 2) ST = 0.221517E+08 DT = 0.864000E+05 DX 1=0.624493E+04 DX2= 0.163614E-02 T =  10.081 P =  3297834. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.009501187648453     
+ ...ITERATING... AT [  283, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.544935E-02 AT ELEMENT  d142     EQUATION   2
+  e145   (  283, 2) ST = 0.222381E+08 DT = 0.864000E+05 DX 1=0.622210E+04 DX2= 0.161431E-02 T =  10.079 P =  3284870. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.007109004739334     
+ ...ITERATING... AT [  284, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.539348E-02 AT ELEMENT  d142     EQUATION   2
+  d194   (  284, 2) ST = 0.223245E+08 DT = 0.864000E+05 DX 1=0.619894E+04 DX2= 0.164792E-02 T =  10.081 P =  3291069. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.004728132387704     
+ ...ITERATING... AT [  285, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.533767E-02 AT ELEMENT  d142     EQUATION   2
+  e145   (  285, 2) ST = 0.224109E+08 DT = 0.864000E+05 DX 1=0.618416E+04 DX2= 0.140105E-02 T =  10.071 P =  3291837. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002358490566039     
+ ...ITERATING... AT [  286, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.528196E-02 AT ELEMENT  d142     EQUATION   2
+  e145   (  286, 2) ST = 0.224973E+08 DT = 0.864000E+05 DX 1=0.615254E+04 DX2= 0.176959E-02 T =  10.087 P =  3322582. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002352941176468     
+ ...ITERATING... AT [  287, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.522651E-02 AT ELEMENT  d142     EQUATION   2
+  i153   (  287, 2) ST = 0.225837E+08 DT = 0.864000E+05 DX 1=0.630406E+04 DX2= 0.732847E-03 T =  10.086 P =  3098659. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002347417840376     
+ ...ITERATING... AT [  288, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.517110E-02 AT ELEMENT  d142     EQUATION   2
+  e145   (  288, 2) ST = 0.226701E+08 DT = 0.864000E+05 DX 1=0.610701E+04 DX2= 0.183955E-02 T =  10.091 P =  3334819. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002341920374704     
+ ...ITERATING... AT [  289, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.514800E-02 AT ELEMENT  e168     EQUATION   2
+  h1 0   (  289, 2) ST = 0.227565E+08 DT = 0.864000E+05 DX 1=0.608441E+04 DX2= 0.187457E-02 T =  10.093 P =  3340903. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002336448598129     
+ ...ITERATING... AT [  290, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.512589E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  290, 2) ST = 0.228429E+08 DT = 0.864000E+05 DX 1=0.606242E+04 DX2= 0.185818E-02 T =  10.092 P =  3327783. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002331002331005     
+ ...ITERATING... AT [  291, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.510334E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  291, 2) ST = 0.229293E+08 DT = 0.864000E+05 DX 1=0.604628E+04 DX2= 0.114253E-02 T =  10.060 P =  3348033. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002325581395347     
+ ...ITERATING... AT [  292, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.508043E-02 AT ELEMENT  e168     EQUATION   2
+  e194   (  292, 2) ST = 0.230157E+08 DT = 0.864000E+05 DX 1=0.601536E+04 DX2= 0.148818E-02 T =  10.076 P =  3378532. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.997679814385151     
+ ...ITERATING... AT [  293, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.505722E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  293, 2) ST = 0.231021E+08 DT = 0.864000E+05 DX 1=0.600417E+04 DX2= 0.160088E-02 T =  10.081 P =  3321332. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.993055555555557     
+ ...ITERATING... AT [  294, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.503359E-02 AT ELEMENT  e168     EQUATION   2
+  f1 6   (  294, 2) ST = 0.231885E+08 DT = 0.864000E+05 DX 1=0.598217E+04 DX2= 0.162909E-02 T =  10.083 P =  3327314. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.993071593533486     
+ ...ITERATING... AT [  295, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.500960E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  295, 2) ST = 0.232749E+08 DT = 0.864000E+05 DX 1=0.594754E+04 DX2= 0.835151E-03 T =  10.045 P =  3415251. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.993087557603687     
+ ...ITERATING... AT [  296, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.498528E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  296, 2) ST = 0.233613E+08 DT = 0.864000E+05 DX 1=0.593005E+04 DX2= 0.208043E-02 T =  10.104 P =  3363692. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.993103448275861     
+ ...ITERATING... AT [  297, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.496066E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  297, 2) ST = 0.234477E+08 DT = 0.864000E+05 DX 1=0.590844E+04 DX2= 0.211882E-02 T =  10.106 P =  3369601. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.995412844036700     
+ ...ITERATING... AT [  298, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.493573E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  298, 2) ST = 0.235341E+08 DT = 0.864000E+05 DX 1=0.589303E+04 DX2= 0.128706E-02 T =  10.069 P =  3389741. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.000000000000000     
+ ...ITERATING... AT [  299, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.491054E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  299, 2) ST = 0.236205E+08 DT = 0.864000E+05 DX 1=0.586506E+04 DX2= 0.224277E-02 T =  10.114 P =  3400531. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.995433789954340     
+ ...ITERATING... AT [  300, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.488508E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  300, 2) ST = 0.237069E+08 DT = 0.864000E+05 DX 1=0.584318E+04 DX2= 0.162838E-02 T =  10.083 P =  3368564. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.993166287015946     
+ ...ITERATING... AT [  301, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.485930E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  301, 2) ST = 0.237933E+08 DT = 0.864000E+05 DX 1=0.582322E+04 DX2= 0.227424E-02 T =  10.115 P =  3393021. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.990909090909092     
+ ...ITERATING... AT [  302, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.483333E-02 AT ELEMENT  e168     EQUATION   2
+  e145   (  302, 2) ST = 0.238797E+08 DT = 0.864000E+05 DX 1=0.580994E+04 DX2= 0.185879E-02 T =  10.099 P =  3393550. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.988662131519277     
+ ...ITERATING... AT [  303, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.480705E-02 AT ELEMENT  e168     EQUATION   2
+  b138   (  303, 2) ST = 0.239661E+08 DT = 0.864000E+05 DX 1=0.578024E+04 DX2= 0.172569E-02 T =  10.088 P =  3385968. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.986425339366512     
+ ...ITERATING... AT [  304, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.478068E-02 AT ELEMENT  e168     EQUATION   2
+  d1 6   (  304, 2) ST = 0.240525E+08 DT = 0.864000E+05 DX 1=0.575818E+04 DX2= 0.184172E-02 T =  10.096 P =  3449026. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.988713318284425     
+ ...ITERATING... AT [  305, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.475794E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  305, 2) ST = 0.241389E+08 DT = 0.864000E+05 DX 1=0.574003E+04 DX2= 0.243645E-02 T =  10.124 P =  3416105. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.986486486486484     
+ ...ITERATING... AT [  306, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.474169E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  306, 2) ST = 0.242253E+08 DT = 0.864000E+05 DX 1=0.571903E+04 DX2= 0.251886E-02 T =  10.130 P =  3440999. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.984269662921349     
+ ...ITERATING... AT [  307, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.472495E-02 AT ELEMENT  e169     EQUATION   2
+  g194   (  307, 2) ST = 0.243117E+08 DT = 0.864000E+05 DX 1=0.569812E+04 DX2= 0.185839E-02 T =  10.095 P =  3408883. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.982062780269061     
+ ...ITERATING... AT [  308, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.470786E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  308, 2) ST = 0.243981E+08 DT = 0.864000E+05 DX 1=0.567845E+04 DX2= 0.260053E-02 T =  10.136 P =  3452376. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.979865771812079     
+ ...ITERATING... AT [  309, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.469033E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  309, 2) ST = 0.244845E+08 DT = 0.864000E+05 DX 1=0.565642E+04 DX2= 0.199872E-02 T =  10.105 P =  3477511. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.977678571428569     
+ ...ITERATING... AT [  310, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.467252E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  310, 2) ST = 0.245709E+08 DT = 0.864000E+05 DX 1=0.563838E+04 DX2= 0.268279E-02 T =  10.141 P =  3463673. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.982182628062361     
+ ...ITERATING... AT [  311, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.465432E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  311, 2) ST = 0.246573E+08 DT = 0.864000E+05 DX 1=0.561667E+04 DX2= 0.206349E-02 T =  10.110 P =  3488764. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.977777777777774     
+ ...ITERATING... AT [  312, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.463574E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  312, 2) ST = 0.247437E+08 DT = 0.864000E+05 DX 1=0.559833E+04 DX2= 0.203305E-02 T =  10.105 P =  3437073. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.980044345898001     
+ ...ITERATING... AT [  313, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.461679E-02 AT ELEMENT  e169     EQUATION   2
+  e170   (  313, 2) ST = 0.248301E+08 DT = 0.864000E+05 DX 1=0.558729E+04 DX2= 0.217522E-02 T =  10.121 P =  3456110. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.984513274336280     
+ ...ITERATING... AT [  314, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.459759E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  314, 2) ST = 0.249165E+08 DT = 0.864000E+05 DX 1=0.555978E+04 DX2= 0.285066E-02 T =  10.152 P =  3486029. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.988962472406179     
+ ...ITERATING... AT [  315, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.457807E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  315, 2) ST = 0.250029E+08 DT = 0.864000E+05 DX 1=0.553679E+04 DX2= 0.118213E-02 T =  10.065 P =  3529804. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.993392070484582     
+ ...ITERATING... AT [  316, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.455819E-02 AT ELEMENT  e169     EQUATION   2
+  d171   (  316, 2) ST = 0.250893E+08 DT = 0.864000E+05 DX 1=0.552122E+04 DX2= 0.293684E-02 T =  10.158 P =  3497091. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    56.997802197802194     
+ ...ITERATING... AT [  317, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.453804E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  317, 2) ST = 0.251757E+08 DT = 0.864000E+05 DX 1=0.550026E+04 DX2= 0.226407E-02 T =  10.123 P =  3522054. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002192982456137     
+ ...ITERATING... AT [  318, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.451764E-02 AT ELEMENT  e169     EQUATION   2
+  d145   (  318, 2) ST = 0.252621E+08 DT = 0.864000E+05 DX 1=0.549107E+04 DX2= 0.180219E-02 T =  10.097 P =  3446059. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.006564551422322     
+ ...ITERATING... AT [  319, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.449691E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  319, 2) ST = 0.253485E+08 DT = 0.864000E+05 DX 1=0.546388E+04 DX2= 0.228963E-02 T =  10.120 P =  3475720. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.004366812227076     
+ ...ITERATING... AT [  320, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.447592E-02 AT ELEMENT  e169     EQUATION   2
+  e171   (  320, 2) ST = 0.254349E+08 DT = 0.864000E+05 DX 1=0.545425E+04 DX2= 0.241489E-02 T =  10.136 P =  3475538. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002178649237472     
+ ...ITERATING... AT [  321, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.445468E-02 AT ELEMENT  e169     EQUATION   2
+  g1 6   (  321, 2) ST = 0.255213E+08 DT = 0.864000E+05 DX 1=0.542753E+04 DX2= 0.313233E-02 T =  10.169 P =  3505247. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.002173913043478     
+ ...ITERATING... AT [  322, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.443325E-02 AT ELEMENT  e169     EQUATION   2
+  d144   (  322, 2) ST = 0.256077E+08 DT = 0.864000E+05 DX 1=0.540844E+04 DX2= 0.320185E-02 T =  10.177 P =  3529821. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.000000000000000     
+ ...ITERATING... AT [  323, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.441158E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  323, 2) ST = 0.256941E+08 DT = 0.864000E+05 DX 1=0.539062E+04 DX2= 0.322520E-02 T =  10.175 P =  3516047. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.000000000000000     
+ ...ITERATING... AT [  324, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.438966E-02 AT ELEMENT  e169     EQUATION   2
+  d145   (  324, 2) ST = 0.257805E+08 DT = 0.864000E+05 DX 1=0.537988E+04 DX2= 0.250292E-02 T =  10.147 P =  3516312. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.000000000000000     
+ ...ITERATING... AT [  325, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.436752E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  325, 2) ST = 0.258669E+08 DT = 0.864000E+05 DX 1=0.535190E+04 DX2= 0.254191E-02 T =  10.142 P =  3565384. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.000000000000000     
+ ...ITERATING... AT [  326, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.434516E-02 AT ELEMENT  e169     EQUATION   2
+  h151   (  326, 2) ST = 0.259533E+08 DT = 0.864000E+05 DX 1=0.534373E+04 DX2= 0.256366E-02 T =  10.152 P =  3527017. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.008602150537634     
+ ...ITERATING... AT [  327, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.432263E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  327, 2) ST = 0.260397E+08 DT = 0.864000E+05 DX 1=0.531771E+04 DX2= 0.342958E-02 T =  10.193 P =  3556590. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.010729613733908     
+ ...ITERATING... AT [  328, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.429988E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  328, 2) ST = 0.261261E+08 DT = 0.864000E+05 DX 1=0.529989E+04 DX2= 0.347771E-02 T =  10.197 P =  3561890. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.010706638115629     
+ ...ITERATING... AT [  329, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.427695E-02 AT ELEMENT  e169     EQUATION   2
+  h159   (  329, 2) ST = 0.262125E+08 DT = 0.864000E+05 DX 1=0.529024E+04 DX2= 0.211075E-02 T =  10.119 P =  3505244. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.012820512820511     
+ ...ITERATING... AT [  330, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.425388E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  330, 2) ST = 0.262989E+08 DT = 0.864000E+05 DX 1=0.527260E+04 DX2= 0.214037E-02 T =  10.121 P =  3510516. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.014925373134325     
+ ...ITERATING... AT [  331, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.423067E-02 AT ELEMENT  e169     EQUATION   2
+  f170   (  331, 2) ST = 0.263853E+08 DT = 0.864000E+05 DX 1=0.524756E+04 DX2= 0.360692E-02 T =  10.203 P =  3558524. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.017021276595742     
+ ...ITERATING... AT [  332, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.420726E-02 AT ELEMENT  e169     EQUATION   2
+  c140   (  332, 2) ST = 0.264717E+08 DT = 0.864000E+05 DX 1=0.522960E+04 DX2= 0.366471E-02 T =  10.211 P =  3582913. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.021231422505309     
+ ...ITERATING... AT [  333, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.418361E-02 AT ELEMENT  e169     EQUATION   2
+  e145   (  333, 2) ST = 0.265581E+08 DT = 0.864000E+05 DX 1=0.522106E+04 DX2= 0.283587E-02 T =  10.170 P =  3544791. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.023305084745765     
+ ...ITERATING... AT [  334, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.416840E-02 AT ELEMENT  e170     EQUATION   2
+  e170   (  334, 2) ST = 0.266445E+08 DT = 0.864000E+05 DX 1=0.519510E+04 DX2= 0.376059E-02 T =  10.219 P =  3593321. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.025369978858350     
+ ...ITERATING... AT [  335, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.415322E-02 AT ELEMENT  e170     EQUATION   2
+  e170   (  335, 2) ST = 0.267309E+08 DT = 0.864000E+05 DX 1=0.517773E+04 DX2= 0.292758E-02 T =  10.162 P =  3560673. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.027426160337555     
+ ...ITERATING... AT [  336, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.413776E-02 AT ELEMENT  e170     EQUATION   2
+  d143   (  336, 2) ST = 0.268173E+08 DT = 0.864000E+05 DX 1=0.515937E+04 DX2= 0.294747E-02 T =  10.172 P =  3623088. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.037894736842105     
+ ...ITERATING... AT [  337, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.412191E-02 AT ELEMENT  e170     EQUATION   2
+  e145   (  337, 2) ST = 0.269037E+08 DT = 0.864000E+05 DX 1=0.514470E+04 DX2= 0.390529E-02 T =  10.225 P =  3589647. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.039915966386552     
+ ...ITERATING... AT [  338, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.410580E-02 AT ELEMENT  e170     EQUATION   2
+  d170   (  338, 2) ST = 0.269901E+08 DT = 0.864000E+05 DX 1=0.513557E+04 DX2= 0.293100E-02 T =  10.185 P =  3589774. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.050314465408803     
+ ...ITERATING... AT [  339, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.408948E-02 AT ELEMENT  e170     EQUATION   2
+  d1 7   (  339, 2) ST = 0.270765E+08 DT = 0.864000E+05 DX 1=0.511073E+04 DX2= 0.400509E-02 T =  10.238 P =  3619042. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.052301255230127     
+ ...ITERATING... AT [  340, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.407286E-02 AT ELEMENT  e170     EQUATION   2
+  g171   (  340, 2) ST = 0.271629E+08 DT = 0.864000E+05 DX 1=0.509470E+04 DX2= 0.405936E-02 T =  10.237 P =  3604981. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.056367432150310     
+ ...ITERATING... AT [  341, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.405599E-02 AT ELEMENT  e170     EQUATION   2
+  h167   (  341, 2) ST = 0.272493E+08 DT = 0.864000E+05 DX 1=0.507824E+04 DX2= 0.411063E-02 T =  10.242 P =  3610059. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.058333333333330     
+ ...ITERATING... AT [  342, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.403886E-02 AT ELEMENT  e170     EQUATION   2
+  e145   (  342, 2) ST = 0.273357E+08 DT = 0.864000E+05 DX 1=0.516221E+04 DX2= 0.973305E-03 T =  10.138 P =  3428680. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.060291060291057     
+ ...ITERATING... AT [  343, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.402147E-02 AT ELEMENT  e170     EQUATION   2
+  e145   (  343, 2) ST = 0.274221E+08 DT = 0.864000E+05 DX 1=0.504505E+04 DX2= 0.420448E-02 T =  10.255 P =  3639320. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.062240663900418     
+ ...ITERATING... AT [  344, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.400396E-02 AT ELEMENT  e170     EQUATION   2
+  f172   (  344, 2) ST = 0.275085E+08 DT = 0.864000E+05 DX 1=0.502863E+04 DX2= 0.331848E-02 T =  10.190 P =  3606521. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.064182194616976     
+ ...ITERATING... AT [  345, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.398624E-02 AT ELEMENT  e170     EQUATION   2
+  f169   (  345, 2) ST = 0.275949E+08 DT = 0.864000E+05 DX 1=0.501958E+04 DX2= 0.237008E-02 T =  10.154 P =  3644741. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.066115702479337     
+ ...ITERATING... AT [  346, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.396823E-02 AT ELEMENT  e170     EQUATION   2
+  d145   (  346, 2) ST = 0.276813E+08 DT = 0.864000E+05 DX 1=0.500514E+04 DX2= 0.318196E-02 T =  10.210 P =  3630267. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.070103092783505     
+ ...ITERATING... AT [  347, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.395003E-02 AT ELEMENT  e170     EQUATION   2
+  e110   (  347, 2) ST = 0.277677E+08 DT = 0.864000E+05 DX 1=0.498776E+04 DX2= 0.241749E-02 T =  10.159 P =  3654733. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.072016460905353     
+ ...ITERATING... AT [  348, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.393169E-02 AT ELEMENT  e170     EQUATION   2
+  e145   (  348, 2) ST = 0.278541E+08 DT = 0.864000E+05 DX 1=0.497349E+04 DX2= 0.324355E-02 T =  10.216 P =  3640230. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.073921971252567     
+ ...ITERATING... AT [  349, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.391313E-02 AT ELEMENT  e170     EQUATION   2
+  h 92   (  349, 2) ST = 0.279405E+08 DT = 0.864000E+05 DX 1=0.494790E+04 DX2= 0.345412E-02 T =  10.214 P =  3688661. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.075819672131146     
+ ...ITERATING... AT [  350, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.389438E-02 AT ELEMENT  e170     EQUATION   2
+  f169   (  350, 2) ST = 0.280269E+08 DT = 0.864000E+05 DX 1=0.493382E+04 DX2= 0.456009E-02 T =  10.285 P =  3674188. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.077709611451944     
+ ...ITERATING... AT [  351, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.387549E-02 AT ELEMENT  e170     EQUATION   2
+  c170   (  351, 2) ST = 0.281133E+08 DT = 0.864000E+05 DX 1=0.492671E+04 DX2= 0.333954E-02 T =  10.226 P =  3655057. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.079591836734693     
+ ...ITERATING... AT [  352, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.385641E-02 AT ELEMENT  e170     EQUATION   2
+  f145   (  352, 2) ST = 0.281997E+08 DT = 0.864000E+05 DX 1=0.490286E+04 DX2= 0.466541E-02 T =  10.295 P =  3684009. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.081466395112017     
+ ...ITERATING... AT [  353, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.383713E-02 AT ELEMENT  e170     EQUATION   2
+  c168   (  353, 2) ST = 0.282861E+08 DT = 0.864000E+05 DX 1=0.488728E+04 DX2= 0.372791E-02 T =  10.222 P =  3651066. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.083333333333336     
+ ...ITERATING... AT [  354, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.381774E-02 AT ELEMENT  e170     EQUATION   2
+  g171   (  354, 2) ST = 0.283725E+08 DT = 0.864000E+05 DX 1=0.488070E+04 DX2= 0.343393E-02 T =  10.237 P =  3669745. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.085192697768761     
+ ...ITERATING... AT [  355, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.379821E-02 AT ELEMENT  e170     EQUATION   2
+  f172   (  355, 2) ST = 0.284589E+08 DT = 0.864000E+05 DX 1=0.485755E+04 DX2= 0.485490E-02 T =  10.305 P =  3679479. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.087044534412954     
+ ...ITERATING... AT [  356, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.377852E-02 AT ELEMENT  e170     EQUATION   2
+  e171   (  356, 2) ST = 0.285453E+08 DT = 0.864000E+05 DX 1=0.485047E+04 DX2= 0.349569E-02 T =  10.243 P =  3679461. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.088888888888889     
+ ...ITERATING... AT [  357, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.375869E-02 AT ELEMENT  e170     EQUATION   2
+  g159   (  357, 2) ST = 0.286317E+08 DT = 0.864000E+05 DX 1=0.492574E+04 DX2= 0.121163E-02 T =  10.152 P =  3487309. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.090725806451616     
+ ...ITERATING... AT [  358, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.373877E-02 AT ELEMENT  e170     EQUATION   2
+  e196   (  358, 2) ST = 0.287181E+08 DT = 0.864000E+05 DX 1=0.481204E+04 DX2= 0.498035E-02 T =  10.324 P =  3713107. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.092555331991953     
+ ...ITERATING... AT [  359, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.371867E-02 AT ELEMENT  e170     EQUATION   2
+  e145   (  359, 2) ST = 0.288045E+08 DT = 0.864000E+05 DX 1=0.479720E+04 DX2= 0.503599E-02 T =  10.329 P =  3717904. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.094377510040161     
+ ...ITERATING... AT [  360, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.369850E-02 AT ELEMENT  e170     EQUATION   2
+  d171   (  360, 2) ST = 0.288909E+08 DT = 0.864000E+05 DX 1=0.478243E+04 DX2= 0.508908E-02 T =  10.334 P =  3722687. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.096192384769537     
+ ...ITERATING... AT [  361, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.367824E-02 AT ELEMENT  e170     EQUATION   2
+  i1 4   (  361, 2) ST = 0.289773E+08 DT = 0.864000E+05 DX 1=0.477642E+04 DX2= 0.365539E-02 T =  10.261 P =  3703490. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.097999999999999     
+ ...ITERATING... AT [  362, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.365789E-02 AT ELEMENT  e170     EQUATION   2
+  i 97   (  362, 2) ST = 0.290637E+08 DT = 0.864000E+05 DX 1=0.476044E+04 DX2= 0.278633E-02 T =  10.198 P =  3727706. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.099800399201598     
+ ...ITERATING... AT [  363, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.363744E-02 AT ELEMENT  e170     EQUATION   2
+  f110   (  363, 2) ST = 0.291501E+08 DT = 0.864000E+05 DX 1=0.473849E+04 DX2= 0.420340E-02 T =  10.262 P =  3699114. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.101593625498005     
+ ...ITERATING... AT [  364, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.361734E-02 AT ELEMENT  e171     EQUATION   2
+  d173   (  364, 2) ST = 0.292365E+08 DT = 0.864000E+05 DX 1=0.473300E+04 DX2= 0.316722E-02 T =  10.212 P =  3680036. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.103379721669981     
+ ...ITERATING... AT [  365, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.360382E-02 AT ELEMENT  e171     EQUATION   2
+  f173   (  365, 2) ST = 0.293229E+08 DT = 0.864000E+05 DX 1=0.470988E+04 DX2= 0.535800E-02 T =  10.360 P =  3746381. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.105158730158728     
+ ...ITERATING... AT [  366, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.359006E-02 AT ELEMENT  e171     EQUATION   2
+  e1 9   (  366, 2) ST = 0.294093E+08 DT = 0.864000E+05 DX 1=0.470494E+04 DX2= 0.394822E-02 T =  10.282 P =  3708039. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.106930693069309     
+ ...ITERATING... AT [  367, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.357610E-02 AT ELEMENT  e171     EQUATION   2
+  h166   (  367, 2) ST = 0.294957E+08 DT = 0.864000E+05 DX 1=0.468140E+04 DX2= 0.546721E-02 T =  10.371 P =  3755758. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.108695652173914     
+ ...ITERATING... AT [  368, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.356196E-02 AT ELEMENT  e171     EQUATION   2
+  d145   (  368, 2) ST = 0.295821E+08 DT = 0.864000E+05 DX 1=0.467607E+04 DX2= 0.387752E-02 T =  10.288 P =  3736521. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.110453648915190     
+ ...ITERATING... AT [  369, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.354764E-02 AT ELEMENT  e171     EQUATION   2
+  e173   (  369, 2) ST = 0.296685E+08 DT = 0.864000E+05 DX 1=0.465187E+04 DX2= 0.428585E-02 T =  10.292 P =  3784456. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.112204724409452     
+ ...ITERATING... AT [  370, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.353316E-02 AT ELEMENT  e171     EQUATION   2
+  d170   (  370, 2) ST = 0.297549E+08 DT = 0.864000E+05 DX 1=0.463908E+04 DX2= 0.454864E-02 T =  10.293 P =  3731884. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.113948919449903     
+ ...ITERATING... AT [  371, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.351847E-02 AT ELEMENT  e171     EQUATION   2
+  c196   (  371, 2) ST = 0.298413E+08 DT = 0.864000E+05 DX 1=0.462401E+04 DX2= 0.437183E-02 T =  10.301 P =  3793718. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.115686274509805     
+ ...ITERATING... AT [  372, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.350366E-02 AT ELEMENT  e171     EQUATION   2
+  d171   (  372, 2) ST = 0.299277E+08 DT = 0.864000E+05 DX 1=0.461195E+04 DX2= 0.581549E-02 T =  10.396 P =  3759815. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.117416829745594     
+ ...ITERATING... AT [  373, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.348864E-02 AT ELEMENT  e171     EQUATION   2
+  f170   (  373, 2) ST = 0.300141E+08 DT = 0.864000E+05 DX 1=0.459527E+04 DX2= 0.247034E-02 T =  10.170 P =  3821607. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.119140625000000     
+ ...ITERATING... AT [  374, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.347347E-02 AT ELEMENT  e171     EQUATION   2
+  f173   (  374, 2) ST = 0.301005E+08 DT = 0.864000E+05 DX 1=0.459168E+04 DX2= 0.308195E-02 T =  10.234 P =  3783724. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.120857699805072     
+ ...ITERATING... AT [  375, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.345815E-02 AT ELEMENT  e171     EQUATION   2
+  e110   (  375, 2) ST = 0.301869E+08 DT = 0.864000E+05 DX 1=0.457042E+04 DX2= 0.590971E-02 T =  10.417 P =  3792706. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.122568093385212     
+ ...ITERATING... AT [  376, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.344271E-02 AT ELEMENT  e171     EQUATION   2
+  h 99   (  376, 2) ST = 0.302733E+08 DT = 0.864000E+05 DX 1=0.455562E+04 DX2= 0.458910E-02 T =  10.323 P =  3816632. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.124271844660193     
+ ...ITERATING... AT [  377, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.342707E-02 AT ELEMENT  e171     EQUATION   2
+  d172   (  377, 2) ST = 0.303597E+08 DT = 0.864000E+05 DX 1=0.455245E+04 DX2= 0.416164E-02 T =  10.324 P =  3777984. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.125968992248062     
+ ...ITERATING... AT [  378, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.341128E-02 AT ELEMENT  e171     EQUATION   2
+  d171   (  378, 2) ST = 0.304461E+08 DT = 0.864000E+05 DX 1=0.452766E+04 DX2= 0.259567E-02 T =  10.183 P =  3844379. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.127659574468083     
+ ...ITERATING... AT [  379, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.339536E-02 AT ELEMENT  e171     EQUATION   2
+  c110   (  379, 2) ST = 0.305325E+08 DT = 0.864000E+05 DX 1=0.452583E+04 DX2= 0.363518E-02 T =  10.263 P =  3749353. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.129343629343630     
+ ...ITERATING... AT [  380, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.337933E-02 AT ELEMENT  e171     EQUATION   2
+  d111   (  380, 2) ST = 0.306189E+08 DT = 0.864000E+05 DX 1=0.450218E+04 DX2= 0.476323E-02 T =  10.342 P =  3834720. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.131021194605012     
+ ...ITERATING... AT [  381, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.336319E-02 AT ELEMENT  e171     EQUATION   2
+  d170   (  381, 2) ST = 0.307053E+08 DT = 0.864000E+05 DX 1=0.449989E+04 DX2= 0.446139E-02 T =  10.346 P =  3776953. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.132692307692309     
+ ...ITERATING... AT [  382, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.334694E-02 AT ELEMENT  e171     EQUATION   2
+  d171   (  382, 2) ST = 0.307917E+08 DT = 0.864000E+05 DX 1=0.448677E+04 DX2= 0.449555E-02 T =  10.350 P =  3781439. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.132437619961614     
+ ...ITERATING... AT [  383, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.333060E-02 AT ELEMENT  e171     EQUATION   2
+  f174   (  383, 2) ST = 0.308781E+08 DT = 0.864000E+05 DX 1=0.446401E+04 DX2= 0.635808E-02 T =  10.466 P =  3828788. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.132183908045974     
+ ...ITERATING... AT [  384, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.331416E-02 AT ELEMENT  e171     EQUATION   2
+  d110   (  384, 2) ST = 0.309645E+08 DT = 0.864000E+05 DX 1=0.445089E+04 DX2= 0.525803E-02 T =  10.362 P =  3795403. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.131931166347989     
+ ...ITERATING... AT [  385, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.329754E-02 AT ELEMENT  e171     EQUATION   2
+  f171   (  385, 2) ST = 0.310509E+08 DT = 0.864000E+05 DX 1=0.443807E+04 DX2= 0.647260E-02 T =  10.479 P =  3837677. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.133587786259540     
+ ...ITERATING... AT [  386, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.328089E-02 AT ELEMENT  e171     EQUATION   2
+  d145   (  386, 2) ST = 0.311373E+08 DT = 0.864000E+05 DX 1=0.442520E+04 DX2= 0.652897E-02 T =  10.485 P =  3842102. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.135238095238094     
+ ...ITERATING... AT [  387, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.326412E-02 AT ELEMENT  e171     EQUATION   2
+  e170   (  387, 2) ST = 0.312237E+08 DT = 0.864000E+05 DX 1=0.441282E+04 DX2= 0.669797E-02 T =  10.490 P =  3827382. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.136882129277566     
+ ...ITERATING... AT [  388, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.324722E-02 AT ELEMENT  e171     EQUATION   2
+  d113   (  388, 2) ST = 0.313101E+08 DT = 0.864000E+05 DX 1=0.440904E+04 DX2= 0.391715E-02 T =  10.297 P =  3789498. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.136622390891837     
+ ...ITERATING... AT [  389, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.323024E-02 AT ELEMENT  e171     EQUATION   2
+  e174   (  389, 2) ST = 0.313965E+08 DT = 0.864000E+05 DX 1=0.438698E+04 DX2= 0.669825E-02 T =  10.505 P =  3855301. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.136363636363633     
+ ...ITERATING... AT [  390, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.321322E-02 AT ELEMENT  e171     EQUATION   2
+  f174   (  390, 2) ST = 0.314829E+08 DT = 0.864000E+05 DX 1=0.437437E+04 DX2= 0.675300E-02 T =  10.512 P =  3859676. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.137996219281661     
+ ...ITERATING... AT [  391, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.319612E-02 AT ELEMENT  e171     EQUATION   2
+  g172   (  391, 2) ST = 0.315693E+08 DT = 0.864000E+05 DX 1=0.437171E+04 DX2= 0.480270E-02 T =  10.392 P =  3821241. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.135849056603774     
+ ...ITERATING... AT [  392, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.317893E-02 AT ELEMENT  e171     EQUATION   2
+  d173   (  392, 2) ST = 0.316557E+08 DT = 0.864000E+05 DX 1=0.434822E+04 DX2= 0.529031E-02 T =  10.402 P =  3887736. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.131826741996235     
+ ...ITERATING... AT [  393, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.316168E-02 AT ELEMENT  e171     EQUATION   2
+  c172   (  393, 2) ST = 0.317421E+08 DT = 0.864000E+05 DX 1=0.433732E+04 DX2= 0.705564E-02 T =  10.532 P =  3853593. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.129699248120303     
+ ...ITERATING... AT [  394, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.314439E-02 AT ELEMENT  e171     EQUATION   2
+  d172   (  394, 2) ST = 0.318285E+08 DT = 0.864000E+05 DX 1=0.432346E+04 DX2= 0.537831E-02 T =  10.413 P =  3896396. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.127579737335836     
+ ...ITERATING... AT [  395, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.312703E-02 AT ELEMENT  e171     EQUATION   2
+  d1 7   (  395, 2) ST = 0.319149E+08 DT = 0.864000E+05 DX 1=0.431222E+04 DX2= 0.703848E-02 T =  10.547 P =  3881360. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.127340823970037     
+ ...ITERATING... AT [  396, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.310962E-02 AT ELEMENT  e171     EQUATION   2
+  c167   (  396, 2) ST = 0.320013E+08 DT = 0.864000E+05 DX 1=0.429998E+04 DX2= 0.709468E-02 T =  10.554 P =  3885660. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.127102803738318     
+ ...ITERATING... AT [  397, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.309215E-02 AT ELEMENT  e171     EQUATION   2
+  h171   (  397, 2) ST = 0.320877E+08 DT = 0.864000E+05 DX 1=0.428778E+04 DX2= 0.714819E-02 T =  10.561 P =  3889948. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.126865671641788     
+ ...ITERATING... AT [  398, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.307466E-02 AT ELEMENT  e171     EQUATION   2
+  h170   (  398, 2) ST = 0.321741E+08 DT = 0.864000E+05 DX 1=0.427606E+04 DX2= 0.735631E-02 T =  10.568 P =  3875095. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.130353817504655     
+ ...ITERATING... AT [  399, 1] --- DELTEX = 0.864000E+05  MAX. RES. = 0.306142E-02 AT ELEMENT  d171     EQUATION   2
+  b170   (  399, 2) ST = 0.322605E+08 DT = 0.864000E+05 DX 1=0.427368E+04 DX2= 0.507432E-02 T =  10.432 P =  3855771. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.131970260223049     
+ ...ITERATING... AT [  400, 1] --- DELTEX = 0.794837E+05  MAX. RES. = 0.280527E-02 AT ELEMENT  e172     EQUATION   2
+  f172   (  400, 2) ST = 0.323400E+08 DT = 0.794837E+05 DX 1=0.392177E+04 DX2= 0.469607E-02 T =  10.437 P =  3859693. S = 0.000000E+00
+    
+   average inner-iteration/solve    =    57.133580705009280     
+ EEE  
+ EEE Time perform model computaion  =    24.321650028228760     
+ EEE   of which spent in lin. solv. =    9.7596557140350342     
+ EEE   and spent on other           =    14.561994314193726     
+ EEE  
+ EEE Total number of time steps =          400
+
+ ********** VOLUME- AND MASS-BALANCES ********************************************************************************************
+
+ ********** [KCYC,ITER] = [ 400,  2] *****                                  THE TIME IS  0.32340E+08 SECONDS, OR  0.37431E+03 DAYS
+
+
+ PHASE VOLUMES IN PLACE
+ GAS 0.00000E+00 M**3;  AQUEOUS 0.10500E+06 M**3
+
+ MASS IN PLACE
+ GAS 0.00000E+00 KG;    AQUEOUS 0.10497E+09 KG;  TOTAL H2O 0.10497E+09 KG;  H2O(2) 0.00000E+00 KG;  INT. ENERGY 0.20997E+14 J
+
+ *********************************************************************************************************************************
+
+
+
+ WRITE FILE *SAVE* AFTER  400 TIME STEPS  ---  THE TIME IS 0.323400E+08 SECONDS
+
+ EEE  
+ EEE  Number of processors =            6
+ EEE Time perform model computaion  =    24.321650028228760     
+ EEE   of which spent in lin. solv. =    9.7596557140350342     
+ EEE   and spent on other           =    14.561994314193726     
+ EEE  
+ EEE Total number of time steps =          400
+ EEE Average time in Aztec per time step =    2.4399139285087586E-002
+ EEE Average time spent on other per time step =    3.6404985785484317E-002
+ EEE  
+ EEE Total number Newton steps =          539
+ EEE Average number of Newton steps per time step   1.3474999999999999     
+ EEE Average time per Newton step =    1.8106967929564070E-002
+ EEE Average time spent on other per Newton st =    2.7016687039320454E-002
+ EEE  
+ EEE Total number of iter in Aztec =        30795
+ EEE Average number of iter per call to Aztec   57.133580705009280     
+ EEE Average time per iter in Aztec =    3.1692338736921688E-004
+ EEE  
+ EEE Partitioning algorithm used: METIS_Kway               
+ EEE Number of edges cut =          759
+ EEE  
+ EEE Average number elements per proc =    500.16666666666669     
+ EEE Maximum number elements at any proc =          522
+ EEE Minimum number elements at any proc =          488
+ EEE Allocated LNEL =          589
+ EEE Average number connections per proc =    2.3767094649955909E-106
+ EEE Minimum number connections at any proc =    6.9009425118681712E-310
+ EEE Maximum number connections at any proc =         1788
+ EEE Allocated LMNCON =         1788
+ EEE  
+ EEE Average number of neighbors per proc =    3.3333333333333335     
+ EEE Maximum number of neighbors at any proc =            5
+ EEE Minimum number of neighbors at any proc =            2
+ EEE  
+ EEE Average number of external elem. per proc =    192.83333333333334     
+ EEE Maximum number of external elem. per proc =          346
+ EEE Minimum number of external elem. per proc =          101
+ EEE  
+ EEE Maximum size for local matrix (in Kbyte) =    161.98046875000000     
+ EEE Maximum size data in matvec (in Kbyte) =    181.98046875000000     
+ EEE  
+ EEE  ====
+ EEE  
+ EEE Linear Solver Used: BICGSTAB
+ EEE Scaling method: Block Jacobi
+ EEE Preconditioner: Domain Decomposition
+ EEE    with overlap type: Standard
+ EEE    and size of overlap:           0
+ EEE    and subdomain solver: ILUT
+ EEE    without RCM reordering
+ EEE Residual norm: ||r||2 / ||b||2
+ EEE Max. number of iterations:         500
+ EEE Tolerance:   9.9999999999999995E-007
+ EEE  =============================================
+ EEE  
+ EEE  
+ WRITE COEFFICIENTS FOR SEMI-ANALYTICAL HEAT LOSS CALCULAT ION ONTO FILE *SAVE_TABLE*
+
+ ***********************************************************************************************************************************
+ *                                                                                                                                 *
+ *                                                 SUMMARY OF PROGRAM UNITS USED                                                   *
+ *                                                                                                                                 *
+ ***********************************************************************************************************************************
+
+       UNIT    VERSION     DATE                 COMMENTS
+ ___________________________________________________________________________________________________________________________________
+
+      IO       1.0      15 APRIL     1991      OPEN FILES *VERS*, *MESH*, *INCON*, *GENER*, *SAVE*, *LINEQ*, AND *TABLE*          
+      TOUGH2-MP 2.0  October  2005       Using AZTEC iterative solvers                                                            
+                                                                                                                                  
+      INPUT    1.1       28 April    2000      READ ALL DATA PROVIDED THROUGH FILE *INPUT*                                        
+      FLOP     1.0      11 APRIL     1991      CALCULATE NUMBER OF SIGNIFICANT DIGITS FOR FLOATING POINT ARITHMETIC               
+      RFILE    1.1       28 April    2000      INITIALIZE DATA FROM FILES *MESH* OR *MINC*, *GENER*, AND *INCON*                  
+      INDATA   1.1       3 August    1998      PROVIDE PRINTOUT OF MOST DATA PROVIDED THROUGH FILE *INPUT*                        
+                                                                                                                                  
+      CYCIT    1.1       1 May       2000      EXECUTIVE ROUTINE FOR MARCHING IN TIME                                             
+      PMIN     1.0      26 September 1997      initialize block-by-block permeability modifiers                                   
+                                                                                                                                  
+      EOS      1.0      23 August    1999      *EOS1* ... THERMOPHYSICAL PROPERTIES MODULE FOR WATER                              
+      SAT      1.0      22 JANUARY   1990      STEAM TABLE EQUATION: SATURATION PRESSURE AS FUNCTION OF TEMPERATURE               
+      VISW     1.0      22 JANUARY   1990      VISCOSITY OF LIQUID WATER AS FUNCTION OF TEMPERATURE AND PRESSURE                  
+      COWAT    1.0      22 JANUARY   1990      LIQUID WATER DENSITY AND INT. ENERGY AS FUNCTION OF TEMPERATURE AND PRESSURE       
+      SUPST    1.0      29 JANUARY   1990      VAPOR DENSITY AND INTERNAL ENERGY AS FUNCTION OF TEMPERATURE AND PRESSURE          
+      PCAP     2.1      12 JANUARY   1997      CAPILLARY PRESSURE AS FUNCTION OF SATURATION                                       
+                                                                                                                                  
+      BALLA    1.0       5 MARCH     1991      PERFORM SUMMARY BALANCES FOR VOLUME, MASS, AND ENERGY                              
+      TSTEP    1.0       4 MARCH     1991      ADJUST TIME STEPS TO COINCIDE WITH USER-DEFINED TARGET TIMES                       
+                                                                                                                                  
+      MULTI    1.05     3  August    1998      ASSEMBLE ALL ACCUMULATION AND FLOW TERMS                                           
+      QLOSS    2.00     18 March     1996      PERFORM SEMI-ANALYTICAL CALCULATION FOR HEAT EXCHANGE WITH CONFINING BEDS          
+    READTABLE 1.0      29 July   2014      READ COEFFICIENTS FOR HEAT LOSS CALCULATION FROM FILE *TABLE*                          
+      LINEQ 2.00, parallel solver, Sep 2005       Interface for linear equation solvers                                           
+      CONVER   1.1       1 December  1995      UPDATE PRIMARY VARIABLES AFTER CONVERGENCE IS ACHIEVED                             
+                                                                                                                                  
+      OUT      2.2       2 February  2000       FOR EOS1: PRINT RESULTS FOR ELEMENTS, CONNECTIONS, AND SINKS/SOURCES              
+      WRIFI    1.0      22 JANUARY   1990      AT THE COMPLETION OF A TOUGH2 RUN, WRITE PRIMARY VARIABLES ON FILE *SAVE*          
+     WRITABLE 1.0      29 July   2014      WRITE COEFFICIENTS FOR HEAT LOSS CALCULATION ON FILE *SAVE_TABLE*                      
+
+
+ ***********************************************************************************************************************************
+
+
+ END OF TOUGH2 SIMULATION RUN---ELAPSED TIME =     24.643 SEC-- Distribution + CALCULATION TIME =     24.451 SEC-- Part 1 DATA INPUT TIME =    0.192 SEC
+
