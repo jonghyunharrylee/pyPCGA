@@ -1035,7 +1035,8 @@ class PCGA:
                     tmp_cR[strtidx:strtidx+lenRi] = alpha[iR]*uniqueR[iR]
                     strtidx = strtidx+lenRi
                 tmp_cR[strtidx:] = alpha[iR]*uniqueR[iR]
-                
+            
+            tmp_cR[tmp_cR <= 0] = 1.e-16 # temporary fix for zero tmp_cR
             cR_all[:,i:i+1] = Q2_all[:,i:i+1]*np.exp(np.log(tmp_cR).sum()/(n-p))
 
         # evaluate solutions
