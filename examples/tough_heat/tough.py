@@ -74,9 +74,6 @@ class Model:
                 raise ValueError("You need to provide all the required tough parameters")
             
             self.__dict__.update((k, v) for k, v in params.items() if k in required_params)
-            print("_")
-            print(self.nx)
-            print("_")
             
     def create_dir(self,idx=None):
         
