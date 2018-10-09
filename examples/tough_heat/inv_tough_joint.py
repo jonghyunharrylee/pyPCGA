@@ -16,10 +16,14 @@ xlocs = np.arange(5,21,2)
 ylocs = np.array([1,3,5,7])
 zlocs = np.array([3,5,7,9])
 
-forward_model_params = {'nx':nx,'dx':dx, 'deletedir':False, \
-'xlocs': xlocs, 'ylocs':ylocs, 'zlocs':zlocs, \
-'obs_type':['Gas Pressure','Temperature'],'t_obs_interval':86400.*5.}
-
+forward_model_params = {'nx':nx,'dx':dx, 'deletedir':False, 'xlocs': xlocs, 'ylocs':ylocs, 'zlocs':zlocs, \
+    'obs_type':['Gas Pressure','Temperature'],'t_obs_interval':86400.*5.,\
+    'max_timesteps': 9000, 'tstop': 0.32342126E+08, 'const_timestep': 6, 'max_timestep':86400, \
+    'absolute_error': 1, 'relative_error': 5.e-6, 'print_interval': 9000, 'timestep_reduction': 3., \
+    'gravity': 9.81,'default_incons': [100.e4, 10], \
+    'multi_params':{'num_components': 1, 'num_equations':2, 'num_phases':2, 'num_secondary_parameters':6},
+    'solver_params':{'type': 5, 'z_precond':1,'o_precond': 0, 'relative_max_iterations':.8,'closure':1.e-7 },
+    'output_times_params': {'num_times_specified':2, 'time': [0.8640E+04, 0.32342126E+08]}}
 
 m = nx[0]*nx[1]*nx[2]
 N = np.array([nx[0],nx[1],nx[2]])
@@ -33,7 +37,6 @@ prior_cov_scale = np.array([100.0,100.0,10.0])
 
 def kernel(r): return (prior_std ** 2) * np.exp(-r**2)
 
-# forward model wrapper for pyPCGA
 s_true = np.loadtxt("true_30_10_10_gau.txt")
 
 # load noisy observatoins
@@ -45,7 +48,7 @@ std_obs = np.ones_like(obs)
 std_obs[:7400]=1000.
 std_obs[7400:]=0.5
 
-# prepare interface to run as a function
+# forward model wrapper for pyPCGA
 def forward_model(s, parallelization, ncores=None):
     model = tough.Model(forward_model_params)
 
@@ -72,7 +75,6 @@ s_init = np.mean(s_true) * np.ones((m, 1))
 # s_init = np.copy(s_true) # you can try with s_true!
 
 # initialize
-
 prob = PCGA(forward_model, s_init, pts, params, s_true, obs)
 # prob = PCGA(forward_model, s_init, pts, params, s_true, obs, X = X) #if you want to add your own drift X
 

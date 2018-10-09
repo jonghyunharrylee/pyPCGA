@@ -1,5 +1,5 @@
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 
 import math
 import os
@@ -65,44 +65,18 @@ class Model:
             if 'parallel' in params:
                 self.parallel = params['parallel']
             
-            if 'nx' in params:
-                self.nx = params['nx']
-            else:
-                raise NameError('nx is not defined')
-            
-            if 'dx' in params:
-                self.dx = params['dx']
-            else:
-                raise NameError('dx is not defined')
-            
-            if 'xlocs' in params:
-                self.xlocs = params['xlocs']
-            else:
-                raise NameError('xlocs is not defined')
+            required_params = ("nx","dx","xlocs","ylocs","zlocs","obs_type","t_obs_interval", \
+            "max_timesteps","tstop","const_timestep","max_timestep","absolute_error","relative_error","print_interval", \
+            "relative_error","print_interval","timestep_reduction","gravity",'default_incons', \
+            "multi_params","solver_params","output_times_params")
 
-            if 'ylocs' in params:
-                self.ylocs = params['ylocs']
-            else:
-                raise NameError('ylocs is not defined')
-
-            if 'zlocs' in params:
-                self.zlocs = params['zlocs']
-            else:
-                raise NameError('zlocs is not defined')
-
-            if 'obs_type' in params:
-                self.obs_type = params['obs_type']
-            else:
-                raise NameError('obs_type is not defined')
+            if not params.keys() != required_params:
+                raise ValueError("You need to provide all the required tough parameters")
             
-            if 't_obs_interval' in params:
-                self.t_obs_interval = params['t_obs_interval']
-            else:
-                raise NameError('t_obs_interval is not defined')
-
-            #for key in params:
-            #    setattr(self,key,params[key])
-            
+            self.__dict__.update((k, v) for k, v in params.items() if k in required_params)
+            print("_")
+            print(self.nx)
+            print("_")
             
     def create_dir(self,idx=None):
         
@@ -161,18 +135,16 @@ class Model:
         # each parameter can be called as dat.parameter['parameter name']
 
         dat.parameter.update(
-            {'max_timesteps': 9000,                 # maximum number of time steps
-            'tstop': 0.32342126E+08,                   # stop time
-            #'tstop': 10000,                   # stop time
-            'const_timestep': 6,                   # time step length
-            #'max_timestep':3600,                   # maximum time step size
-            'max_timestep':86400,                   # maximum time step size
-            'absolute_error': 1,                   # absolute conexgence tolerance
-            'relative_error': 5.e-6,               # relative convergence tolerance
-            'print_interval': 9000,                # time step interval for printing
-            'timestep_reduction': 3.,              # time step reduction factor
-            'gravity': 9.81,                       # gravitational acceleration
-            'default_incons': [100.e4, 10]})      # default initial conditions
+            {'max_timesteps': self.max_timesteps,           # maximum number of time steps
+            'tstop': self.tstop,                            # stop time
+            'const_timestep': self.const_timestep,          # time step length
+            'max_timestep': self.max_timestep,              # maximum time step size
+            'absolute_error': self.absolute_error,          # absolute conexgence tolerance
+            'relative_error': self.relative_error,          # relative convergence tolerance
+            'print_interval': self.print_interval,          # time step interval for printing
+            'timestep_reduction': self.timestep_reduction,  # time step reduction factor
+            'gravity': self.gravity,                        # gravitational acceleration
+            'default_incons': self.default_incons})         # default initial conditions
             # Pressure in Pa, 100 m water = 10.e5 Pa water, 10 is the temperature in Celcius
         dat.start = True
 
@@ -198,17 +170,16 @@ class Model:
         r1 = rocktype('dfalt', permeability = [0.e-13]*3,density = 2600, porosity = 0.25,conductivity =2.51 , specific_heat = 920,)
         r2 = rocktype('HOMO1', permeability = [9.e-13, 3.e-14, 3.e-14],density = 2600, porosity = 0.25,conductivity =2.51 , specific_heat = 920,)
         r3 = rocktype('OUTB1', permeability = [1.e-13]*3,density = 2600, porosity = 0.25,conductivity =2.51 , specific_heat = 20000,)
-        #r4 = rocktype('HOMO2', permeability = [9.e-15, 3.e-15, 3.e-15],density = 2600, porosity = 0.25,conductivity =2.51 , specific_heat = 920,)
         
         dat.grid.add_rocktype(r2)
         dat.grid.add_rocktype(r3)
         
-        dat.multi.update({'num_components': 1, 'num_equations':2, 'num_phases':2, 'num_secondary_parameters':6})
+        dat.multi.update(self.multi_params)
 
         # SOLVR Table 4.11 page 79 PyTough
-        dat.solver.update({'type': 5, 'z_precond':1,'o_precond': 0, 'relative_max_iterations':.8,'closure':1.e-7 })
+        dat.solver.update(self.solver_params)
         # TIMES table 4.8
-        dat.output_times.update({'num_times_specified':2, 'time': [0.8640E+04, 0.32342126E+08]})
+        dat.output_times.update(self.output_times_params)
 
         # rocktypes:
         # Setting rocktype based on the block's 'z' coordinate
@@ -222,7 +193,6 @@ class Model:
             else: blk.rocktype=r3
         
         for blk, pmx in zip(dat.grid.blocklist[1:], np.exp(s)):
-            #blk.pmx = 1.
             blk.pmx = pmx
         
         # setting the blocks for FOFT
@@ -244,7 +214,6 @@ class Model:
         self.set_measurement_blk(dat, x_obs, y_obs, z_obs, nx)
 
         # adding boundary conditions
-
         center = [150, 150] # [x,y] position of the center
         L = 40     # length of one side of square
         qmax = 15000
@@ -272,10 +241,6 @@ class Model:
 
         simul_obs = np.array(measurements).reshape(-1)
         
-        #data_save = self.read_SAVE()
-        #self.plot_SAVE(dat, data_save, nx, y=4, col = 'Pressure', clim = [380, 420], figname='P')
-        #self.plot_SAVE(dat, data_save, nx, y=4, col = 'Temperature', clim = [0, 60], figname='H')
-
         os.chdir(self.homedir)
         
         if self.deletedir:
@@ -569,8 +534,15 @@ if __name__ == '__main__':
     ylocs = np.array([1,3,5,7])
     zlocs = np.array([3,5,7,9])
 
-    params = {'nx':nx,'dx':dx, 'deletedir':False, 'xlocs': xlocs, 'ylocs':ylocs, 'zlocs':zlocs, 'obs_type':['Gas Pressure','Temperature'],'t_obs_interval':86400.*5.}
-    #params = {'nx':nx,'dx':dx, 'deletedir':False, 'xlocs': xlocs, 'ylocs':ylocs, 'zlocs':zlocs, 'obs_type':['Gas Pressure']}
+    params = {'nx':nx,'dx':dx, 'deletedir':False, 'xlocs': xlocs, 'ylocs':ylocs, 'zlocs':zlocs, \
+    'obs_type':['Gas Pressure','Temperature'],'t_obs_interval':86400.*5.,\
+    'max_timesteps': 9000, 'tstop': 0.32342126E+08, 'const_timestep': 6, 'max_timestep':86400, \
+    'absolute_error': 1, 'relative_error': 5.e-6, 'print_interval': 9000, 'timestep_reduction': 3., \
+    'gravity': 9.81,'default_incons': [100.e4, 10], \
+    'multi_params':{'num_components': 1, 'num_equations':2, 'num_phases':2, 'num_secondary_parameters':6},
+    'solver_params':{'type': 5, 'z_precond':1,'o_precond': 0, 'relative_max_iterations':.8,'closure':1.e-7 },
+    'output_times_params': {'num_times_specified':2, 'time': [0.8640E+04, 0.32342126E+08]}}
+
     par = False # parallelization false
 
     mymodel = tough.Model(params)
@@ -581,6 +553,11 @@ if __name__ == '__main__':
     simul_obs = mymodel.run(s,par)
     print('simulation run: %f sec' % (time() - stime))
 
+    obs_true = np.loadtxt('obs_true.txt')
+    print(np.linalg.norm(obs_true.reshape(-1) - simul_obs.reshape(-1)))
+    import sys
+    sys.exit(0)
+
     #obs = np.copy(simul_obs)
     #nobs = obs.shape[0]
     #obs[:nobs/2] = simul_obs[:nobs/2] + 10000.*np.random.randn(nobs/2,1)
@@ -589,13 +566,10 @@ if __name__ == '__main__':
     #np.savetxt('obs.txt',obs)
     #np.savetxt('obs_pres.txt',obs[:nobs/2])
     #np.savetxt('obs_temp.txt',obs[nobs/2:])
-    
-    #import sys
-    #sys.exit(0)
 
     ncores = 6
     nrelzs = 12
-    
+
     print('(2) parallel run with ncores = %d' % ncores)
     par = True # parallelization false
     srelz = np.zeros((np.size(s,0),nrelzs),'d')
