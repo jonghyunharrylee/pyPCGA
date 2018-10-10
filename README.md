@@ -25,7 +25,9 @@ version 0.2 will include
 
 * [Bathymetry estimation example using STWAVE](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/stwave_duck/inversion_stwave.ipynb) (with USACE-ERDC-CHL)
 
-* TOUGH2/MODFLOW-USG/SEAWAT/MODFLOW6/E4D/ADH examples coming soon! 
+* [Permeability estimation example using TOUGH2](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/tough_heat/joint_inversion_example_tough.ipynb) (with Amalia Kokkianki, USFCA)
+
+* MODFLOW-USG/SEAWAT/MODFLOW6/E4D/ADH examples coming soon! 
 
 # Credits
 
