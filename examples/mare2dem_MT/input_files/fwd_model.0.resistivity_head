@@ -1,0 +1,17 @@
+Format:                     mare2dem_1.1                     ! input 
+Model File:                 fwd_model.poly                   ! input 
+Data File:                  fwd_model.emdata                 ! input 
+Settings File:              mare2dem.settings                ! input 
+Penalty File:               fwd_model.penalty                ! input (required for inversion) 
+Maximum Iterations:         100                              ! input (optional for inversion) 
+Bounds Transform:           bandpass                         ! input (optional for inversion) 
+Global Bounds:              0.1          ,100000             ! input (optional for inversion) 
+Print Level:                1                                ! input (optional for inversion) 
+Target Misfit:              1                                ! input (required for inversion) 
+Misfit Decrease Threshold:  0.85                             ! input (optional, 0 <= n < 1). Iteration ends if RMS < n*Starting_RMS 
+Converge Slowly:            no                               ! input (optional). Target misfit = max(n*Starting_RMS, Target Misfit) for each iteration 
+Lagrange Value:             5                                ! input/output (required for inversion) 
+Model Roughness:                                             ! output from inversion 
+Model Misfit:                                                ! output from inversion 
+Date/Time:                  08-Nov-2018 00:34:35             ! output from inversion 
+Anisotropy:                 isotropic                        ! input 

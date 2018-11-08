@@ -1,0 +1,18 @@
+Tolerance (%):                    1  ! target solution accuracy (not guaranteed, but the code tries hard to get there).
+
+!
+! MT settings:
+!
+MT Receivers per group:           40    ! adjust to maximize cluster usage 
+MT frequencies per group:         1     ! this should be 1, or no more than the number of freqs per decade if you want to lighten the load
+
+
+Print adaptive:                   no   ! yes prints the adaptive refinement iteration stats
+Print decomposition:              no   ! yes prints the parallel decomposition settings
+
+!
+! Advice:
+!
+! See the Parallel Decomposition terminal output when running MARE2DEM.
+! Try adjusting the receivers per group so that the total number of refinement groups
+! is at least as large as the number of MPI processors on your cluster.
