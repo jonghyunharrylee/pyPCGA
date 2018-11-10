@@ -27,7 +27,9 @@ version 0.2 will include
 
 * [Permeability estimation example using TOUGH2](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/tough_heat/joint_inversion_example_tough.ipynb) (with Amalia Kokkianki, USFCA)
 
-* MODFLOW-USG/SEAWAT/MODFLOW6/E4D/ADH examples coming soon! 
+* Electrical conductivity estimation example using magnetotelluric (MT) survey with MARE2DEM - python code example available in example directory and notebook example will be uploaded soon soon (with Niels Grobbe, UHM)
+
+* MODFLOW-USG/SEAWAT/MODFLOW6/E4D/ADH/MARE2DEM examples coming soon! 
 
 # Credits
 
