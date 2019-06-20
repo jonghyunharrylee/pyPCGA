@@ -11,7 +11,7 @@ updates
 
 version 0.2 will include
 - automatic covariance model parameter calibration
-- link with [FMM] (https://github.com/ruoxi-wang/PBBFMM3D) and HMatrix to support unstructured grids 
+- link with [FMM](https://github.com/ruoxi-wang/PBBFMM3D) and HMatrix to support unstructured grids 
 
 # Example Notebooks
 
