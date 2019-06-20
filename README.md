@@ -11,7 +11,7 @@ updates
 
 version 0.2 will include
 - automatic covariance model parameter calibration
-- link with FMM (pyFMM3D) and HMatrix (pyHmatrix) to support unstructured grids 
+- link with (https://github.com/ruoxi-wang/PBBFMM3D) [FMM] and HMatrix to support unstructured grids 
 
 # Example Notebooks
 
@@ -42,6 +42,8 @@ Code contributors include:
 * Ty Hesser (STWAVE example)
 
 FFT-based matvec code is adapted from Arvind Saibaba's work (https://github.com/arvindks/kle). 
+
+FMM-based code (https://arxiv.org/abs/1903.02153) will be incorporated in version 0.2 
 
 # References
 
