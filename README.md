@@ -29,6 +29,8 @@ version 0.2 will include
 
 * [Electrical conductivity estimation example using magnetotelluric (MT) survey with MARE2DEM](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/mare2dem_MT/inversion_mare2dem.ipynb) (with Niels Grobbe, UHM) 
 
+* [DNAPL plume estimation using hydraulic head, self-potential (SP) and partitioning tracer data](https://github.com/XueyuanK/DNAPL_Inv) (with Xueyuan Kang et al.)
+
 * MODFLOW-USG/SEAWAT/MODFLOW6/E4D/ADH/MARE2DEM examples coming soon! 
 
 # Credits
