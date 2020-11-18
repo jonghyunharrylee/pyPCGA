@@ -6,11 +6,11 @@ version 0.1
 
 updates
 - Exact preconditioner construction (inverse of cokriging/saddle-point matrix) using generalized eigendecomposition [Lee et al., WRR 2016, Saibaba et al, NLAA 2016]
-- Fast predictive model validation using cR/Q2 criteria [Kitanidis, Math Geol 1991] ([Lee et al., 2018 in preparation]) 
+- Fast hyperparameter tuning and predictive model validation using cR/Q2 criteria [Kitanidis, Math Geol 1991] ([Lee et al., 2021 in preparation]) 
 - Fast posterior variance/std computation using exact preconditioner
 
 version 0.2 will include
-- automatic covariance model parameter calibration
+- automatic covariance model parameter calibration with nearshore application example
 - link with [FMM](https://github.com/ruoxi-wang/PBBFMM3D) and HMatrix to support unstructured grids 
 
 # Example Notebooks
