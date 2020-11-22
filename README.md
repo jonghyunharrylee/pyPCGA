@@ -15,7 +15,7 @@ version 0.2 will include
 
 # Courses
 
-(https://www2.hawaii.edu/~jonghyun/classes/S21/CEE696/) (UH CEE696 course on data assimilation) 
+* [UH CEE696 course on data assimilation](https://www2.hawaii.edu/~jonghyun/classes/S21/CEE696/)
 
 # Example Notebooks
 
