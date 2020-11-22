@@ -13,6 +13,10 @@ version 0.2 will include
 - automatic covariance model parameter calibration with nearshore application example
 - link with [FMM](https://github.com/ruoxi-wang/PBBFMM3D) and HMatrix to support unstructured grids 
 
+# Courses
+
+(https://www2.hawaii.edu/~jonghyun/classes/S21/CEE696/) (UH CEE696 course on data assimilation) 
+
 # Example Notebooks
 
 * [1D linear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/linear_inverse_problem_pumping_history_identification.ipynb) (from Stanford 362G course)
