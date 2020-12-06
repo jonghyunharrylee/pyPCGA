@@ -1380,7 +1380,7 @@ class PCGA:
         elif Ri.shape[0] == 1 and Ri.ndim == 1:
             Psi = np.dot(HZ,HZ.T)+ np.multiply(Ri,np.eye(n,dtype='d'))
         else:
-            Psi = np.dot(HZ,HZ.T)+ np.diag(Ri)
+            Psi = np.dot(HZ,HZ.T)+ np.diag(Ri.reshape(-1)) # reshape Ri from (n,1) to (n,) for np.diag
 
         HQ = np.dot(HZ,Z.T)
 
