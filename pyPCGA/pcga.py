@@ -615,9 +615,7 @@ class PCGA:
         sqrtGDCovfun = LinearOperator((n, n_pc), matvec=mv, rmatvec=rmv, dtype='d')
         #sigma_cR = svds(sqrtGDCovfun, k=min(n - p - 1, n_pc - 1), which='LM', maxiter=n, return_singular_vectors=False)
 
-        if n_pc < n-p:
-            sigma_cR = svds(sqrtGDCovfun, k= n_pc, which='LM', maxiter=n-p, return_singular_vectors=False)
-        elif n_pc == n-p:
+        if n_pc <= n-p:
             sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter=n-p, return_singular_vectors=False)
         else:
             sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter=n_pc, return_singular_vectors=False)
@@ -662,10 +660,11 @@ class PCGA:
             b[:n] = self.obs[:] - simul_obs + Hs[:]
 
             x = np.linalg.solve(A, b)
-
+             
             ##Extract components and return final solution
-            xi = x[0:n,np.newaxis]
-            beta_all[:,i:i+1] = x[n:n+p,np.newaxis]
+            # x dimension (n+p,1)
+            xi = x[0:n,:]
+            beta_all[:,i:i+1] = x[n:n+p,:]
             s_hat_all[:,i:i+1] = np.dot(self.X,beta_all[:,i:i+1]) + np.dot(HQ.T,xi)
             
             # check prescribed solution range for LM evaluations
