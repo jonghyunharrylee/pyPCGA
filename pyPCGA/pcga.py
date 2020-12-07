@@ -678,9 +678,23 @@ class PCGA:
             Q2_all[:,i:i+1] = np.dot(b[:n].T,xi)/(n-p)
 
             tmp_cR = np.zeros((n-p,1),'d')
+ 
+            if R.shape[0] == 1:    
+                tmp_cR[:] = np.multiply(alpha[i],self.R) 
+                tmp_cR[:sigma_cR.shape[0]] = tmp_cR[:sigma_cR.shape[0]] + (sigma_cR[:,np.newaxis])**2
+            else: # need to fix this part later 12/7/2020
+                tmp_cR[:] = np.multiply(alpha[i],R[:-p])
                 
-            tmp_cR[:] = np.multiply(alpha[i],self.R) 
-            tmp_cR[:sigma_cR.shape[0]] = tmp_cR[:sigma_cR.shape[0]] + (sigma_cR[:,np.newaxis])**2
+                uniqueR = np.unique(R)
+                lenR = len(uniqueR)
+                lenRi = int((n - sigma_cR.shape[0])/lenR)
+                strtidx = sigma_cR.shape[0]
+                for iR in range(lenR):
+                    tmp_cR[strtidx:strtidx+lenRi] = alpha[iR]*uniqueR[iR]
+                    strtidx = strtidx+lenRi
+                tmp_cR[strtidx:] = alpha[iR]*uniqueR[iR]
+            
+            tmp_cR[tmp_cR <= 0] = 1.e-16 # temporary fix for zero tmp_cR
             cR_all[:,i:i+1] = Q2_all[:,i:i+1]*np.exp(np.log(tmp_cR).sum()/(n-p))
 
         # evaluate solutions       
