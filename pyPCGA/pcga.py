@@ -1129,7 +1129,7 @@ class PCGA:
             
         #Solve geostatistical system
         if direct:
-            s_hat, beta, simul_obs_new = self.DirectSolve(s_cur, simul_obs, recompute = True)
+            s_hat, beta, simul_obs_new = self.DirectSolve(s_cur, simul_obs)
         else:
             #Construct preconditioner	
             #if precond:	self.ConstructPreconditioner()
