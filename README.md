@@ -35,7 +35,9 @@ version 0.2 will include
 
 * [DNAPL plume estimation using hydraulic head, self-potential (SP) and partitioning tracer data](https://github.com/XueyuanK/DNAPL_Inv) (with Xueyuan Kang et al.)
 
-* MODFLOW-USG/SEAWAT/MODFLOW6/E4D/ADH/MARE2DEM examples coming soon! 
+* [ERT example using E4D](https://github.com/jonghyunharrylee/pyPCGA/tree/master/examples/ERT_E4D) will be completed soon.
+* 
+* MODFLOW-USG/SEAWAT/MODFLOW6 examples coming soon! 
 
 # Credits
 
