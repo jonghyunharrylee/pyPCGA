@@ -1,0 +1,11 @@
+2			run mode
+agu.1.node    	mesh configuration file name
+agu.srv	  	survey file
+agu.sig  	conductivity file
+agu.out		output options file
+
+NOTE:
+1) run e4d to build the mesh 
+2) change the run mode to 2, and change two_blocks.cfg to twoblocks.1.node
+3) run e4d to execute the forward simulation
+	
