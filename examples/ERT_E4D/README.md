@@ -1,6 +1,6 @@
 #### pyPCGA E4D example
 
-This is code example from AGU 2014 presentation by Peter Kitanidis. The code is rewritten in python for ICEG2021.
+This is code example from AGU 2014 presentation by Peter Kitanidis. The code is rewritten in python to illustrate a pyPCGA library ERT application example.
 
 The code needs to be cleaned and updated with notebook example for reproducible results. For now, you need to adjust the number of cores used in E4D and pyPCGA. I will update this soon. 
 
