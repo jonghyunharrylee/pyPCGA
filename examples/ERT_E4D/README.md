@@ -2,7 +2,7 @@
 
 This is code example from AGU 2014 presentation by Peter Kitanidis. The code is rewritten in python to illustrate a pyPCGA library ERT application example. 
 
-One can find the detailed explanation in (http://arxiv.org/abs/2202.00059)[a short arXiv writeup "Accelerated 3D Electrical Resistivity Tomography with a Scalable Jacobian-free Approach"]
+One can find the detailed explanation in [a short arXiv writeup "Accelerated 3D Electrical Resistivity Tomography with a Scalable Jacobian-free Approach"](http://arxiv.org/abs/2202.00059)
 
 The code needs to be cleaned and updated with notebook example for reproducible results. For now, you need to adjust the number of cores used in E4D and pyPCGA. I will update this soon. 
 
