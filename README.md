@@ -19,9 +19,11 @@ version 0.2 will include
 
 # Example Notebooks
 
+1D linear inversion example below will be helpful to understand how pyPCGA can be implemented. Please check Google Colab examples. 
+
 * [1D linear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/linear_inverse_problem_pumping_history_identification.ipynb) (from Stanford 362G course) [Google Colab example](https://colab.research.google.com/drive/13lpxTYgNxOc1gYm2bMvIaTpGFejTVX0r?usp=sharing)
 
-* [1D nonlinear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/nonlinear_inverse_problem_pumping_history_identification.ipynb) (from Stanford 362G course)
+* [1D nonlinear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/nonlinear_inverse_problem_pumping_history_identification.ipynb) (from Stanford 362G course) [Google Colab example](https://colab.research.google.com/drive/1NPX-q_os5_kVAyFBDOhX_BJJMWUti0u_?usp=sharing)
 
 * [Hydraulic conductivity estimation example using USGS-FloPy (MODFLOW)](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/modflow_flopy/inversion_modflow.ipynb) [Lee and Kitanidis, 2014]
 
@@ -64,6 +66,8 @@ FMM-based code (https://arxiv.org/abs/1903.02153) will be incorporated in versio
 - PK Kitanidis, J Lee, Principal Component Geostatistical Approach for large‐dimensional inverse problems, WRR 50 (7), 5428-5443
 
 # Applications
+
+- T. Kadeethum, D. O'Malley, JN Fuhg, Y. Choi, J. Lee, HS Viswanathan and N. Bouklas, A framework for data-driven solution and parameter estimation of PDEs using conditional generative adversarial networks, Nature Computational Science, 819–829, 2021
 
 - J Lee, H Ghorbanidehno, M Farthing, T. Hesser, EF Darve, and PK Kitanidis, Riverine bathymetry imaging with indirect observations, Water Resources Research, 54(5): 3704-3727, 2018
 
