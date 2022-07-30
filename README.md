@@ -16,7 +16,7 @@ version 0.2 will include
 # Installation 
 
 ```
-pip install git+https://github.com
+python -m pip install git+https://github.com/jonghyunharrylee/pyPCGA.git
 ```
 
 # Courses
