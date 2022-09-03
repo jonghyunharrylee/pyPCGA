@@ -2,7 +2,7 @@
     toeplitz matrix-vector mutliplication adapted from Arvind Saibaba's code
 '''
 import numpy as np
-from IPython.core.debugger import Tracer; debug_here = Tracer()
+#from IPython.core.debugger import Tracer; debug_here = Tracer()
 
 __all__ = ['CreateRow', 'ToeplitzProduct', 'Realizations']
 
