@@ -7,7 +7,7 @@ from inspect import getsource
 
 from scipy.sparse.linalg import gmres, minres, svds, eigsh # IterativeSolve
 from scipy.sparse.linalg import LinearOperator # Matrix-free IterativeSolve
-from IPython.core.debugger import Tracer; debug_here = Tracer()
+#from IPython.core.debugger import Tracer; debug_here = Tracer()
 #from pdb import set_trace
 
 # todo remove either Z or d*U
