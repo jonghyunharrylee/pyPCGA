@@ -1301,6 +1301,8 @@ class PCGA:
 
         if self.post_cov or self.post_cov == "diag": # assume linesearch result close to the current solution
             start = time()
+            if self.i_best is None:
+                self.i_best = 0
             if self.post_diag_direct:
                 print("start direct posterior variance computation - this option works for O(nobs) ~ 100")
                 self.post_diagv = self.ComputePosteriorDiagonalEntriesDirect(self.HZ, self.HX, self.i_best, self.R)
