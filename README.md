@@ -31,7 +31,7 @@ python -m pip install git+https://github.com/jonghyunharrylee/pyPCGA.git
 
 * [1D nonlinear inversion example](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/pumping_history_identification/nonlinear_inverse_problem_pumping_history_identification.ipynb) (from Stanford 362G course) [Google Colab example](https://colab.research.google.com/drive/1NPX-q_os5_kVAyFBDOhX_BJJMWUti0u_?usp=sharing)
 
-* [Hydraulic conductivity estimation example using USGS-FloPy (MODFLOW)](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/modflow_flopy/inversion_modflow.ipynb) [Lee and Kitanidis, 2014]
+* [Hydraulic conductivity estimation example using USGS-FloPy (MODFLOW)](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/modflow_flopy/inversion_modflow.ipynb) [Lee and Kitanidis, 2014] [Google Colab example](https://colab.research.google.com/drive/1djVDZNjh390czXlzBbu7FvRQne9mf8SP?usp=sharing)
 
 * [Tracer tomography example using Crunch](https://github.com/jonghyunharrylee/pyPCGA/blob/master/examples/tracer_tomography_ade_crunch/inversion_example_advection_diffusion_crunchtope.ipynb) (with Mahta Ansari from UIUC Druhan Lab)
 
