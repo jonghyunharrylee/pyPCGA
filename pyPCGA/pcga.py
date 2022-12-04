@@ -7,6 +7,7 @@ from inspect import getsource
 
 from scipy.sparse.linalg import gmres, minres, svds, eigsh # IterativeSolve
 from scipy.sparse.linalg import LinearOperator # Matrix-free IterativeSolve
+from scipy._lib._util import check_random_state # To handle random_state
 #from IPython.core.debugger import Tracer; debug_here = Tracer()
 #from pdb import set_trace
 
@@ -19,7 +20,48 @@ class PCGA:
     every values are represented as 2D np array
     """
 
-    def __init__(self, forward_model, s_init, pts, params, s_true = None, obs = None, obs_true = None, X = None):
+    def __init__(self, forward_model, s_init, pts, params, s_true = None, obs = None, obs_true = None, X = None, random_state = None):
+        """
+        Initialize the instance.
+
+        Parameters
+        ----------
+        forward_model : Callable
+            Wrapper for forward model obs = f(s). See a template python file in each 
+            example for more information.
+        s_init : numpy.ndarray
+            m by 1 initial solution for Gauss-Newton method. In theory, the choice of s_init 
+            does not affect the estimation while total number of iterations/number of forward 
+            model runs depend on `s_init`.
+        pts : numpy.ndarray
+            m by dimension (e.g. m by 3 for 3D problem) spatial grid coordinates
+            Note: this input is required for inverse problem in unstructured grid and 
+            plotting. I think this is not required in the initialization and may be 
+            removed in the next version.
+        params : Dict[str, Any]
+            Auxiliary forward model parameters.
+        s_true : numpy.ndarray, optional
+            m by 1 true solution for synthetic problems. Can be used for generating 
+            synthetic observations and measuring inversion performance by 
+            providing RMSE of estimates, by default None.
+        obs : numpy.ndarray, optional
+            n measurements for inversion. If obs is not given but s_true or obs_true is 
+            provided, it will generate synthetic noisy data for inversion to 
+            proceed, by default None.
+        obs_true : numpy.ndarray, optional
+            True observation (without noise) for synthetic problem, by default None
+        X : numpy.ndarray, optional
+            Introduce user-defined drift/trend. If not given, it uses a constant unknown 
+            prior mean. See the parameter drift, by default None
+        random_state : {None, int, `numpy.random.Generator`,`numpy.random.RandomState`}, optional
+            Pseudorandom number generator state used to generate resamples.
+            If `random_state` is ``None`` (or `np.random`), the
+            `numpy.random.RandomState` singleton is used.
+            If `random_state` is an int, a new ``RandomState`` instance is used,
+            seeded with `random_state`.
+            If `random_state` is already a ``Generator`` or ``RandomState``
+            instance then that instance is used.
+        """
         print('##### PCGA Inversion #####')
         print('##### 1. Initialize forward and inversion parameters')
               
@@ -101,6 +143,12 @@ class PCGA:
         #Eigenvalues and eigenvectors of the prior covariance matrix
         self.priorU = None
         self.priord = None
+
+        # Random state for v0 vector used by eigsh and svds
+        if random_state is not None:
+            self.random_state = check_random_state(random_state)
+        else: 
+            self.random_state = None
 
         if self.matvec == 'FFT':
             self.xmin = params['xmin']
@@ -298,6 +346,12 @@ class PCGA:
         print("   Line search                                      : %s" % (self.linesearch))
         print("-----------------------------------------------------------")
 
+    def get_v0(self):
+        if self.random_state is not None:
+            return self.random_state.uniform(size=(min(self.Q.shape), self.k))
+        else:
+            return None
+
     def DriftFunctions(self, method):
         if method == 'constant':
             self.p = 1
@@ -344,7 +398,7 @@ class PCGA:
         if method == 'arpack':
             #from scipy.sparse.linalg import eigsh
             #debug_here()
-            self.priord, self.priorU = eigsh(self.Q, k = n_pc)
+            self.priord, self.priorU = eigsh(self.Q, k = n_pc, v0=self.get_v0())
             self.priord = self.priord[::-1]
             self.priord = self.priord.reshape(-1,1) # make a column vector
             self.priorU = self.priorU[:,::-1]
@@ -616,9 +670,9 @@ class PCGA:
         #sigma_cR = svds(sqrtGDCovfun, k=min(n - p - 1, n_pc - 1), which='LM', maxiter=n, return_singular_vectors=False)
 
         if n_pc <= n-p:
-            sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter=n-p, return_singular_vectors=False)
+            sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter=n-p, return_singular_vectors=False, random_state=self.random_state)
         else:
-            sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter=n_pc, return_singular_vectors=False)
+            sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter=n_pc, return_singular_vectors=False, random_state=self.random_state)
 
         print("computed Jacobian-Matrix products in : %f secs" % (start1 - start2))
         #print("computed Jacobian-Matrix products in : %f secs, eig. val. of generalized data covariance : %f secs" % (start1 - start2,time()-start2))
@@ -792,9 +846,9 @@ class PCGA:
             #sigma_cR = svds(sqrtGDCovfun, k= min(n-p-1,n_pc-1), which='LM', maxiter = n, return_singular_vectors=False)
 
             if n_pc <= n-p:
-                sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter = n, return_singular_vectors=False)
+                sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter = n, return_singular_vectors=False, random_state=self.random_state)
             else:
-                sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter = n_pc, return_singular_vectors=False)
+                sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter = n_pc, return_singular_vectors=False, random_state=self.random_state)
 
             if self.verbose:
                 print("eig. val. of generalized data covariance : %f secs (%8.2e, %8.2e, %8.2e)" % (time()-start2,sigma_cR[0],sigma_cR.min(),sigma_cR.max()))
@@ -838,11 +892,11 @@ class PCGA:
             DataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
 
             if n_pc < n:
-                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc, which='LM', maxiter=n)
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc, which='LM', maxiter=n, v0=self.get_v0())
             elif n_pc == n:
-                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc-1, which='LM', maxiter=n)
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc-1, which='LM', maxiter=n, v0=self.get_v0())
             else:
-                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n-1, which='LM', maxiter=n_pc)
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n-1, which='LM', maxiter=n_pc, v0=self.get_v0())
             
             #print("eig. val. of sqrt data covariance (%8.2e, %8.2e, %8.2e)" % (Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
 #print(Psi_sigma)
@@ -1029,11 +1083,11 @@ class PCGA:
                 sqrtGDCovfun = LinearOperator( (n,n), matvec=mv, rmatvec = rmv, dtype = 'd')
                 
                 if n_pc < n-p:
-                    sigma_cR = svds(sqrtGDCovfun, k= n_pc, which='LM', maxiter = n-p, return_singular_vectors=False)
+                    sigma_cR = svds(sqrtGDCovfun, k= n_pc, which='LM', maxiter = n-p, return_singular_vectors=False, random_state=self.random_state)
                 elif n_pc == n-p:
-                    sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter = n-p, return_singular_vectors=False)
+                    sigma_cR = svds(sqrtGDCovfun, k= n_pc-1, which='LM', maxiter = n-p, return_singular_vectors=False, random_state=self.random_state)
                 else:
-                    sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter = n_pc, return_singular_vectors=False)
+                    sigma_cR = svds(sqrtGDCovfun, k= n-p, which='LM', maxiter = n_pc, return_singular_vectors=False, random_state=self.random_state)
                     
                 tmp_cR = np.zeros((n-p,1),'d')
                 tmp_cR[:] = np.multiply(alpha[i],R[:-p])
