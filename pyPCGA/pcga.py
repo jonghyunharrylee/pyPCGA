@@ -348,7 +348,7 @@ class PCGA:
 
     def get_v0(self):
         if self.random_state is not None:
-            return self.random_state.uniform(size=(min(self.Q.shape), self.k))
+            return self.random_state.uniform(size=(self.Q.shape[0],))
         else:
             return None
 
