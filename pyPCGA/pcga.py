@@ -346,9 +346,9 @@ class PCGA:
         print("   Line search                                      : %s" % (self.linesearch))
         print("-----------------------------------------------------------")
 
-    def get_v0(self):
+    def get_v0(self, size):
         if self.random_state is not None:
-            return self.random_state.uniform(size=(self.Q.shape[0],))
+            return self.random_state.uniform(size=(size,))
         else:
             return None
 
@@ -398,7 +398,7 @@ class PCGA:
         if method == 'arpack':
             #from scipy.sparse.linalg import eigsh
             #debug_here()
-            self.priord, self.priorU = eigsh(self.Q, k = n_pc, v0=self.get_v0())
+            self.priord, self.priorU = eigsh(self.Q, k = n_pc, v0=self.get_v0(self.Q.shape[0]))
             self.priord = self.priord[::-1]
             self.priord = self.priord.reshape(-1,1) # make a column vector
             self.priorU = self.priorU[:,::-1]
@@ -892,11 +892,11 @@ class PCGA:
             DataCovfun = LinearOperator((n, n), matvec=pmv, rmatvec=prmv, dtype='d')
 
             if n_pc < n:
-                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc, which='LM', maxiter=n, v0=self.get_v0())
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc, which='LM', maxiter=n, v0=self.get_v0(n))
             elif n_pc == n:
-                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc-1, which='LM', maxiter=n, v0=self.get_v0())
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n_pc-1, which='LM', maxiter=n, v0=self.get_v0(n))
             else:
-                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n-1, which='LM', maxiter=n_pc, v0=self.get_v0())
+                [Psi_sigma,Psi_U] = eigsh(DataCovfun, k=n-1, which='LM', maxiter=n_pc, v0=self.get_v0(n))
             
             #print("eig. val. of sqrt data covariance (%8.2e, %8.2e, %8.2e)" % (Psi_sigma[0], Psi_sigma.min(), Psi_sigma.max()))
 #print(Psi_sigma)
