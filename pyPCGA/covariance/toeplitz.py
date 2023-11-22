@@ -111,7 +111,7 @@ def Realizations(row, N):
         n = circ.shape
 
         eps = np.random.normal(0, 1, n) + 1j * np.random.normal(0, 1, n)
-        res = np.fft.ifft(np.sqrt(np.fft.fft(circ)) * eps) * np.sqrt(n)
+        res = np.fft.ifft(np.sqrt(np.fft.fft(circ)) * eps) * np.sqrt(n[0])
 
         r1 = np.real(res[0:N[0]])
         r2 = np.imag(res[0:N[0]])
