@@ -56,7 +56,8 @@ Code contributors include:
 * Jonghyun Harry Lee 
 * Matthew Farthing
 * Ty Hesser (STWAVE example)
-
+* Antoine COLLET
+ 
 FFT-based matvec code is adapted from Arvind Saibaba's work (https://github.com/arvindks/kle). 
 
 FMM-based code (https://arxiv.org/abs/1903.02153) will be incorporated in version 0.2 
