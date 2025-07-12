@@ -5,6 +5,12 @@ import sys,os
 from .covariance.mat import CovarianceMatrix, Residual
 from inspect import getsource
 
+import scipy
+
+SCIPY_GMRES_USE_RTOL=False # check scipy version for tol => rtol update in iterative solvers 
+if scipy.__version__ >= '1.14':
+    SCIPY_GMRES_USE_RTOL=True
+
 from scipy.sparse.linalg import gmres, minres, svds, eigsh # IterativeSolve
 from scipy.sparse.linalg import LinearOperator # Matrix-free IterativeSolve
 #from IPython.core.debugger import Tracer; debug_here = Tracer()
@@ -967,18 +973,35 @@ class PCGA:
                 P = LinearOperator( (n+p,n+p), matvec=Pmv, rmatvec = Pmv, dtype = 'd')
 
                 restart = 50 if 'gmresrestart' not in self.params else self.params['gmresrestart']
-                x, info = gmres(Afun, b, tol=itertol, restart=restart, maxiter=solver_maxiter, callback=callback, M=P)
+                
+                if SCIPY_GMRES_USE_RTOL: # ver 1.14 use rtol
+                    x, info = gmres(Afun, b, rtol=itertol, restart=restart, maxiter=solver_maxiter, callback=callback, M=P)
+                else:
+                    x, info = gmres(Afun, b, tol=itertol, restart=restart, maxiter=solver_maxiter, callback=callback, M=P)
+                
                 if self.verbose: print("-- Number of iterations for gmres %g" %(callback.itercount()))
                 if info != 0: # if not converged
                     callback = Residual()
-                    x, info = minres(Afun, b, x0 = x, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+                    if SCIPY_GMRES_USE_RTOL: # ver 1.14 use rtol
+                        x, info = minres(Afun, b, x0 = x, rtol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+                    else:
+                        x, info = minres(Afun, b, x0 = x, tol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+                    
                     if self.verbose: print("-- Number of iterations for minres %g and info %d" %(callback.itercount(),info))
             else:
-                x, info = minres(Afun, b, tol = itertol, maxiter = solver_maxiter, callback = callback)
+                if SCIPY_GMRES_USE_RTOL: # ver 1.14 use rtol
+                    x, info = minres(Afun, b, rtol=itertol, maxiter=solver_maxiter, callback=callback, M=P)
+                else:
+                    x, info = minres(Afun, b, tol = itertol, maxiter = solver_maxiter, callback = callback)
+                
                 if self.verbose: print("-- Number of iterations for minres %g" %(callback.itercount()))
 
                 if info != 0:
-                    x, info = gmres(Afun, b, x0=x, tol=itertol, maxiter=solver_maxiter, callback=callback)
+                    if SCIPY_GMRES_USE_RTOL: # ver 1.14 use rtol
+                        x, info = gmres(Afun, b, x0=x, rtol=itertol, maxiter=solver_maxiter, callback=callback)
+                    else:
+                        x, info = gmres(Afun, b, x0=x, tol=itertol, maxiter=solver_maxiter, callback=callback)
+                    
                     print("-- Number of iterations for gmres: %g, info: %d, tol: %f" % (callback.itercount(),info, itertol))
 
             # Extract components and postprocess
