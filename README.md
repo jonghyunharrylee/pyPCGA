@@ -49,7 +49,7 @@ python -m pip install git+https://github.com/jonghyunharrylee/pyPCGA.git
 
 # Credits
 
-pyPCGA is based on Lee et al. [2016] and currently used for Stanford-USACE ERDC project led by EF Darve and PK Kitanidis and NSF EPSCoR `Ike Wai project. 
+pyPCGA is based on Lee et al. [2016] and was used for Stanford-USACE ERDC project led by EF Darve and PK Kitanidis and NSF EPSCoR `Ike Wai project. 
 
 Code contributors include:
 
